@@ -371,3 +371,27 @@ html[data-theme="dark"] body::before{opacity:.04}
 .buy-row span{color:var(--mute);letter-spacing:.1em;font-size:.75rem}
 .buy-row a{font-weight:500}
 .prose a:has(img){display:block}
+/* big CTA button */
+.cta{margin:1.75rem 0}
+.btn-xl{display:inline-flex;flex-direction:column;gap:.25rem;padding:1.05em 2.2em;font-size:1.0625rem;
+  font-weight:700;letter-spacing:.01em;background:var(--shu);color:#fff;text-decoration:none;
+  box-shadow:6px 6px 0 var(--indigo);transition:transform .15s ease,box-shadow .15s ease}
+.btn-xl span{font-size:.75rem;font-weight:400;letter-spacing:.2em;opacity:.85}
+.btn-xl:hover{color:#fff;transform:translate(3px,3px);box-shadow:3px 3px 0 var(--indigo)}
+.btn-xl:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--indigo)}
+/* discography grid */
+.disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:26px;list-style:none;padding:0;margin:1.5rem 0 0}
+.disc-grid li{min-width:0}
+.disc-art{display:block}
+.disc-grid img{width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--rule)}
+.sleeve-ph{aspect-ratio:1;border:1px solid var(--rule);background:var(--paper-2);display:flex;align-items:center;
+  justify-content:center;padding:14px;text-align:center}
+.sleeve-ph span{font-family:"Zen Old Mincho",serif;font-size:1rem;line-height:1.3;color:var(--mute)}
+.disc-grid h4{font:500 .9375rem/1.35 "Zen Kaku Gothic New",sans-serif;margin:.6rem 0 .3rem}
+.disc-grid .shops{display:flex;gap:.8rem;flex-wrap:wrap;font-size:.8125rem;margin:0}
+.records ul.disc-grid li{display:block;border-top:0;padding:0;gap:0}
+.prose a.btn-xl,.prose a.btn{color:#fff;text-decoration:none}
+.prose a.btn-xl:hover,.prose a.btn:hover{color:#fff}
+.btn-xl{font-family:"Zen Kaku Gothic New",system-ui,sans-serif}
+.disc-grid h4{font-family:"Zen Kaku Gothic New",system-ui,sans-serif}
+.disc-grid .shops a{text-decoration-color:var(--rule)}

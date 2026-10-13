@@ -170,14 +170,14 @@ def inline_buy(body):
         t=_txt(m.group(1))
         if not t or len(t)>95 or ":" in t: continue
         pm=PAIR.match(t)
-        if pm and len(pm.group(2).split())<=9: anchors.append((m.end(),pm.group(1).strip(),pm.group(2).strip()))
+        if pm and ok_pair(pm.group(1).strip(),pm.group(2).strip()): anchors.append((m.end(),pm.group(1).strip(),pm.group(2).strip()))
     if len(anchors)<3:
         anchors=[]
         for m in re.finditer(r"<p[^>]*>(.*?)</p>",body,re.S):
             t=_txt(m.group(1))
             if not t or len(t)>72 or ":" in t or t.endswith("."): continue
             pm=PAIR.match(t)
-            if pm and len(pm.group(2).split())<=9: anchors.append((m.end(),pm.group(1).strip(),pm.group(2).strip()))
+            if pm and ok_pair(pm.group(1).strip(),pm.group(2).strip()): anchors.append((m.end(),pm.group(1).strip(),pm.group(2).strip()))
     if len(anchors)<3: return body,False
     for i in range(len(anchors)-1,-1,-1):
         start,a,ti=anchors[i]
@@ -194,11 +194,80 @@ def inline_buy(body):
         body=body[:start]+seg+buy_row(a,ti,extra)+body[end:]
     return body,True
 
+
+COVERS={}
+def ckey(x): return re.sub(r"[^a-z0-9]","",re.sub(r"\[[^\]]*\]|\([^)]*\)","",x).lower())
+def find_cover(artist,title):
+    for k in (ckey(artist+title), ckey(title)):
+        if k and k in COVERS: return COVERS[k]
+    return None
+
+DEADTEXT=re.compile(r"(?i)^(pre-?order|order now|price as of|rank(ed)? (on|#)|available (now|for)|out now|release date|never reissued|anri.s \d+(st|nd|rd|th) studio album)")
+def artist_post(body, artist, jp, recs):
+    used=[]
+    # strip dead preorder / price lines
+    def dead(m):
+        t=_txt(m.group(1))
+        return "" if (len(t)<=90 and DEADTEXT.match(t)) else m.group(0)
+    body=re.sub(r"<h[2-4][^>]*>(.*?)</h[2-4]>",dead,body,flags=re.S)
+    body=re.sub(r"<p[^>]*>(.*?)</p>",dead,body,flags=re.S)
+    # anchor on headings naming a known album
+    marks=[]
+    for m in re.finditer(r"<h[2-4][^>]*>(.*?)</h[2-4]>",body,re.S):
+        t=ckey(_txt(m.group(1)))
+        if not t: continue
+        for title,alt in recs:
+            if ckey(title) and ckey(title) in t:
+                marks.append((m.end(),title)); break
+    seen=set(); marks=[x for x in marks if not (x[1] in seen or seen.add(x[1]))]
+    for i in range(len(marks)-1,-1,-1):
+        start,title=marks[i]
+        end=marks[i+1][0] if i+1<len(marks) else len(body)
+        if i+1<len(marks):
+            e=body.rfind("<h2",start,end)
+            if e>start: end=e
+        seg=body[start:end]
+        seg,extra=strip_legacy(seg)
+        eb=shop_links(artist,title)[0][1]
+        # retag any of his old product links on the cover image
+        seg=re.sub(r'<a href="[^"]*(?:cdjapan|hmv|amazon|ebay)[^"]*"[^>]*>(\s*<img[^>]*>)\s*</a>',
+                   lambda m: f'<a href="{eb}" target="_blank" rel="sponsored noopener">{m.group(1)}</a>', seg, flags=re.S)
+        seg=link_first_img(seg,eb)
+        im=re.search(r'<img[^>]+src="([^"]+)"',seg)
+        if im: COVERS.setdefault(ckey(artist+title),im.group(1))
+        body=body[:start]+seg+buy_row(artist,title,extra)+body[end:]
+        used.append(title)
+    return body, used
+
+def discography_block(artist, jp, recs, skip):
+    rest=[(t,a) for t,a in recs if t not in skip]
+    if not rest: return ""
+    cards=""
+    for title,alt in rest:
+        cov=find_cover(artist,title)
+        art=(f'<img src="{cov}" alt="" loading="lazy">' if cov
+             else f'<div class="sleeve-ph"><span>{html.escape(title)}</span></div>')
+        eb=shop_links(artist,title)[0][1]
+        shops="".join(f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(artist,title))
+        cards+=(f'<li><a class="disc-art" href="{eb}" target="_blank" rel="sponsored noopener">{art}</a>'
+                f'<h4>{html.escape(title)}{f" <span class=\'meta\'>{alt}</span>" if alt else ""}</h4>'
+                f'<p class="shops">{shops}</p></li>')
+    return (f'<div class="records"><h2 style="margin:0">The rest of the {html.escape(artist)} catalogue '
+            f'<span class="jp">{jp}</span></h2><ul class="disc-grid">{cards}</ul>'
+            f'<p class="note">Each cover opens a search on that store, so you see what is in stock today. '
+            f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
+            f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
+
 AUTO={"/blog/2020/10/19/the-top-10-city-pop-albums":"Buy these albums",
       "/blog/city-pop-top-albums-list":"Buy these albums",
       "/blog/2020/10/20/city-pop-summer":"Buy these records"}
 PAIR=re.compile(r"^(?:#?\s*\d+[.)]\s*)?([^-\u2013\u2014]{2,45}?)\s*[-\u2013\u2014]\s*([^-\u2013\u2014]{2,70}?)(?:\s*[\(\[](\d{4})[\)\]])?\s*$")
 def _txt(x): return re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>","",x))).strip()
+BADSTART=re.compile(r"(?i)^(pre-?order|order|buy|get|listen|stream|price|available|click|shop|find|here|out now|new)\b")
+def ok_pair(a,ti):
+    return (a and ti and not BADSTART.match(a) and not BADSTART.match(ti)
+            and len(a.split())<=5 and len(ti.split())<=9)
+
 def auto_records(body):
     out=[]; seen=set()
     for frag in re.findall(r"<h[1-4][^>]*>(.*?)</h[1-4]>|<p[^>]*>(.*?)</p>",body,re.S):
@@ -207,7 +276,7 @@ def auto_records(body):
         m=PAIR.match(t)
         if not m: continue
         a,ti=m.group(1).strip(),m.group(2).strip()
-        if len(ti.split())>9 or not a or not ti: continue
+        if not ok_pair(a,ti): continue
         k=(a.lower(),ti.lower())
         if k in seen: continue
         seen.add(k); out.append((a,ti))
@@ -249,6 +318,19 @@ def records_block(path):
 root=ET.parse(SRC).getroot(); items=root.find("channel").findall("item")
 attach={it.findtext("wp:post_id",namespaces=NS):it.findtext("wp:attachment_url",namespaces=NS)
         for it in items if it.findtext("wp:post_type",namespaces=NS)=="attachment"}
+for it in items:
+    if it.findtext("wp:post_type",namespaces=NS)!="post": continue
+    _l=it.findtext("link") or ""
+    if not _l.startswith("/vinyl"): continue
+    _t=html.unescape(html.unescape(it.findtext("title") or ""))
+    for pm in it.findall("wp:postmeta",NS):
+        if pm.findtext("wp:meta_key",namespaces=NS)=="_thumbnail_id":
+            u=attach.get(pm.findtext("wp:meta_value",namespaces=NS))
+            if u:
+                c=local_img(u); parts=[x.strip() for x in re.split(r"\s+-\s+",_t,1)]
+                COVERS.setdefault(ckey(_t),c)
+                if len(parts)==2: COVERS.setdefault(ckey(parts[0]+parts[1]),c); COVERS.setdefault(ckey(parts[1]),c)
+
 cols={}; urls=[]; redirects=[]; pages={}
 for it in items:
     typ=it.findtext("wp:post_type",namespaces=NS)
@@ -266,15 +348,19 @@ for it in items:
             u=attach.get(pm.findtext("wp:meta_value",namespaces=NS))
             if u: thumb=local_img(u)
     body=clean(raw); desc=plain(it.findtext("excerpt:encoded",namespaces=NS) or "") or plain(body)
-    _inlined=False
-    if link in AUTO or link in RECORDS:
+    _inlined=False; _disc=""
+    if link in RECORDS:
+        _a,_jp,_recs=RECORDS[link]
+        body,_used=artist_post(body,_a,_jp,_recs)
+        _disc=discography_block(_a,_jp,_recs,set(_used)); _inlined=True
+    elif link in AUTO:
         body,_inlined=inline_buy(body)
     if typ=="post":
         col="/"+link.strip("/").split("/")[0]
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
-             f'<div class="prose">{body}</div>{records_block(link) or ("" if _inlined else auto_block(link,body))}'
+             f'<div class="prose">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
              f'<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
@@ -316,7 +402,22 @@ for col,posts in cols.items():
     write(col,body,nm,blurb,None,None); urls.append((col,posts[0][0]))
     redirects += [(f"{col}/category/*",col),(f"{col}/tag/*",col)]
 
+SPOT="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq"
+OTONAMI_RE=re.compile(r'<a href="(https://otonami\.io/submit/[^"]+)"[^>]*>.*?</a>',re.S)
+def page_extras(link,body):
+    if link!="/new-music": return body
+    body=OTONAMI_RE.sub(lambda m:
+        f'<p class="cta"><a class="btn btn-xl" href="{m.group(1)}" target="_blank" rel="noopener">'
+        f'Submit your music<span>♪ OTONAMI</span></a></p>', body, count=1)
+    body+=(f'<div class="records"><h2 style="margin:0">Listen <span class="jp">試聴</span></h2>'
+           f'<p style="max-width:40rem">Everything I am playing out, and the new Japanese records worth your time, '
+           f'collected on Spotify.</p>'
+           f'<p class="cta"><a class="btn btn-xl" href="{SPOT}" target="_blank" rel="noopener">'
+           f'Listen on Spotify<span>Van Paugam</span></a></p></div>')
+    return body
+
 for link,(title,desc,body,thumb) in pages.items():
+    body=page_extras(link,body)
     if not re.search(r"<h1",body): body=f"<h1>{html.escape(title)}</h1>"+body
     body=re.sub(r"<h1[^>]*>(.*?)</h1>",lambda m:f'<div class="article-head"><h1>{m.group(1)}</h1><div class="lede-rule"></div></div>',body,count=1,flags=re.S)
     write(link,f'<div class="wrap narrow"><div class="prose" style="padding-top:2rem">{body}</div></div>',title,desc,thumb)
