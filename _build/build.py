@@ -74,8 +74,10 @@ def head(path,title,desc,img,date):
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">{ld}</head><body>
-<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav">{nav}</nav></div></header>
+<link rel="stylesheet" href="/style.css">{ld}
+<script>try{{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+</head><body>
+<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav">{nav}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
 <main id="main">"""
 
 FOOT=f"""</main>
@@ -84,7 +86,13 @@ FOOT=f"""</main>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
 <div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/vinyl">My picks</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
 <div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
-</div><p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer></body></html>"""
+</div><p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer>
+<script>(function(){{var r=document.documentElement,b=document.getElementById("theme");if(!b)return;
+function dark(){{return r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches}}
+function label(){{b.textContent=dark()?"Light":"Dark"}}
+label();b.addEventListener("click",function(){{r.dataset.theme=dark()?"light":"dark";
+try{{localStorage.setItem("vp-theme",r.dataset.theme)}}catch(e){{}}label()}});}})();</script>
+</body></html>"""
 
 def write(path,body,title,desc,img=None,date=None):
     d=os.path.join(OUT,path.strip("/")); os.makedirs(d,exist_ok=True)
@@ -95,6 +103,37 @@ def plain(s,n=165):
     s=re.sub(r"\[/?caption[^\]]*\]"," ",s)
     t=re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>"," ",s))).strip()
     return (t[:n].rsplit(" ",1)[0]+"…") if len(t)>n else t
+
+# ---------- "buy her records" blocks on artist articles ----------
+EBAY_CAMPID_A="5339222122"; AMAZON_TAG_A="citypop-20"
+CDJ_A="https://www.cdjapan.co.jp/aff/click.cgi/e86NDzbdSLQ/7023/A403672/"
+RECORDS={
+ "/blog/who-is-miki-matsubara": ("Miki Matsubara", "松原みき", [
+   ("Mayonaka no Door / Stay With Me","真夜中のドア"),
+   ("Pocket Park",None),("Who Are You?",None),("Cupid",None),("Myself",None),
+   ("Aya","彩"),("Revue",None),("Blue Eyes",None),("Cool Cut",None),
+   ("Lady Bounce",None),("Wink",None)]),
+}
+def shop_links(artist,title):
+    from urllib.parse import quote
+    q=f"{artist} {title}"
+    return [("eBay",f"https://www.ebay.com/sch/i.html?_nkw={quote(q+' vinyl')}&mkcid=1&mkrid=711-53200-19255-0&campid={EBAY_CAMPID_A}&toolid=10001&customid=vanpaugam"),
+            ("Amazon",f"https://www.amazon.com/s?k={quote(q+' vinyl')}&tag={AMAZON_TAG_A}"),
+            ("CDJapan",CDJ_A+quote(f"searches?q={q}",safe=""))]
+def records_block(path):
+    if path not in RECORDS: return ""
+    artist,jp,recs=RECORDS[path]
+    rows=""
+    for title,alt in recs:
+        shops="".join(f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(artist,title))
+        label=html.escape(title)+(f' <span class="meta">{alt}</span>' if alt else "")
+        rows+=f'<li><span class="rec-t">{label}</span><span class="shops">{shops}</span></li>'
+    return (f'<div class="records"><h2 style="margin:0">Buy {html.escape(artist)} on vinyl <span class="jp">{jp}</span></h2>'
+            f'<ul>{rows}</ul>'
+            f'<p class="note">Each title opens a search on that store, so you see whatever is in stock today — '
+            f'original pressings turn up most often on eBay, current repressings on CDJapan. '
+            f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
+            f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
 
 # ---------- parse ----------
 root=ET.parse(SRC).getroot(); items=root.find("channel").findall("item")
@@ -122,13 +161,14 @@ for it in items:
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
-             f'<div class="prose">{body}</div>'
-             f'<p style="padding-bottom:2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
+             f'<div class="prose">{body}</div>{records_block(link)}'
+             f'<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
     else:
         if not re.sub(r"<[^>]+>","",body).strip(): continue
         pages[link]=(title,desc,body,thumb)
+
 
 names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop — its records, its people, and how a 1980s genre found a second life."),
        "/latest-news":("News","最新情報","Press, interviews, and upcoming dates."),
@@ -182,6 +222,19 @@ vin=_v[:14]
 book_img=None
 if "/somehow-city-pop-book" in pages:
     m=re.search(r'src="(/img/[^"]+)"',pages["/somehow-city-pop-book"][2]); book_img=m.group(1) if m else None
+
+FEATURED="/blog/who-is-miki-matsubara"
+_f=[r for r in cols.get("/blog",[]) if r[1]==FEATURED]
+if _f:
+    _d,_l,_t,_x,_th=_f[0]
+    FEATURED_HTML=(f'<section class="featured"><div class="wrap featured-in">'
+      f'<a class="ttl" href="{_l}"><img src="{_th}" alt="" fetchpriority="high"></a>'
+      f'<div><span class="jp">Featured 特集</span><a class="ttl" href="{_l}"><h2>{html.escape(_t)}</h2></a>'
+      f'<p class="meta" style="margin:-.3rem 0 1rem">{_d}</p>'
+      f'<p>{html.escape(_x)}</p>'
+      f'<div class="btn-row"><a class="btn" href="{_l}">Read the story</a></div></div></div></section>')
+else:
+    FEATURED_HTML=""
 
 TICKER="".join(f"<i>&#9679;</i>{html.escape(short(t))}" for _,_,t,_,_ in vin) or "<i>&#9679;</i>Japanese City Pop on original pressings"
 
@@ -248,7 +301,7 @@ HOME_JS = """
 
 home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div><p class="kicker">SIDE A — 和製ポップス</p>
-<h1><span class="ln"><span>Japanese</span></span><span class="ln"><span>City Pop,</span></span><span class="ln"><span>on the record.</span></span></h1>
+<h1><span class="ln"><span>Japanese City Pop:</span></span><span class="ln"><span>records, writing,</span></span><span class="ln"><span>and DJ sets.</span></span></h1>
 <p class="lede">Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop — over a hundred nights in Chicago, Paris, Berlin, and Tokyo, all of it from original Japanese pressings.</p>
 <div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/buy-vinyl">Buy vinyl</a></div></div>
 <div class="turntable"><div class="platter" aria-hidden="true"></div>
@@ -257,6 +310,8 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 </div>
 <div class="ticker"><div class="ticker-track"><span>{TICKER}</span><span aria-hidden="true">{TICKER}</span></div></div>
 </section>
+
+{FEATURED_HTML}
 
 <div class="wrap"><nav class="index" aria-label="Sections">
 <p class="side-label">SIDE A</p>
