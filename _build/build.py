@@ -55,7 +55,7 @@ def clean(body):
     return IMG_RE.sub(lambda m: local_img(m.group(0)),body)
 
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),
-     ("/podcast","Podcast"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
+     ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
 def head(path,title,desc,img,date):
     canon=SITE+path
@@ -131,6 +131,69 @@ def shop_links(artist,title):
     return [("eBay",f"https://www.ebay.com/sch/i.html?_nkw={quote(q+' vinyl')}&mkcid=1&mkrid=711-53200-19255-0&campid={EBAY_CAMPID_A}&toolid=10001&customid=vanpaugam"),
             ("Amazon",f"https://www.amazon.com/s?k={quote(q+' vinyl')}&tag={AMAZON_TAG_A}"),
             ("CDJapan",CDJ_A+quote(f"searches?q={q}",safe=""))]
+
+LEGACY=re.compile(r"<p[^>]*>(?P<in>(?:(?!</p>).)*?)</p>",re.S)
+def _links(frag): return re.findall(r'<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>',frag,re.S)
+def strip_legacy(seg):
+    found={}
+    def repl(m):
+        inner=m.group("in"); t=_txt(inner); ls=_links(inner)
+        if len(t)<=56 and re.match(r"(?i)^(buy|order|pre-?order|get|available|listen|stream|hmv|tower|cdjapan|\d{4}\s+remaster|remaster)", t):
+            for u,_x in ls:
+                if "discogs.com" in u.lower(): found.setdefault("Discogs",u)
+                else: found.setdefault("Listen",u)
+            return ""
+        if len(ls)==1 and len(t)<=56 and (":" in t or len(t.split())<=4):
+            u=ls[0][0].lower()
+            if "discogs.com" in u: found.setdefault("Discogs",ls[0][0])
+            elif any(k in u for k in ("lnk.to","spotify","apple","youtube","jvcmusic","tower","linkco")):
+                found.setdefault("Listen",ls[0][0])
+            return ""
+        return m.group(0)
+    return LEGACY.sub(repl,seg),found
+
+def buy_row(artist,title,extra):
+    parts=[f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(artist,title)]
+    if extra.get("Discogs"): parts.append(f'<a href="{extra["Discogs"]}" target="_blank" rel="noopener">Discogs</a>')
+    if extra.get("Listen"): parts.append(f'<a href="{extra["Listen"]}" target="_blank" rel="noopener">Listen</a>')
+    return f'<p class="buy-row"><span>Find a copy</span>{"".join(parts)}</p>'
+
+def link_first_img(seg,href):
+    def one(m):
+        if "<a" in seg[:m.start()][-120:]: return m.group(0)
+        return f'<a href="{href}" target="_blank" rel="sponsored noopener">{m.group(0)}</a>'
+    return re.sub(r"<img[^>]*>",one,seg,count=1)
+
+def inline_buy(body):
+    anchors=[]
+    for m in re.finditer(r"<h2[^>]*>(.*?)</h2>",body,re.S):
+        t=_txt(m.group(1))
+        if not t or len(t)>95 or ":" in t: continue
+        pm=PAIR.match(t)
+        if pm and len(pm.group(2).split())<=9: anchors.append((m.end(),pm.group(1).strip(),pm.group(2).strip()))
+    if len(anchors)<3:
+        anchors=[]
+        for m in re.finditer(r"<p[^>]*>(.*?)</p>",body,re.S):
+            t=_txt(m.group(1))
+            if not t or len(t)>72 or ":" in t or t.endswith("."): continue
+            pm=PAIR.match(t)
+            if pm and len(pm.group(2).split())<=9: anchors.append((m.end(),pm.group(1).strip(),pm.group(2).strip()))
+    if len(anchors)<3: return body,False
+    for i in range(len(anchors)-1,-1,-1):
+        start,a,ti=anchors[i]
+        end=anchors[i+1][0]-0 if i+1<len(anchors) else len(body)
+        if i+1<len(anchors):
+            nxt=anchors[i+1][0]
+            end=body.rfind("<h2",start,nxt)
+            if end==-1: end=body.rfind("<p",start,nxt)
+            if end==-1 or end<=start: end=nxt
+        seg=body[start:end]
+        seg,extra=strip_legacy(seg)
+        eb=shop_links(a,ti)[0][1]
+        seg=link_first_img(seg,eb)
+        body=body[:start]+seg+buy_row(a,ti,extra)+body[end:]
+    return body,True
+
 AUTO={"/blog/2020/10/19/the-top-10-city-pop-albums":"Buy these albums",
       "/blog/city-pop-top-albums-list":"Buy these albums",
       "/blog/2020/10/20/city-pop-summer":"Buy these records"}
@@ -203,12 +266,15 @@ for it in items:
             u=attach.get(pm.findtext("wp:meta_value",namespaces=NS))
             if u: thumb=local_img(u)
     body=clean(raw); desc=plain(it.findtext("excerpt:encoded",namespaces=NS) or "") or plain(body)
+    _inlined=False
+    if link in AUTO or link in RECORDS:
+        body,_inlined=inline_buy(body)
     if typ=="post":
         col="/"+link.strip("/").split("/")[0]
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
-             f'<div class="prose">{body}</div>{records_block(link) or auto_block(link,body)}'
+             f'<div class="prose">{body}</div>{records_block(link) or ("" if _inlined else auto_block(link,body))}'
              f'<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))

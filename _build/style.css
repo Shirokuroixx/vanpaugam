@@ -366,3 +366,8 @@ html[data-theme="dark"] body::before{opacity:.04}
 .signup{max-width:30rem}
 .signup label{margin-top:0}
 @media (min-width:760px){.feature .signup{margin-top:-.5rem}}
+.buy-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:.35rem 1rem;margin:1rem 0 2.25rem;
+  padding-top:.7rem;border-top:1px solid var(--rule);font-family:"Zen Kaku Gothic New",sans-serif;font-size:.875rem}
+.buy-row span{color:var(--mute);letter-spacing:.1em;font-size:.75rem}
+.buy-row a{font-weight:500}
+.prose a:has(img){display:block}
