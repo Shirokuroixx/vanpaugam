@@ -1,0 +1,26 @@
+# Squarespace -> static. 301 = permanent (keeps Google ranking)
+https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!
+/latest-news/2022/9/15/van-paugam-interview-japan-fans  /latest-news/2022/9/15/van-paugam-interview-Japan-fans  301
+/vinyl/miki-matsubara-vinyl-pocket-park-reissue-rerelease-2023  /vinyl/Miki-matsubara-vinyl-pocket-park-reissue-rerelease-2023  301
+/vinyl/miki-matsubara-vinyl-who-are-you-reissue-rerelease-2023  /vinyl/Miki-matsubara-vinyl-who-are-you-reissue-rerelease-2023  301
+/latest-news/category/*  /latest-news  301
+/latest-news/tag/*  /latest-news  301
+/latest-news/  /latest-news  301
+/blog/category/*  /blog  301
+/blog/tag/*  /blog  301
+/blog/  /blog  301
+/news1/category/*  /news1  301
+/news1/tag/*  /news1  301
+/news1/  /news1  301
+/podcast/category/*  /podcast  301
+/podcast/tag/*  /podcast  301
+/podcast/  /podcast  301
+/vinyl/category/*  /vinyl  301
+/vinyl/tag/*  /vinyl  301
+/vinyl/  /vinyl  301
+/home  /  301
+/blog-1  /blog  301
+/what-is-city-pop/  /what-is-city-pop  301
+/blog?format=rss  /blog  301
+/new  /latest-news  301
+/hideki-saijo-lyrics/  /hideki-saijo-lyrics  301
