@@ -53,7 +53,7 @@ def clean(body):
     return IMG_RE.sub(lambda m: local_img(m.group(0)),body)
 
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),
-     ("/podcast","Podcast"),("/vinyl","Vinyl"),("/latest-news","News"),("/contact","Contact")]
+     ("/podcast","Podcast"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
 def head(path,title,desc,img,date):
     canon=SITE+path
@@ -82,7 +82,7 @@ FOOT=f"""</main>
 <footer class="site-foot"><div class="wrap"><div class="foot-grid">
 <div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese City Pop on original pressings — writing, radio, and records from Chicago.</p></div>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
-<div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/vinyl">Vinyl reissues</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
+<div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/vinyl">My picks</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
 <div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
 </div><p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer></body></html>"""
 
@@ -176,14 +176,14 @@ blog=strip_from("/blog",4); news=strip_from("/latest-news",4); pod=strip_from("/
 book_img=None
 if "/somehow-city-pop-book" in pages:
     m=re.search(r'src="(/img/[^"]+)"',pages["/somehow-city-pop-book"][2]); book_img=m.group(1) if m else None
-home=f"""<div class="wrap"><section class="hero">
+home=f"""<section class="hero-dark"><div class="disc" aria-hidden="true"></div><div class="wrap hero-inner">
 <div class="obi">シティ・ポップ</div>
 <div><h1>Japanese City Pop, played from the records it was pressed on.</h1>
 <p class="hero-lede">Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop. Over a hundred nights in Chicago, Paris, Berlin, and Tokyo — all of it from original Japanese pressings.</p>
-<div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/blog">Read the writing</a></div></div>
+<div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/buy-vinyl">Buy vinyl</a></div></div>
 <figure class="hero-fig"><img src="{HERO}" alt="Van Paugam DJing a set from vinyl" fetchpriority="high">
 <figcaption>A night of original Japanese pressings, Chicago.</figcaption></figure>
-</section></div>
+</div></section>
 
 <div class="wrap"><section class="band"><div class="band-head"><h2>Writing</h2><span class="jp">記事</span><a class="more" href="/blog">All writing</a></div>
 <ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in blog)}</ul></section>
@@ -221,6 +221,75 @@ contact=f"""<div class="wrap narrow"><div class="article-head"><h1>Booking &amp;
 <p style="padding:2rem 0 3rem;color:var(--mute)">Prefer email? <a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></p></div>"""
 write("/contact",contact,"Booking & press","Book Van Paugam for a City Pop DJ set, or get in touch about press, the book, and music submissions.")
 urls.append(("/contact",""))
+
+# ---------- buy vinyl ----------
+EBAY_CAMPID="5339222122"; AMAZON_TAG="citypop-20"; CDJ="https://www.cdjapan.co.jp/aff/click.cgi/e86NDzbdSLQ/7023/A403672/"
+def store_search(term):
+    from urllib.parse import quote
+    q=quote(term)
+    return (f"https://www.ebay.com/sch/i.html?_nkw={q}&mkcid=1&mkrid=711-53200-19255-0&campid={EBAY_CAMPID}&toolid=10001&customid=vanpaugam",
+            f"https://www.amazon.com/s?k={q}&tag={AMAZON_TAG}",
+            CDJ+quote(f"searches?q={term}",safe=""))
+eb,am,cd=store_search("japanese city pop vinyl")
+buy_js = """
+(function(){
+  var E="%s",A="%s",C="%s";
+  var enc=encodeURIComponent;
+  function links(r){
+    var q=((r.artist&&r.artist!=="Various Artists"?r.artist:"")+" "+r.title).trim();
+    return [["eBay","https://www.ebay.com/sch/i.html?_nkw="+enc(q+" vinyl")+"&mkcid=1&mkrid=711-53200-19255-0&campid="+E+"&toolid=10001&customid=vanpaugam"],
+            ["Amazon","https://www.amazon.com/s?k="+enc(q+" vinyl")+"&tag="+A],
+            ["CDJapan",C+enc("searches?q="+q)]];
+  }
+  function card(r){
+    var li=document.createElement("li"); li.className="rel";
+    var cover=r.cover?'<img src="'+r.cover+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<div class="ph"></div>';
+    var meta=[r.label,r.catno,(r.formats||[]).filter(function(f){return !/^\\d+$/.test(f)}).slice(0,4).join(" / ")].filter(Boolean).join(" · ");
+    var buy=links(r).map(function(b){return '<a href="'+b[1]+'" target="_blank" rel="sponsored noopener">'+b[0]+'</a>'}).join("");
+    li.innerHTML=cover+'<div><p class="meta"><span class="tag'+(r.isReissue?'':' new')+'">'+(r.isReissue?'Reissue':'New release')+'</span>'+
+      r.year+(r.country?" · "+r.country:"")+'</p><h3>'+esc(r.title)+'</h3><p class="who">'+esc(r.artist)+'</p>'+
+      '<p class="meta">'+esc(meta)+'</p><p class="buy">'+buy+
+      '<a href="'+r.discogs+'" target="_blank" rel="noopener" style="color:var(--mute)">Discogs</a></p></div>';
+    return li;
+  }
+  function esc(t){var d=document.createElement("div");d.textContent=t==null?"":t;return d.innerHTML}
+  fetch("/api/reissues").then(function(r){ if(!r.ok) throw 0; return r.json() }).then(function(d){
+    var items=(d.items||[]); if(!items.length) throw 0;
+    var ri=document.getElementById("ri"), nr=document.getElementById("nr");
+    var a=0,b=0;
+    items.forEach(function(r){ (r.isReissue?(a++,ri):(b++,nr)).appendChild(card(r)) });
+    document.getElementById("ri-n").textContent=a; document.getElementById("nr-n").textContent=b;
+    document.getElementById("feed").hidden=false;
+    document.getElementById("feed-wait").hidden=true;
+  }).catch(function(){
+    document.getElementById("feed-wait").innerHTML='The release feed is taking a moment. <a href="https://citypopwiki.org/reissues" rel="noopener">See the full list on City Pop Wiki</a>.';
+  });
+})();
+""" % (EBAY_CAMPID,AMAZON_TAG,CDJ)
+buyp=f"""<div class="wrap"><div class="page-head"><div class="band-head"><h1>Buy vinyl</h1><span class="jp">レコード</span></div>
+<p class="hero-lede">Where I actually look for City Pop records — and a live feed of what has just been reissued or newly pressed, straight from the Discogs database.</p></div>
+
+<ul class="stores">
+<li><a class="store" href="{eb}" target="_blank" rel="sponsored noopener"><h3>eBay</h3><p>Original Japanese pressings, obi strips intact. The deepest pool, and where most of my shelf came from.</p></a></li>
+<li><a class="store" href="{am}" target="_blank" rel="sponsored noopener"><h3>Amazon</h3><p>Modern reissues and remasters. Fastest shipping if you want the music more than the artifact.</p></a></li>
+<li><a class="store" href="{cd}" target="_blank" rel="sponsored noopener"><h3>CDJapan</h3><p>New Japanese reissues at Japanese retail, shipped from Japan. First stop for a current repress.</p></a></li>
+</ul>
+
+<section class="band" style="border-top:0;padding-bottom:1rem"><div class="band-head"><h2>Just reissued</h2><span class="jp">新譜</span>
+<a class="more" href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki</a></div>
+<p id="feed-wait" class="meta">Loading the latest releases…</p>
+<div id="feed" hidden><div class="cols">
+<section><h3 style="margin-top:0">Reissues <span class="meta">· <span id="ri-n">0</span></span></h3><ul id="ri" style="list-style:none;padding:0;margin:0"></ul></section>
+<section><h3 style="margin-top:0">New releases <span class="meta">· <span id="nr-n">0</span></span></h3><ul id="nr" style="list-style:none;padding:0;margin:0"></ul></section>
+</div></div></section>
+
+<p class="feed-note">Release data from Discogs, by way of <a href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki</a>, refreshed every few hours.
+Links to eBay, Amazon and CDJapan are affiliate links: buying through them may earn a small commission at no extra cost to you.
+As an Amazon Associate I earn from qualifying purchases.</p>
+</div><script>{buy_js}</script>"""
+write("/buy-vinyl",buyp,"Buy vinyl","Where to buy Japanese City Pop records — eBay, Amazon and CDJapan — plus a live feed of the latest reissues and new pressings.")
+urls.append(("/buy-vinyl",""))
+
 write("/thank-you",'<div class="wrap narrow"><div class="article-head"><h1>Message sent</h1><div class="lede-rule"></div></div>'
       '<p class="hero-lede">Thanks — it landed. I answer booking enquiries within a few days.</p>'
       '<div class="btn-row" style="padding-bottom:3rem"><a class="btn" href="/">Back to the homepage</a></div></div>',
@@ -235,6 +304,8 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
 open(os.path.join(OUT,"_redirects"),"w").write(
+  "# Live reissue feed, proxied so the browser sees it as same-origin.\n"
+  "/api/reissues  https://citypopwiki.org/api/reissues  200\n\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
   +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b))

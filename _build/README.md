@@ -6,4 +6,4 @@ Static site generated from the Squarespace export.
 
 `_build/style.css` is the source of the deployed `/style.css`.
 Every published URL matches the old Squarespace URL; `_redirects` covers
-retired tag and category paths.
+retired tag and category paths and proxies `/api/reissues` to City Pop Wiki.

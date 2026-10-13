@@ -1,3 +1,6 @@
+# Live reissue feed, proxied so the browser sees it as same-origin.
+/api/reissues  https://citypopwiki.org/api/reissues  200
+
 # Squarespace -> static. 301 keeps Google rankings.
 https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!
 /latest-news/category/*  /latest-news  301
