@@ -50,6 +50,8 @@ def clean(body):
     body=re.sub(r'<a href="https://vanpaugam.com/blog\?format=rss"[^>]*>Blog RSS</a>',"",body)
     body=re.sub(r"https?://(www\.)?vanpaugam(\.squarespace)?\.com/","/",body)
     body=re.sub(r"<(div|section|article)>\s*</\1>","",body)
+    body=re.sub(r"<(/?)h1(\s|>)",r"<\1h2\2",body)
+    body=re.sub(r"<h3[^>]*>\s*AUTHOR\s*</h3>.*$","",body,flags=re.S|re.I)
     return IMG_RE.sub(lambda m: local_img(m.group(0)),body)
 
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),
@@ -107,7 +109,16 @@ def plain(s,n=165):
 # ---------- "buy her records" blocks on artist articles ----------
 EBAY_CAMPID_A="5339222122"; AMAZON_TAG_A="citypop-20"
 CDJ_A="https://www.cdjapan.co.jp/aff/click.cgi/e86NDzbdSLQ/7023/A403672/"
+TATSURO=[("Circus Town",None),("Spacy",None),("Go Ahead!",None),("Moonglow",None),
+ ("Ride on Time",None),("For You",None),("Melodies",None),("Big Wave",None),
+ ("Pocket Music",None),("Artisan",None),("Songs (Sugar Babe)",None)]
+ANRI=[("Apricot Jam",None),("Feelin'",None),("Heaven Beach",None),("Timely!!",None),
+ ("Bi・Ki・Ni",None),("Coool",None),("Mystique",None),("Wave",None),("Circuit of Rainbow",None)]
 RECORDS={
+ "/blog/how-tatsuro-yamashita-became-the-kind-of-city-pop": ("Tatsuro Yamashita","山下達郎",TATSURO),
+ "/blog/copyright-on-time-tatsuro-yamashitas-war-on-overseas-audiences": ("Tatsuro Yamashita","山下達郎",TATSURO),
+ "/blog/tatsuro-yamashita-vinyl-repress-pre-order": ("Tatsuro Yamashita","山下達郎",TATSURO),
+ "/blog/anri-vinyl-reissue-repress-rerelease-2023": ("Anri","杏里",ANRI),
  "/blog/who-is-miki-matsubara": ("Miki Matsubara", "松原みき", [
    ("Mayonaka no Door / Stay With Me","真夜中のドア"),
    ("Pocket Park",None),("Who Are You?",None),("Cupid",None),("Myself",None),
@@ -120,6 +131,42 @@ def shop_links(artist,title):
     return [("eBay",f"https://www.ebay.com/sch/i.html?_nkw={quote(q+' vinyl')}&mkcid=1&mkrid=711-53200-19255-0&campid={EBAY_CAMPID_A}&toolid=10001&customid=vanpaugam"),
             ("Amazon",f"https://www.amazon.com/s?k={quote(q+' vinyl')}&tag={AMAZON_TAG_A}"),
             ("CDJapan",CDJ_A+quote(f"searches?q={q}",safe=""))]
+AUTO={"/blog/2020/10/19/the-top-10-city-pop-albums":"Buy these albums",
+      "/blog/city-pop-top-albums-list":"Buy these albums",
+      "/blog/2020/10/20/city-pop-summer":"Buy these records"}
+PAIR=re.compile(r"^(?:#?\s*\d+[.)]\s*)?([^-\u2013\u2014]{2,45}?)\s*[-\u2013\u2014]\s*([^-\u2013\u2014]{2,70}?)(?:\s*[\(\[](\d{4})[\)\]])?\s*$")
+def _txt(x): return re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>","",x))).strip()
+def auto_records(body):
+    out=[]; seen=set()
+    for frag in re.findall(r"<h[1-4][^>]*>(.*?)</h[1-4]>|<p[^>]*>(.*?)</p>",body,re.S):
+        t=_txt(frag[0] or frag[1])
+        if not t or len(t)>95 or t.endswith(".") or t.count(",")>1 or ":" in t: continue
+        m=PAIR.match(t)
+        if not m: continue
+        a,ti=m.group(1).strip(),m.group(2).strip()
+        if len(ti.split())>9 or not a or not ti: continue
+        k=(a.lower(),ti.lower())
+        if k in seen: continue
+        seen.add(k); out.append((a,ti))
+    return out[:15]
+
+def auto_block(path,body):
+    if path not in AUTO: return ""
+    recs=auto_records(body)
+    if len(recs)<3: return ""
+    rows=""
+    for a,t in recs:
+        shops="".join(f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(a,t))
+        rows+=(f'<li><span class="rec-t">{html.escape(t)}</span>'
+               f'<span class="shops">{shops}</span></li>'
+               if False else
+               f'<li><span class="rec-t">{html.escape(a)} — {html.escape(t)}</span><span class="shops">{shops}</span></li>')
+    return (f'<div class="records"><h2 style="margin:0">{AUTO[path]} <span class="jp">レコード</span></h2>'
+            f'<ul>{rows}</ul>'
+            f'<p class="note">Each title opens a search on that store, so you see what is in stock today. '
+            f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
+            f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
+
 def records_block(path):
     if path not in RECORDS: return ""
     artist,jp,recs=RECORDS[path]
@@ -161,7 +208,7 @@ for it in items:
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
-             f'<div class="prose">{body}</div>{records_block(link)}'
+             f'<div class="prose">{body}</div>{records_block(link) or auto_block(link,body)}'
              f'<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
@@ -215,7 +262,7 @@ def strip_from(col,n):
 blog=strip_from("/blog",5); news=strip_from("/latest-news",3); pod=strip_from("/podcast",3); vin=strip_from("/vinyl",24)
 _seen=set(); _v=[]
 for r in vin:
-    k=re.sub(r"[^a-z0-9]","",r[2].lower())[:40]
+    k=re.sub(r"[^a-z0-9]","",re.sub(r"\[[^\]]*\]","",r[2]).lower())[:40]
     if k in _seen: continue
     _seen.add(k); _v.append(r)
 vin=_v[:14]
@@ -236,7 +283,13 @@ if _f:
 else:
     FEATURED_HTML=""
 
-TICKER="".join(f"<i>&#9679;</i>{html.escape(short(t))}" for _,_,t,_,_ in vin) or "<i>&#9679;</i>Japanese City Pop on original pressings"
+def tick_link(t):
+    a,_,ti = t.partition(" - ")
+    q = t if not ti else f"{a} {ti}"
+    q = re.sub(r"\s*\[[^\]]*\]","",q).strip()
+    h = shop_links("", q)[0][1]
+    return f'<i>&#9679;</i><a href="{h}" target="_blank" rel="sponsored noopener">{html.escape(short(t))}</a>'
+TICKER="".join(tick_link(t) for _,_,t,_,_ in vin) or "<i>&#9679;</i>Japanese City Pop on original pressings"
 
 TRACKS=[("A1","Writing","記事","/blog","Essays on the records, the people, and how a 1980s genre found a second life."),
         ("A2","Somehow, City Pop","書籍","/somehow-city-pop-book","The first English-language reference book on the genre."),
@@ -340,6 +393,16 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
 <ul class="entries">{"".join(entry_li(*p) for p in pod)}</ul></section>
 
+<section class="band" id="newsletter"><div class="band-head"><h2>The mailing list</h2><span class="jp">メール</span></div>
+<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
+<div class="feature" style="grid-template-columns:1fr">
+<p style="max-width:40rem">New writing, upcoming dates, and a note when something worth owning gets repressed. A few times a year, never more.</p>
+<form class="form signup" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="company" action="/subscribed">
+<input type="hidden" name="form-name" value="newsletter">
+<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<label for="nl-email">Email address</label><input id="nl-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
+<button class="btn" type="submit">Join the list</button></form></div></section>
+
 <section class="band"><div class="band-head"><h2>News</h2><span class="jp">最新情報</span><a class="more" href="/latest-news">All news</a></div>
 <div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
 <ul class="entries">{"".join(entry_li(*n) for n in news)}</ul></section></div>
@@ -433,6 +496,10 @@ As an Amazon Associate I earn from qualifying purchases.</p>
 write("/buy-vinyl",buyp,"Buy vinyl","Where to buy Japanese City Pop records — eBay, Amazon and CDJapan — plus a live feed of the latest reissues and new pressings.")
 urls.append(("/buy-vinyl",""))
 
+write("/subscribed",'<div class="wrap narrow"><div class="article-head"><h1>You are on the list</h1><div class="lede-rule"></div></div>'
+      '<p class="hero-lede">Thanks for subscribing. Next dispatch when there is something worth sending.</p>'
+      '<div class="btn-row" style="padding-bottom:3rem"><a class="btn" href="/">Back to the homepage</a></div></div>',
+      "You are on the list","You have subscribed to the Van Paugam mailing list.")
 write("/thank-you",'<div class="wrap narrow"><div class="article-head"><h1>Message sent</h1><div class="lede-rule"></div></div>'
       '<p class="hero-lede">Thanks — it landed. I answer booking enquiries within a few days.</p>'
       '<div class="btn-row" style="padding-bottom:3rem"><a class="btn" href="/">Back to the homepage</a></div></div>',
