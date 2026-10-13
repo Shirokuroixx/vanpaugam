@@ -11,7 +11,7 @@ SP="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq"
 HERO="/img/e0b5460d12093f.jpg"
 
 for p in os.listdir(OUT):
-    if p not in ("img",".git"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
+    if p not in ("img",".git","_build"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
 
 images={}
 def local_img(url):
@@ -172,37 +172,125 @@ for link,(title,desc,body,thumb) in pages.items():
 # ---------- home ----------
 def strip_from(col,n):
     return sorted(cols.get(col,[]),reverse=True)[:n]
-blog=strip_from("/blog",4); news=strip_from("/latest-news",4); pod=strip_from("/podcast",4); vin=strip_from("/vinyl",4)
+blog=strip_from("/blog",5); news=strip_from("/latest-news",3); pod=strip_from("/podcast",3); vin=strip_from("/vinyl",24)
+_seen=set(); _v=[]
+for r in vin:
+    k=re.sub(r"[^a-z0-9]","",r[2].lower())[:40]
+    if k in _seen: continue
+    _seen.add(k); _v.append(r)
+vin=_v[:14]
 book_img=None
 if "/somehow-city-pop-book" in pages:
     m=re.search(r'src="(/img/[^"]+)"',pages["/somehow-city-pop-book"][2]); book_img=m.group(1) if m else None
-home=f"""<section class="hero-dark"><div class="disc" aria-hidden="true"></div><div class="wrap hero-inner">
-<div class="obi">シティ・ポップ</div>
-<div><h1>Japanese City Pop, played from the records it was pressed on.</h1>
-<p class="hero-lede">Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop. Over a hundred nights in Chicago, Paris, Berlin, and Tokyo — all of it from original Japanese pressings.</p>
-<div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/buy-vinyl">Buy vinyl</a></div></div>
-<figure class="hero-fig"><img src="{HERO}" alt="Van Paugam DJing a set from vinyl" fetchpriority="high">
-<figcaption>A night of original Japanese pressings, Chicago.</figcaption></figure>
-</div></section>
 
-<div class="wrap"><section class="band"><div class="band-head"><h2>Writing</h2><span class="jp">記事</span><a class="more" href="/blog">All writing</a></div>
-<ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in blog)}</ul></section>
+TICKER="".join(f"<i>&#9679;</i>{html.escape(short(t))}" for _,_,t,_,_ in vin) or "<i>&#9679;</i>Japanese City Pop on original pressings"
+
+TRACKS=[("A1","Writing","記事","/blog","Essays on the records, the people, and how a 1980s genre found a second life."),
+        ("A2","Somehow, City Pop","書籍","/somehow-city-pop-book","The first English-language reference book on the genre."),
+        ("A3","About","略歴","/about-van-paugam","A decade of nights, a board seat, and a wall of Japanese pressings."),
+        ("B1","Buy vinyl","レコード","/buy-vinyl","Where to find reissues and originals, plus what was pressed this month."),
+        ("B2","Mayonaka Hour","真夜中アワー","/podcast","One artist, one era, one record at a time."),
+        ("B3","Booking","出演依頼","/contact","Clubs, festivals, private rooms. Tell me the date."),]
+
+def track_row(c,t,jp,href,d):
+    return (f'<a class="track" href="{href}"><span class="cue">{c}</span>'
+            f'<h3>{html.escape(t)} <em>{jp}</em></h3><p>{html.escape(d)}</p></a>')
+
+def strip_li(l,t,th):
+    im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="ph"></div>'
+    return f'<li><a href="/buy-vinyl">{im}<h4>{html.escape(short(t))}</h4></a></li>'
+
+def lead_card(d,l,t,x,th,big=False):
+    im=f'<img src="{th}" alt="" loading="lazy">' if th else ""
+    return (f'<a class="lead" href="{l}">{im}<p class="meta">{d}</p><h3>{html.escape(t)}</h3>'
+            + (f'<p>{html.escape(x)}</p>' if big else "") + '</a>')
+
+HOME_JS = """
+(function(){
+  var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if ('IntersectionObserver' in window && !rm){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('seen'); io.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -12% 0px'});
+    document.querySelectorAll('.reveal').forEach(function(n){ io.observe(n); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(n){ n.classList.add('seen'); });
+  }
+  if (!rm){
+    var plat=document.querySelector('.platter'), slv=document.querySelector('.sleeve'), tick=false;
+    if(plat) addEventListener('scroll',function(){
+      if(tick) return; tick=true;
+      requestAnimationFrame(function(){
+        var y=Math.min(scrollY,700);
+        plat.style.marginTop=(y*0.07)+'px';
+        if(slv) slv.style.transform='translateY('+(y*-0.045)+'px)';
+        tick=false;
+      });
+    },{passive:true});
+  }
+  var enc=encodeURIComponent;
+  fetch('/api/reissues').then(function(r){ if(!r.ok) throw 0; return r.json() }).then(function(d){
+    var it=(d.items||[]).slice(0,6); if(!it.length) throw 0;
+    var ul=document.getElementById('strip'); ul.innerHTML='';
+    it.forEach(function(r){
+      var q=((r.artist&&r.artist!=='Various Artists'?r.artist:'')+' '+r.title).trim();
+      var li=document.createElement('li');
+      var cov=r.cover?'<img src="'+r.cover+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<div class="ph"></div>';
+      var a=document.createElement('a');
+      a.href='/buy-vinyl'; a.innerHTML=cov+'<h4></h4><p></p>';
+      a.querySelector('h4').textContent=r.title; a.querySelector('p').textContent=r.artist;
+      li.appendChild(a); ul.appendChild(li);
+    });
+    document.getElementById('strip-note').textContent='Reissued or newly pressed this season.';
+  }).catch(function(){});
+})();
+"""
+
+home=f"""<section class="sideA"><div class="wrap sideA-in">
+<div><p class="kicker">SIDE A — 和製ポップス</p>
+<h1><span class="ln"><span>Japanese</span></span><span class="ln"><span>City Pop,</span></span><span class="ln"><span>on the record.</span></span></h1>
+<p class="lede">Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop — over a hundred nights in Chicago, Paris, Berlin, and Tokyo, all of it from original Japanese pressings.</p>
+<div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/buy-vinyl">Buy vinyl</a></div></div>
+<div class="turntable"><div class="platter" aria-hidden="true"></div>
+<figure class="sleeve"><img src="{HERO}" alt="Van Paugam DJing a set from vinyl" fetchpriority="high">
+<figcaption>Original pressings only — Chicago</figcaption></figure></div>
+</div>
+<div class="ticker"><div class="ticker-track"><span>{TICKER}</span><span aria-hidden="true">{TICKER}</span></div></div>
+</section>
+
+<div class="wrap"><nav class="index" aria-label="Sections">
+<p class="side-label">SIDE A</p>
+{"".join(track_row(*t) for t in TRACKS[:3])}
+<p class="side-label">SIDE B</p>
+{"".join(track_row(*t) for t in TRACKS[3:])}
+</nav>
+
+<section class="band"><div class="band-head"><h2>Latest writing</h2><span class="jp">記事</span><a class="more" href="/blog">All writing</a></div>
+<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
+<div class="lead-grid"><div>{lead_card(*blog[0],big=True) if blog else ''}</div>
+<ul class="entries" style="margin:0">{"".join(entry_li(*b) for b in blog[1:4])}</ul></div></section>
+
+<section class="band"><div class="band-head"><h2>Just pressed</h2><span class="jp">新譜</span><a class="more" href="/buy-vinyl">Buy vinyl</a></div>
+<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
+<ul class="strip" id="strip">{"".join(strip_li(l,t,th) for _,l,t,_,th in vin[:6])}</ul>
+<p class="meta" id="strip-note" style="padding-top:1rem">From the shelf — see Buy vinyl for the live reissue feed.</p></section>
 
 <section class="band"><div class="band-head"><h2>Somehow, City Pop</h2><span class="jp">書籍</span></div>
+<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
 <div class="feature">{f'<img src="{book_img}" alt="Cover of Somehow, City Pop">' if book_img else ''}
 <div><p>The first comprehensive English-language book on City Pop — a definitive guide to a genre that refused to die, and the decades it took to become a global phenomenon.</p>
 <div class="btn-row"><a class="btn" href="/somehow-city-pop-book">About the book</a></div></div></div></section>
 
 <section class="band"><div class="band-head"><h2>Mayonaka Hour</h2><span class="jp">真夜中アワー</span><a class="more" href="/podcast">All episodes</a></div>
-<ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in pod)}</ul></section>
-
-<section class="band"><div class="band-head"><h2>Vinyl</h2><span class="jp">レコード</span><a class="more" href="/vinyl">All pressings</a></div>
-<ul class="grid">{"".join(card(l,t,th,d) for d,l,t,x,th in vin)}</ul></section>
+<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
+<ul class="entries">{"".join(entry_li(*p) for p in pod)}</ul></section>
 
 <section class="band"><div class="band-head"><h2>News</h2><span class="jp">最新情報</span><a class="more" href="/latest-news">All news</a></div>
-<ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in news)}</ul></section></div>"""
+<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
+<ul class="entries">{"".join(entry_li(*n) for n in news)}</ul></section></div>
+<script>{HOME_JS}</script>"""
 write("/",home,"Van Paugam — Japanese City Pop DJ, Writer & Vinyl Specialist",
-      "Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop. Booking, writing, podcast, and vinyl.",HERO)
+      "Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop. Booking, writing, podcast, and records.",HERO)
 urls.append(("/",""))
 
 # ---------- contact ----------
