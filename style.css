@@ -499,6 +499,15 @@ iframe.sp{display:block;width:100%;border:0;margin:0}
 .more-reads img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;margin:0}
 .more-reads span{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 1rem .9rem;color:#fff;font-family:"Zen Old Mincho",serif;font-weight:700;font-size:1.2rem;line-height:1.25;background:linear-gradient(transparent,rgba(9,11,15,.88))}
 
+agent-on-spotify-or-any-source-7ef3
+/* podcast listen links */
+.entries .listen{display:flex;gap:10px;flex-wrap:wrap;margin:-6px 0 20px 156px}
+.listen a{display:inline-block;padding:.45em 1em;font-size:.8125rem;font-weight:500;text-decoration:none;color:var(--ink);box-shadow:inset 0 0 0 1px var(--rule)}
+.listen a:hover{color:var(--shu);box-shadow:inset 0 0 0 1px var(--shu)}
+.listen a.sp{background:var(--btn-bg);color:var(--btn-fg);box-shadow:none}
+.listen a.sp:hover{background:var(--shu);color:#fff}
+@media (max-width:560px){.entries .listen{margin-left:108px}}
+@media (max-width:380px){.entries .listen{margin-left:0}}
 .reissue-artwork{max-width:22rem;margin:2rem auto}
 .reissue-artwork img{display:block;width:100%;height:auto;margin:0}
 .reissue-artwork figcaption{font-size:.8rem;line-height:1.6;color:var(--mute);margin-top:.75rem}
@@ -509,3 +518,4 @@ iframe.sp{display:block;width:100%;border:0;margin:0}
 .reissues-buy:focus-visible{outline:3px solid var(--indigo);outline-offset:8px}
 @keyframes reissues-glow{from{opacity:.35}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.reissues-buy::before{animation:none}.reissues-buy{transition:none}.reissues-buy:hover,.reissues-buy:active{transform:none}}
+main

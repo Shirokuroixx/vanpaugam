@@ -502,16 +502,37 @@ names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop �
 def short(t):
     return re.sub(r"^Mayonaka Hour\s*真夜中アワー\s*City Pop Podcast\s*","",t).strip() or t
 
+# Mayonaka Hour episodes: (Spotify episode id, Apple Podcasts episode id)
+POD_SHOW_SP="https://open.spotify.com/show/61mrej1uf1xmFyo7tSHC3C"
+POD_SHOW_AP="https://podcasts.apple.com/us/podcast/id1533448486"
+LISTEN={"/podcast/city-pop-podcast-hideki-saijo":("2rh4hjqs6WV9RQMVnNAZg9","1000542582468"),
+        "/podcast/city-pop-podcast-momoko-kikuchi":("0XprwvkXjp6WmcnHMlr5Aa","1000538143553"),
+        "/podcast/city-pop-podcast-toshiki-kadomatsu":("75KXeet7uJ7MyYgUnHGrpQ","1000535356536"),
+        "/podcast/city-pop-podcast-miki-matsubara":("7buCAgg5m8PskwE8f7SG87","1000532022511"),
+        "/podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi":("4tKkDMssgq50fPLvzbZMwh","1000496198255"),
+        "/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":("6m0pehX03LQO8cBHZjWQxi","1000492869996"),
+        "/podcast/2020/9/22/episode-1-city-pop-genre-overview":("6KFUd6dMHJpSmcjEA08c5v","1000492519458")}
+
+def listen_row(l,t):
+    if l not in LISTEN: return ""
+    s,a=LISTEN[l]; t=html.escape(t)
+    return (f'<p class="listen"><a class="sp" href="https://open.spotify.com/episode/{s}" target="_blank" rel="noopener" '
+            f'aria-label="Play {t} on Spotify">▶ Play on Spotify</a>'
+            f'<a href="{POD_SHOW_AP}?i={a}" target="_blank" rel="noopener" aria-label="Play {t} on Apple Podcasts">Apple Podcasts</a></p>')
+
 def entry_li(d,l,t,x,th):
     t=short(t)
     im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="no-img"></div>'
     return (f'<li><a class="entry" href="{l}">{im}<div><p class="meta">{d}</p><h3>{html.escape(t)}</h3>'
-            f'<p>{html.escape(x)}</p></div></a></li>')
+            f'<p>{html.escape(x)}</p></div></a>{listen_row(l,t)}</li>')
 
 def card(l,t,th,d=""):
     t=short(t)
     im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="no-img" style="width:100%;aspect-ratio:1"></div>'
     return f'<li><a class="card" href="{l}">{im}<h3>{html.escape(t)}</h3><p class="meta">{d}</p></a></li>'
+
+pod_follow=(f'<div class="btn-row" style="margin-top:1.25rem"><a class="btn" href="{POD_SHOW_SP}" target="_blank" rel="noopener">Follow on Spotify</a>'
+            f'<a class="btn btn-ghost" href="{POD_SHOW_AP}" target="_blank" rel="noopener">Apple Podcasts</a></div>')
 
 for col,posts in cols.items():
     posts.sort(reverse=True)
@@ -521,7 +542,7 @@ for col,posts in cols.items():
     else:
         listing=f'<ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in posts)}</ul>'
     body=(f'<div class="wrap"><div class="page-head"><div class="band-head"><h1>{nm}</h1><span class="jp">{jp}</span></div>'
-          f'<p class="hero-lede">{html.escape(blurb)}</p></div>'
+          f'<p class="hero-lede">{html.escape(blurb)}</p>{pod_follow if col=="/podcast" else ""}</div>'
           f'<div style="padding-bottom:3rem">{listing}</div></div>')
     write(col,body,nm,blurb,None,None); urls.append((col,posts[0][0]))
     redirects += [(f"{col}/category/*",col),(f"{col}/tag/*",col)]
