@@ -479,3 +479,10 @@ iframe.sp{display:block;width:100%;border:0;margin:0}
 
 /* square blog images on the home page */
 .lead img{aspect-ratio:1/1}
+
+/* Buy vinyl feed: readable tags, small buttons */
+.rel .tag{background:var(--btn-bg);color:var(--btn-fg);font-weight:700}
+.rel .tag.new{background:var(--shu);color:#fff}
+.rel .buy{gap:.4rem .5rem;margin-top:.75rem}
+.rel .buy a{display:inline-block;padding:.35em .85em;background:var(--btn-bg);color:var(--btn-fg);text-decoration:none;font-size:.75rem;font-weight:600;letter-spacing:.03em;transition:background .18s ease}
+.rel .buy a:hover{background:var(--shu);color:#fff}
