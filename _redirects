@@ -18,3 +18,7 @@ https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!
 /city-pop-blog  /blog  301
 /new-page-1  /  301
 /member-site-homepage-1  /  301
+/blog/rare-city-pop-vinyl-repress  /blog/tatsuro-yamashita-vinyl-repress-pre-order  301
+# Serve generated blog pages directly without directory slash redirects.
+/blog  /blog/index.html  200!
+/blog/*  /blog/:splat/index.html  200!

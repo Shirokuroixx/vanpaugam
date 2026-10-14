@@ -11,7 +11,7 @@ SP="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq"
 HERO="/img/e0b5460d12093f.jpg"
 
 for p in os.listdir(OUT):
-    if p not in ("img",".git","_build","netlify"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
+    if p not in ("img",".git",".netlify","_build","netlify","netlify.toml"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
 
 images={}
 def local_img(url):
@@ -202,8 +202,14 @@ def inline_buy(body):
     return body,True
 
 
-COVERS={}
 def ckey(x): return re.sub(r"[^a-z0-9]","",re.sub(r"\[[^\]]*\]|\([^)]*\)","",x).lower())
+COVERS={ckey("Miki Matsubara"+title):f"/img/miki-matsubara-{filename}.jpg" for title,filename in [
+    ("Mayonaka no Door / Stay With Me","stay-with-me"),
+    ("Pocket Park","pocketpark"),("Who Are You?","whoareyou"),
+    ("Cupid","cupid"),("Myself","myself"),("Aya","aya"),
+    ("Revue","revue"),("Blue Eyes","blueeyes"),("Cool Cut","coolcut"),
+    ("Lady Bounce","ladybounce"),("Wink","wink")
+]}
 def find_cover(artist,title):
     for k in (ckey(artist+title), ckey(title)):
         if k and k in COVERS: return COVERS[k]
@@ -252,15 +258,19 @@ def discography_block(artist, jp, recs, skip):
     cards=""
     for title,alt in rest:
         cov=find_cover(artist,title)
-        art=(f'<img src="{cov}" alt="" loading="lazy">' if cov
+        art=(f'<img src="{cov}" alt="{html.escape(artist+" — "+title+" cover artwork",quote=True)}" loading="lazy">' if cov
              else f'<div class="sleeve-ph"><span>{html.escape(title)}</span></div>')
         eb=shop_links(artist,title)[0][1]
         shops="".join(f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(artist,title))
         cards+=(f'<li><a class="disc-art" href="{eb}" target="_blank" rel="sponsored noopener">{art}</a>'
                 f'<h4>{html.escape(title)}{f" <span class=\'meta\'>{alt}</span>" if alt else ""}</h4>'
                 f'<p class="shops">{shops}</p></li>')
+    credit=('<p class="note">Cover artwork: <a href="https://miki-matsubara-45th.ponycanyon.co.jp/" target="_blank" rel="noopener">Pony Canyon</a>; '
+            '<a href="https://www.jvcmusic.co.jp/flyingdog/-/Discography/A000440/VEATP-37913.html" target="_blank" rel="noopener">Victor / FlyingDog (Wink)</a>.</p>'
+            if artist=="Miki Matsubara" else "")
     return (f'<div class="records"><h2 style="margin:0">The rest of the {html.escape(artist)} catalogue '
             f'<span class="jp">{jp}</span></h2><ul class="disc-grid">{cards}</ul>'
+            f'{credit}'
             f'<p class="note">Each cover opens a search on that store, so you see what is in stock today. '
             f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
             f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
@@ -487,6 +497,20 @@ for it in items:
         pages[link]=(title,desc,body,thumb)
 
 
+reissues_link="/latest-news/japanese-city-pop-vinyl-reissues"
+reissues_title="Japanese City Pop Vinyl Reissues: Where to Find the Best Japanese Records Online"
+reissues_desc="Explore Japanese City Pop vinyl reissues, original pressings, and a guide to finding Japanese records online. Start digging with our Buy Vinyl directory."
+reissues_date="2026-10-14"
+reissues_thumb="/img/anri-timely-wikipedia.png"
+with open(os.path.join(os.path.dirname(__file__),"reissues.html"),encoding="utf-8") as reissues_file:
+    reissues_body=reissues_file.read()
+reissues_art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{reissues_date}</p>'
+              f'<h1>{reissues_title}</h1><div class="lede-rule"></div></div><div class="prose">{reissues_body}</div>'
+              '<p style="padding:1.5rem 0 2rem"><a href="/latest-news">← All news</a></p></div>')
+write(reissues_link,reissues_art,reissues_title,reissues_desc,reissues_thumb,reissues_date)
+cols.setdefault("/latest-news",[]).append((reissues_date,reissues_link,reissues_title,reissues_desc,reissues_thumb))
+urls.append((reissues_link,reissues_date))
+
 names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop — its records, its people, and how a 1980s genre found a second life."),
        "/latest-news":("News","最新情報","Press, interviews, and upcoming dates."),
        "/news1":("Archive","記録","Earlier press and event notes, 2017–2020."),
@@ -496,16 +520,37 @@ names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop �
 def short(t):
     return re.sub(r"^Mayonaka Hour\s*真夜中アワー\s*City Pop Podcast\s*","",t).strip() or t
 
+# Mayonaka Hour episodes: (Spotify episode id, Apple Podcasts episode id)
+POD_SHOW_SP="https://open.spotify.com/show/61mrej1uf1xmFyo7tSHC3C"
+POD_SHOW_AP="https://podcasts.apple.com/us/podcast/id1533448486"
+LISTEN={"/podcast/city-pop-podcast-hideki-saijo":("2rh4hjqs6WV9RQMVnNAZg9","1000542582468"),
+        "/podcast/city-pop-podcast-momoko-kikuchi":("0XprwvkXjp6WmcnHMlr5Aa","1000538143553"),
+        "/podcast/city-pop-podcast-toshiki-kadomatsu":("75KXeet7uJ7MyYgUnHGrpQ","1000535356536"),
+        "/podcast/city-pop-podcast-miki-matsubara":("7buCAgg5m8PskwE8f7SG87","1000532022511"),
+        "/podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi":("4tKkDMssgq50fPLvzbZMwh","1000496198255"),
+        "/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":("6m0pehX03LQO8cBHZjWQxi","1000492869996"),
+        "/podcast/2020/9/22/episode-1-city-pop-genre-overview":("6KFUd6dMHJpSmcjEA08c5v","1000492519458")}
+
+def listen_row(l,t):
+    if l not in LISTEN: return ""
+    s,a=LISTEN[l]; t=html.escape(t)
+    return (f'<p class="listen"><a class="sp" href="https://open.spotify.com/episode/{s}" target="_blank" rel="noopener" '
+            f'aria-label="Play {t} on Spotify">▶ Play on Spotify</a>'
+            f'<a href="{POD_SHOW_AP}?i={a}" target="_blank" rel="noopener" aria-label="Play {t} on Apple Podcasts">Apple Podcasts</a></p>')
+
 def entry_li(d,l,t,x,th):
     t=short(t)
     im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="no-img"></div>'
     return (f'<li><a class="entry" href="{l}">{im}<div><p class="meta">{d}</p><h3>{html.escape(t)}</h3>'
-            f'<p>{html.escape(x)}</p></div></a></li>')
+            f'<p>{html.escape(x)}</p></div></a>{listen_row(l,t)}</li>')
 
 def card(l,t,th,d=""):
     t=short(t)
     im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="no-img" style="width:100%;aspect-ratio:1"></div>'
     return f'<li><a class="card" href="{l}">{im}<h3>{html.escape(t)}</h3><p class="meta">{d}</p></a></li>'
+
+pod_follow=(f'<div class="btn-row" style="margin-top:1.25rem"><a class="btn" href="{POD_SHOW_SP}" target="_blank" rel="noopener">Follow on Spotify</a>'
+            f'<a class="btn btn-ghost" href="{POD_SHOW_AP}" target="_blank" rel="noopener">Apple Podcasts</a></div>')
 
 for col,posts in cols.items():
     posts.sort(reverse=True)
@@ -515,7 +560,7 @@ for col,posts in cols.items():
     else:
         listing=f'<ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in posts)}</ul>'
     body=(f'<div class="wrap"><div class="page-head"><div class="band-head"><h1>{nm}</h1><span class="jp">{jp}</span></div>'
-          f'<p class="hero-lede">{html.escape(blurb)}</p></div>'
+          f'<p class="hero-lede">{html.escape(blurb)}</p>{pod_follow if col=="/podcast" else ""}</div>'
           f'<div style="padding-bottom:3rem">{listing}</div></div>')
     write(col,body,nm,blurb,None,None); urls.append((col,posts[0][0]))
     redirects += [(f"{col}/category/*",col),(f"{col}/tag/*",col)]
@@ -714,7 +759,7 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <p style="max-width:40rem">New writing, upcoming dates, and a note when something worth owning gets repressed. A few times a year, never more.</p>
 <form class="form signup" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="company" action="/subscribed">
 <input type="hidden" name="form-name" value="newsletter">
-<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1"></label></p>
 <label for="nl-email">Email address</label><input id="nl-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
 <button class="btn" type="submit">Join the list</button></form></div></section>
 
@@ -731,7 +776,8 @@ contact=f"""<div class="wrap narrow"><div class="article-head"><h1>Booking &amp;
 <p class="hero-lede">For club nights, festivals, private events, interviews, and licensing. Tell me the date and the room, and I'll come back to you with availability and a rate.</p>
 <form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/thank-you">
 <input type="hidden" name="form-name" value="contact">
-<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<input type="hidden" name="subject" value="New contact form message — %{{siteName}}">
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
 <label for="name">Your name</label><input id="name" name="name" required autocomplete="name">
 <label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email">
 <label for="kind">What is this about?</label><select id="kind" name="kind">
@@ -828,10 +874,14 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
   +"</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
+extra.append(("/blog/rare-city-pop-vinyl-repress","/blog/tatsuro-yamashita-vinyl-repress-pre-order"))
 open(os.path.join(OUT,"_redirects"),"w").write(
   "# /api/reissues is served by netlify/functions/reissues.mjs\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
-  +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b))
+  +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b)
+  +"# Serve generated blog pages directly without directory slash redirects.\n"
+  +"/blog  /blog/index.html  200!\n"
+  +"/blog/*  /blog/:splat/index.html  200!\n")
 missing=[u for u in images.values() if not os.path.exists(os.path.join(OUT,u.lstrip("/")))]
 print(len(urls),"pages,",len(images),"images referenced,",len(missing),"missing images")

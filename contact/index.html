@@ -17,7 +17,8 @@
 <p class="hero-lede">For club nights, festivals, private events, interviews, and licensing. Tell me the date and the room, and I'll come back to you with availability and a rate.</p>
 <form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/thank-you">
 <input type="hidden" name="form-name" value="contact">
-<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<input type="hidden" name="subject" value="New contact form message — %{siteName}">
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
 <label for="name">Your name</label><input id="name" name="name" required autocomplete="name">
 <label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email">
 <label for="kind">What is this about?</label><select id="kind" name="kind">
