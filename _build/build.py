@@ -292,7 +292,7 @@ def top10_layout(body):
         img=im.group(0) if im else ""
         paras=re.findall(r"<p[^>]*>.*?</p>",rest,re.S)
         txt=paras[0] if paras else ""
-        outro+="".join(p for p in paras[1:] if not re.match(r"<p[^>]*>\s*(Buy it on|Pre-?order|Listen)",p))
+        outro+="".join(p for p in paras[1:] if not re.match(r"<p[^>]*>\s*(Buy it on|Pre-?order|Listen)",p) and not (len(_txt(p))<70 and ":" in _txt(p) and "<a " in p))
         eb=shop_links(a,ti)[0][1]
         fig=(f'<a class="al-cover" href="{eb}" target="_blank" rel="sponsored noopener">{img}</a>' if img else "")
         out.append(f'<section class="album"><header class="al-head"><span class="rank">{int(r.group(1)):02d}</span>'
@@ -300,6 +300,37 @@ def top10_layout(body):
                    f'<span class="al-year">{yr}</span></h2></header>'
                    f'<div class="al-main">{fig}<div class="al-text">{txt}</div></div>{buy_row(a,ti,None)}</section>')
     out.append(f'<div class="al-outro">{outro}</div>')
+    return "".join(out),True
+
+LISTPOST="/blog/city-pop-top-albums-list"
+def list_layout(body):
+    body=re.sub(r'<div class="video">.*?</iframe></div>','',body,flags=re.S)
+    body=re.sub(r'<p class="buy-row">.*?</p>',"",body,flags=re.S)
+    heads=[]
+    for m in re.finditer(r"<h2[^>]*>(.*?)</h2>",body,re.S):
+        t=_txt(m.group(1)); pm=PAIR.match(t) if t else None
+        if pm and ok_pair(pm.group(1).strip(),pm.group(2).strip()): heads.append((m,pm))
+    if len(heads)<8: return body,False
+    intro=re.sub(r"<h2[^>]*>\s*</h2>","",body[:heads[0][0].start()])
+    intro=re.sub(r"</?div>","",intro)
+    out=[intro]; outro=""
+    for i,(m,pm) in enumerate(heads):
+        end=heads[i+1][0].start() if i+1<len(heads) else len(body)
+        rest=re.sub(r"</?div>","",body[m.end():end])
+        a,ti=pm.group(1).strip(),pm.group(2).strip(); yr=pm.group(3) or ""
+        if not yr:
+            ym=re.search(r"\((\d{4})\)",_txt(m.group(1))); yr=ym.group(1) if ym else ""
+        im=re.search(r"<img[^>]*>",rest); img=im.group(0) if im else ""
+        paras=re.findall(r"<p[^>]*>.*?</p>",rest,re.S)
+        txt=paras[0] if paras else ""
+        outro+="".join(p for p in paras[1:] if not re.match(r"<p[^>]*>\s*(Buy it on|Pre-?order|Listen)",p) and not (len(_txt(p))<70 and ":" in _txt(p) and "<a " in p))
+        eb=shop_links(a,ti)[0][1]
+        fig=(f'<a class="al-cover" href="{eb}" target="_blank" rel="sponsored noopener">{img}</a>' if img else "")
+        out.append(f'<section class="album"><header class="al-head"><span class="rank">{i+1:02d}</span>'
+                   f'<h2><span class="al-artist">{html.escape(a)}</span><span class="al-title">{html.escape(ti)}</span>'
+                   f'<span class="al-year">{yr}</span></h2></header>'
+                   f'<div class="al-main">{fig}<div class="al-text">{txt}</div></div>{buy_row(a,ti,None)}</section>')
+    if outro: out.append(f'<div class="al-outro">{outro}</div>')
     return "".join(out),True
 
 AUTO={"/blog/2020/10/19/the-top-10-city-pop-albums":"Buy these albums",
@@ -397,6 +428,9 @@ for it in items:
         _a,_jp,_recs=RECORDS[link]
         body,_used=artist_post(body,_a,_jp,_recs)
         _disc=discography_block(_a,_jp,_recs,set(_used)); _inlined=True
+    elif link==LISTPOST:
+        body,_inlined=list_layout(body)
+        if not _inlined: body,_inlined=inline_buy(body)
     elif link==TOP10:
         body,_inlined=top10_layout(body)
         if not _inlined: body,_inlined=inline_buy(body)
@@ -407,7 +441,7 @@ for it in items:
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
-             f'<div class="prose{" top10" if link==TOP10 else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
+             f'<div class="prose{" top10" if link in (TOP10,LISTPOST) else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
              f'<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
