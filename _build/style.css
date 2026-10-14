@@ -498,3 +498,11 @@ iframe.sp{display:block;width:100%;border:0;margin:0}
 .more-reads a:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--shu)}
 .more-reads img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;margin:0}
 .more-reads span{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 1rem .9rem;color:#fff;font-family:"Zen Old Mincho",serif;font-weight:700;font-size:1.2rem;line-height:1.25;background:linear-gradient(transparent,rgba(9,11,15,.88))}
+
+.prose .vinyl-cta{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;width:100%;max-width:28rem;min-height:80px;margin:2rem 0;padding:1.2rem 1.5rem;border:2px solid #e48d70;border-radius:4px;background:#a73523;color:#fff;font-family:"Zen Kaku Gothic New",sans-serif;font-size:clamp(1.2rem,4vw,1.5rem);font-weight:700;letter-spacing:.08em;line-height:1.3;text-align:center;text-decoration:none;text-transform:uppercase;transition:transform .2s ease}
+.prose .vinyl-cta::before{content:"";position:absolute;inset:-5px;z-index:-1;border-radius:inherit;box-shadow:0 0 22px 5px rgba(194,66,43,.55),0 0 48px 12px rgba(194,66,43,.22);pointer-events:none;animation:vinyl-glow 3s ease-in-out infinite}
+.prose .vinyl-cta:hover{color:#fff;background:#942e1e;transform:translateY(-2px)}
+.prose .vinyl-cta:focus-visible{color:#fff;outline:3px solid var(--ink);outline-offset:7px}
+.prose .vinyl-cta:active{transform:translateY(1px)}
+@keyframes vinyl-glow{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.prose .vinyl-cta{transition:none}.prose .vinyl-cta::before{animation:none;opacity:.8}.prose .vinyl-cta:hover,.prose .vinyl-cta:active{transform:none}}

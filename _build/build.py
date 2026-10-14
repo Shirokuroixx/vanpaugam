@@ -441,6 +441,8 @@ for it in items:
             u=attach.get(pm.findtext("wp:meta_value",namespaces=NS))
             if u: thumb=local_img(u)
     body=clean(raw); desc=plain(it.findtext("excerpt:encoded",namespaces=NS) or "") or plain(body)
+    if link=="/latest-news/japanese-city-pop-vinyl-reissues":
+        body=body.replace('<a href="/buy-vinyl">Buy Vinyl Now</a>', '<a class="vinyl-cta" href="/buy-vinyl">Buy Vinyl Now</a>')
     _inlined=False; _disc=""
     if link in RECORDS:
         _a,_jp,_recs=RECORDS[link]
