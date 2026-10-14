@@ -431,3 +431,34 @@ html[data-theme="dark"] body::before{opacity:.04}
 .sub-row input:focus{border-color:var(--shu);outline:none}
 .sub-row button{border:0;cursor:pointer;font-family:inherit;white-space:nowrap}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ===== frosted black header ===== */
+.site-head{background:rgba(9,11,15,.74);-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.site-head .mark{color:#F0F1EC}
+.site-head .mark:hover{color:#E2694C}
+.site-head .site-nav a{color:#B7BFCB}
+.site-head .site-nav a:hover,.site-head .site-nav a[aria-current]{color:#E2694C}
+.site-head .theme{color:#B7BFCB;border-color:rgba(255,255,255,.22)}
+.site-head .theme:hover{color:#E2694C;border-color:#E2694C}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.site-head{background:rgba(9,11,15,.94)}}
+
+/* ===== Top 10 post ===== */
+.prose.top10{max-width:48rem}
+.top10 .album{position:relative;margin:0 0 3.25rem;padding:1.6rem 0 0;border-top:1px solid var(--rule)}
+.top10 .al-head{display:flex;align-items:flex-end;gap:1.1rem;margin-bottom:1.25rem}
+.top10 .rank{font-family:"Zen Old Mincho",serif;font-weight:900;font-size:clamp(3.6rem,10vw,5.8rem);line-height:.82;
+  color:transparent;-webkit-text-stroke:1.5px var(--shu);letter-spacing:-.02em}
+.top10 .al-head h2{margin:0;display:flex;flex-direction:column;gap:.2rem;font-size:1.05rem;line-height:1.2}
+.top10 .al-artist{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--shu);font-weight:700}
+.top10 .al-title{font-family:"Zen Old Mincho",serif;font-weight:700;font-size:clamp(1.55rem,1.2rem + 1.6vw,2.25rem);color:var(--indigo)}
+.top10 .al-year{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.8rem;color:var(--mute);letter-spacing:.12em}
+.top10 .al-main{display:grid;gap:1.4rem}
+.top10 .al-cover{display:block;box-shadow:8px 8px 0 var(--rule);transition:transform .25s ease,box-shadow .25s ease}
+.top10 .al-cover:hover{transform:translate(-3px,-3px);box-shadow:11px 11px 0 var(--shu)}
+.top10 .al-cover img{margin:0;width:100%;aspect-ratio:1/1;object-fit:cover}
+.top10 .al-text p{margin:0;font-size:1.0625rem;line-height:1.8}
+.top10 .buy-row{margin:1.5rem 0 0}
+@media (min-width:760px){.top10 .al-main{grid-template-columns:15rem 1fr;align-items:start;gap:1.9rem}}
+.top10 .al-outro{border-top:3px solid var(--shu);padding-top:1.5rem;font-style:italic}
+.top10 .buy-row{max-width:none;width:100%}

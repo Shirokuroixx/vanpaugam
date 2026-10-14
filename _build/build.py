@@ -265,6 +265,43 @@ def discography_block(artist, jp, recs, skip):
             f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
             f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
 
+TOP10="/blog/2020/10/19/the-top-10-city-pop-albums"
+def top10_layout(body):
+    body=re.sub(r'<div class="video">.*?</iframe></div>','',body,flags=re.S)
+    rank=re.compile(r"<h2[^>]*>\s*#?\s*(\d+)\s*\.?\s*</h2>")
+    ranks=list(rank.finditer(body))
+    if len(ranks)<8: return body,False
+    intro=body[:ranks[0].start()]
+    intro=re.sub(r"<h2[^>]*>\s*The Top 10[^<]*</h2>","",intro)
+    intro=re.sub(r"</?div>","",intro)
+    out=[intro]; outro=""
+    for i,r in enumerate(ranks):
+        end=ranks[i+1].start() if i+1<len(ranks) else len(body)
+        seg=body[r.end():end]
+        seg=re.sub(r'<p class="buy-row">.*?</p>',"",seg,flags=re.S)
+        seg=re.sub(r"</?div>","",seg)
+        hm=re.search(r"<h2[^>]*>(.*?)</h2>",seg,re.S)
+        if not hm: continue
+        t=_txt(hm.group(1)); pm=PAIR.match(t)
+        if not pm: continue
+        a,ti=pm.group(1).strip(),pm.group(2).strip(); yr=pm.group(3) or ""
+        if not yr:
+            ym=re.search(r"\((\d{4})\)",t); yr=ym.group(1) if ym else ""
+        rest=seg[hm.end():]
+        im=re.search(r"<img[^>]*>",rest)
+        img=im.group(0) if im else ""
+        paras=re.findall(r"<p[^>]*>.*?</p>",rest,re.S)
+        txt=paras[0] if paras else ""
+        outro+="".join(paras[1:])
+        eb=shop_links(a,ti)[0][1]
+        fig=(f'<a class="al-cover" href="{eb}" target="_blank" rel="sponsored noopener">{img}</a>' if img else "")
+        out.append(f'<section class="album"><header class="al-head"><span class="rank">{int(r.group(1)):02d}</span>'
+                   f'<h2><span class="al-artist">{html.escape(a)}</span><span class="al-title">{html.escape(ti)}</span>'
+                   f'<span class="al-year">{yr}</span></h2></header>'
+                   f'<div class="al-main">{fig}<div class="al-text">{txt}</div></div>{buy_row(a,ti,None)}</section>')
+    out.append(f'<div class="al-outro">{outro}</div>')
+    return "".join(out),True
+
 AUTO={"/blog/2020/10/19/the-top-10-city-pop-albums":"Buy these albums",
       "/blog/city-pop-top-albums-list":"Buy these albums",
       "/blog/2020/10/20/city-pop-summer":"Buy these records"}
@@ -360,6 +397,9 @@ for it in items:
         _a,_jp,_recs=RECORDS[link]
         body,_used=artist_post(body,_a,_jp,_recs)
         _disc=discography_block(_a,_jp,_recs,set(_used)); _inlined=True
+    elif link==TOP10:
+        body,_inlined=top10_layout(body)
+        if not _inlined: body,_inlined=inline_buy(body)
     elif link in AUTO:
         body,_inlined=inline_buy(body)
     if typ=="post":
@@ -367,7 +407,7 @@ for it in items:
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
-             f'<div class="prose">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
+             f'<div class="prose{" top10" if link==TOP10 else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
              f'<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
