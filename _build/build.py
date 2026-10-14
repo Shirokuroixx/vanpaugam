@@ -696,7 +696,7 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <p style="max-width:40rem">New writing, upcoming dates, and a note when something worth owning gets repressed. A few times a year, never more.</p>
 <form class="form signup" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="company" action="/subscribed">
 <input type="hidden" name="form-name" value="newsletter">
-<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1"></label></p>
 <label for="nl-email">Email address</label><input id="nl-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
 <button class="btn" type="submit">Join the list</button></form></div></section>
 
@@ -713,7 +713,8 @@ contact=f"""<div class="wrap narrow"><div class="article-head"><h1>Booking &amp;
 <p class="hero-lede">For club nights, festivals, private events, interviews, and licensing. Tell me the date and the room, and I'll come back to you with availability and a rate.</p>
 <form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/thank-you">
 <input type="hidden" name="form-name" value="contact">
-<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<input type="hidden" name="subject" value="New contact form message — %{{siteName}}">
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
 <label for="name">Your name</label><input id="name" name="name" required autocomplete="name">
 <label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email">
 <label for="kind">What is this about?</label><select id="kind" name="kind">
