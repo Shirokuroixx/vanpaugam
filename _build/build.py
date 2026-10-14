@@ -599,8 +599,7 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <p class="lede">Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop — over a hundred nights in Chicago, Paris, Berlin, and Tokyo, all of it from original Japanese pressings.</p>
 <div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/buy-vinyl">Buy vinyl</a></div></div>
 <div class="turntable"><div class="platter" aria-hidden="true"></div>
-<figure class="sleeve"><img src="{HERO}" alt="Van Paugam DJing a set from vinyl" fetchpriority="high">
-<figcaption>Original pressings only — Chicago</figcaption></figure></div>
+<figure class="sleeve"><img src="{HERO}" alt="Van Paugam DJing a set from vinyl" fetchpriority="high"></figure></div>
 </div>
 <div class="ticker"><div class="ticker-track"><span>{TICKER}</span><span aria-hidden="true">{TICKER}</span></div></div>
 </section>

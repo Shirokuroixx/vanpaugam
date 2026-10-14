@@ -468,3 +468,11 @@ iframe.sp{display:block;width:100%;border:0;margin:0}
 .sp-grid{display:grid;gap:1.25rem;margin-top:1.5rem}
 @media (min-width:800px){.sp-grid{grid-template-columns:repeat(3,1fr)}}@media (min-width:1100px){.prose .sp-grid{margin-left:-6rem;margin-right:-6rem}}
 @media (min-width:900px){.sp-grid iframe{height:352px}}
+
+/* bigger hero photo */
+@media (min-width:900px){.sideA-in{grid-template-columns:.9fr 1.1fr;gap:48px}}
+.turntable{min-height:420px}
+.sleeve{width:min(100%,560px)}
+.sleeve img{aspect-ratio:4/3.4}
+.platter{width:min(98%,560px)}
+@media (min-width:900px){.sideA-in{grid-template-columns:1fr 1fr;gap:40px}.sideA h1{font-size:clamp(2.4rem,4.4vw,3.6rem)}}
