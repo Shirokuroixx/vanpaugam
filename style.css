@@ -6,7 +6,7 @@
   --indigo:#17233C;       /* headings */
   --mute:#5F6A78;         /* secondary text */
   --shu:#C2422B;          /* vermilion — obi strip, accents */
-  --rule:#CDCEC7;
+  --rule:#CDCEC7; --ink-2:#2B3647; --btn-bg:#17233C; --btn-fg:#FFFFFF;
   --maxw:1120px;
   color-scheme:light;
 }
@@ -43,7 +43,7 @@ hr{border:0;border-top:1px solid var(--rule);margin:3rem 0}
 .hero{display:grid;grid-template-columns:44px 1fr;gap:28px;padding:clamp(2.5rem,6vw,5rem) 0 2.5rem}
 .obi{writing-mode:vertical-rl;background:var(--shu);color:#fff;font-weight:500;letter-spacing:.3em;
   font-size:.8125rem;padding:18px 11px;justify-self:start;align-self:start}
-.hero-lede{font-family:"Zen Old Mincho",serif;font-size:1.1875rem;line-height:1.75;max-width:34rem;color:#2B3647;margin:0 0 1.75rem}
+.hero-lede{font-family:"Zen Old Mincho",serif;font-size:1.1875rem;line-height:1.75;max-width:34rem;color:var(--ink-2);margin:0 0 1.75rem}
 .hero-fig{margin:0;grid-column:1/-1}
 .hero-fig img{width:100%;aspect-ratio:3/2;object-fit:cover}
 .hero-fig figcaption{font-size:.8125rem;color:var(--mute);padding-top:.5rem}
@@ -52,10 +52,10 @@ hr{border:0;border-top:1px solid var(--rule);margin:3rem 0}
   .hero-fig{grid-column:3;grid-row:1}
 }
 .btn-row{display:flex;gap:14px;flex-wrap:wrap}
-.btn{display:inline-block;padding:.7em 1.5em;background:var(--indigo);color:#fff;text-decoration:none;font-size:.9375rem;font-weight:500}
-.btn:hover{background:var(--shu);color:#fff}
-.btn-ghost{background:transparent;color:var(--indigo);box-shadow:inset 0 0 0 1px var(--indigo)}
-.btn-ghost:hover{background:var(--indigo);color:#fff}
+.btn{display:inline-block;padding:.7em 1.5em;background:var(--btn-bg);color:var(--btn-fg);text-decoration:none;font-size:.9375rem;font-weight:500}
+.btn:hover{background:var(--shu);color:#fff;filter:brightness(1.05)}
+.btn-ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--rule)}
+.btn-ghost:hover{background:var(--ink);color:var(--paper);box-shadow:inset 0 0 0 1px var(--ink)}
 
 /* ---- sections ---- */
 .band{padding:3.25rem 0;border-top:1px solid var(--rule)}
@@ -105,7 +105,7 @@ hr{border:0;border-top:1px solid var(--rule);margin:3rem 0}
 .prose img{margin:2rem auto}
 .prose figure{margin:2rem 0}
 .prose figcaption{font-family:"Zen Kaku Gothic New",sans-serif;font-size:.8125rem;color:var(--mute);text-align:center;padding-top:.6rem}
-.prose blockquote{margin:2rem 0;padding-left:1.25rem;border-left:3px solid var(--shu);color:#2B3647}
+.prose blockquote{margin:2rem 0;padding-left:1.25rem;border-left:3px solid var(--shu);color:var(--ink-2)}
 .prose h2{font-size:1.5rem;margin:2.2em 0 .5em}
 .prose h3{font-size:1.2rem}
 .prose ul,.prose ol{padding-left:1.3em}
@@ -314,12 +314,14 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 html[data-theme="dark"]{
   --paper:#10141C; --paper-2:#171D28; --ink:#E3E6E4; --indigo:#F0F1EC;
   --mute:#99A3B2; --shu:#E2694C; --rule:#272F3D;
+  --ink-2:#C9CFD6; --btn-bg:#E2694C; --btn-fg:#13181F;
   color-scheme:dark;
 }
 @media (prefers-color-scheme:dark){
   html:not([data-theme="light"]){
     --paper:#10141C; --paper-2:#171D28; --ink:#E3E6E4; --indigo:#F0F1EC;
     --mute:#99A3B2; --shu:#E2694C; --rule:#272F3D;
+    --ink-2:#C9CFD6; --btn-bg:#E2694C; --btn-fg:#13181F;
     color-scheme:dark;
   }
 }
@@ -375,10 +377,10 @@ html[data-theme="dark"] body::before{opacity:.04}
 .cta{margin:1.75rem 0}
 .btn-xl{display:inline-flex;flex-direction:column;gap:.25rem;padding:1.05em 2.2em;font-size:1.0625rem;
   font-weight:700;letter-spacing:.01em;background:var(--shu);color:#fff;text-decoration:none;
-  box-shadow:6px 6px 0 var(--indigo);transition:transform .15s ease,box-shadow .15s ease}
+  box-shadow:6px 6px 0 var(--ink);transition:transform .15s ease,box-shadow .15s ease}
 .btn-xl span{font-size:.75rem;font-weight:400;letter-spacing:.2em;opacity:.85}
-.btn-xl:hover{color:#fff;transform:translate(3px,3px);box-shadow:3px 3px 0 var(--indigo)}
-.btn-xl:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--indigo)}
+.btn-xl:hover{color:#fff;transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
+.btn-xl:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--ink)}
 /* discography grid */
 .disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:26px;list-style:none;padding:0;margin:1.5rem 0 0}
 .disc-grid li{min-width:0}
@@ -395,3 +397,37 @@ html[data-theme="dark"] body::before{opacity:.04}
 .btn-xl{font-family:"Zen Kaku Gothic New",system-ui,sans-serif}
 .disc-grid h4{font-family:"Zen Kaku Gothic New",system-ui,sans-serif}
 .disc-grid .shops a{text-decoration-color:var(--rule)}
+
+/* ===== prominent Find a copy ===== */
+.buy-row{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem .7rem;margin:1.25rem 0 2.5rem;
+  padding:1rem 1.15rem;border:1px solid var(--rule);border-left:4px solid var(--shu);
+  background:var(--paper-2);font-family:"Zen Kaku Gothic New",sans-serif;font-size:.9375rem}
+.buy-row .fc{font-size:.75rem;letter-spacing:.2em;color:var(--shu);font-weight:700;
+  width:100%;margin-bottom:.1rem}
+.buy-row a{display:inline-block;padding:.5em 1.15em;background:var(--btn-bg);color:var(--btn-fg);
+  text-decoration:none;font-weight:500;font-size:.875rem;transition:background .18s ease}
+.buy-row a:hover{background:var(--shu);color:#fff}
+.disc-grid .shops a{display:inline-block;padding:.35em .8em;background:var(--paper-2);
+  border:1px solid var(--rule);text-decoration:none;font-size:.75rem;color:var(--ink)}
+.disc-grid .shops a:hover{background:var(--shu);color:#fff;border-color:var(--shu)}
+
+/* ===== featured rotator ===== */
+.slides{position:relative}
+.slide{display:none;gap:28px}
+.slide.on{display:grid}
+@media (min-width:880px){.slide.on{grid-template-columns:1.25fr .75fr;align-items:center;gap:44px}}
+.slide img{width:100%;aspect-ratio:3/2;object-fit:cover;background:var(--paper-2)}
+.dots{display:flex;gap:9px;padding-top:1.5rem}
+.dot{width:34px;height:4px;border:0;padding:0;background:var(--rule);cursor:pointer}
+.dot.on{background:var(--shu)}
+.dot:hover{background:var(--mute)}
+
+/* ===== footer subscribe ===== */
+.foot-sub{border-top:1px solid var(--rule);margin-top:2.25rem;padding-top:1.75rem;max-width:34rem}
+.foot-sub p{margin:0 0 .9rem}
+.sub-row{display:flex;gap:10px;flex-wrap:wrap}
+.sub-row input{flex:1 1 15rem;padding:.65em .8em;border:1px solid var(--rule);background:var(--paper-2);
+  color:var(--ink);font:inherit;font-size:.9375rem;border-radius:0}
+.sub-row input:focus{border-color:var(--shu);outline:none}
+.sub-row button{border:0;cursor:pointer;font-family:inherit;white-space:nowrap}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

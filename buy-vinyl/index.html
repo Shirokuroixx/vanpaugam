@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/style.css">
 <script>try{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head><body>
-<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav"><a href="/about-van-paugam">About</a><a href="/somehow-city-pop-book">The Book</a><a href="/blog">Writing</a><a href="/podcast">Podcast</a><a href="/new-music">New Music</a><a href="/buy-vinyl" aria-current="page">Buy Vinyl</a><a href="/latest-news">News</a><a href="/contact">Contact</a><button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
+<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav"><a href="/about-van-paugam">About</a><a href="/somehow-city-pop-book">The Book</a><a href="/blog">Writing</a><a href="/blog/2020/10/19/the-top-10-city-pop-albums">Top 10</a><a href="/podcast">Podcast</a><a href="/new-music">New Music</a><a href="/buy-vinyl" aria-current="page">Buy Vinyl</a><a href="/latest-news">News</a><a href="/contact">Contact</a><button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
 <main id="main"><div class="wrap"><div class="page-head"><div class="band-head"><h1>Buy vinyl</h1><span class="jp">レコード</span></div>
 <p class="hero-lede">Where I actually look for City Pop records — and a live feed of what has just been reissued or newly pressed, straight from the Discogs database.</p></div>
 
@@ -51,7 +51,7 @@ As an Amazon Associate I earn from qualifying purchases.</p>
     li.innerHTML=cover+'<div><p class="meta"><span class="tag'+(r.isReissue?'':' new')+'">'+(r.isReissue?'Reissue':'New release')+'</span>'+
       r.year+(r.country?" · "+r.country:"")+'</p><h3>'+esc(r.title)+'</h3><p class="who">'+esc(r.artist)+'</p>'+
       '<p class="meta">'+esc(meta)+'</p><p class="buy">'+buy+
-      '<a href="'+r.discogs+'" target="_blank" rel="noopener" style="color:var(--mute)">Discogs</a></p></div>';
+      '</p></div>';
     return li;
   }
   function esc(t){var d=document.createElement("div");d.textContent=t==null?"":t;return d.innerHTML}
@@ -71,9 +71,18 @@ As an Amazon Associate I earn from qualifying purchases.</p>
 <footer class="site-foot"><div class="wrap"><div class="foot-grid">
 <div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese City Pop on original pressings — writing, radio, and records from Chicago.</p></div>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
-<div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/vinyl">My picks</a></li><li><a href="/new-music">New music</a></li><li><a href="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq" rel="noopener">Spotify</a></li></ul></div>
+<div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq" rel="noopener">Spotify</a></li></ul></div>
 <div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="https://www.instagram.com/vanpaugam/" rel="me noopener">Instagram</a></li><li><a href="https://www.facebook.com/vanpaugam" rel="me noopener">Facebook</a></li></ul></div>
-</div><p class="colophon">© Van Paugam 2026. Chicago.</p></div></footer>
+</div>
+<div class="foot-sub"><h4>The mailing list</h4>
+<p>New writing, upcoming dates, and a note when something worth owning gets repressed.</p>
+<form class="form signup" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="company" action="/subscribed">
+<input type="hidden" name="form-name" value="newsletter">
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1"></label></p>
+<div class="sub-row"><label class="vh" for="foot-email">Email address</label>
+<input id="foot-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
+<button class="btn" type="submit">Join</button></div></form></div>
+<p class="colophon">© Van Paugam 2026. Chicago.</p></div></footer>
 <script>(function(){var r=document.documentElement,b=document.getElementById("theme");if(!b)return;
 function dark(){return r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
 function label(){b.textContent=dark()?"Light":"Dark"}

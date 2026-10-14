@@ -54,7 +54,7 @@ def clean(body):
     body=re.sub(r"<h3[^>]*>\s*AUTHOR\s*</h3>.*$","",body,flags=re.S|re.I)
     return IMG_RE.sub(lambda m: local_img(m.group(0)),body)
 
-NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),
+NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
      ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
 def head(path,title,desc,img,date):
@@ -86,9 +86,18 @@ FOOT=f"""</main>
 <footer class="site-foot"><div class="wrap"><div class="foot-grid">
 <div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese City Pop on original pressings — writing, radio, and records from Chicago.</p></div>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
-<div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/vinyl">My picks</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
+<div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
 <div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
-</div><p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer>
+</div>
+<div class="foot-sub"><h4>The mailing list</h4>
+<p>New writing, upcoming dates, and a note when something worth owning gets repressed.</p>
+<form class="form signup" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="company" action="/subscribed">
+<input type="hidden" name="form-name" value="newsletter">
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1"></label></p>
+<div class="sub-row"><label class="vh" for="foot-email">Email address</label>
+<input id="foot-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
+<button class="btn" type="submit">Join</button></div></form></div>
+<p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer>
 <script>(function(){{var r=document.documentElement,b=document.getElementById("theme");if(!b)return;
 function dark(){{return r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches}}
 function label(){{b.textContent=dark()?"Light":"Dark"}}
@@ -154,9 +163,7 @@ def strip_legacy(seg):
 
 def buy_row(artist,title,extra):
     parts=[f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(artist,title)]
-    if extra.get("Discogs"): parts.append(f'<a href="{extra["Discogs"]}" target="_blank" rel="noopener">Discogs</a>')
-    if extra.get("Listen"): parts.append(f'<a href="{extra["Listen"]}" target="_blank" rel="noopener">Listen</a>')
-    return f'<p class="buy-row"><span>Find a copy</span>{"".join(parts)}</p>'
+    return f'<p class="buy-row"><span class="fc">Find a copy</span>{"".join(parts)}</p>'
 
 def link_first_img(seg,href):
     def one(m):
@@ -437,18 +444,21 @@ book_img=None
 if "/somehow-city-pop-book" in pages:
     m=re.search(r'src="(/img/[^"]+)"',pages["/somehow-city-pop-book"][2]); book_img=m.group(1) if m else None
 
-FEATURED="/blog/who-is-miki-matsubara"
-_f=[r for r in cols.get("/blog",[]) if r[1]==FEATURED]
-if _f:
-    _d,_l,_t,_x,_th=_f[0]
-    FEATURED_HTML=(f'<section class="featured"><div class="wrap featured-in">'
-      f'<a class="ttl" href="{_l}"><img src="{_th}" alt="" fetchpriority="high"></a>'
+FEATURED=["/blog/who-is-miki-matsubara",
+          "/blog/2020/10/19/the-top-10-city-pop-albums",
+          "/blog/city-pop-top-albums-list"]
+_byl={r[1]:r for r in cols.get("/blog",[])}
+_slides=""; _dots=""
+for _i,_p in enumerate([x for x in FEATURED if x in _byl]):
+    _d,_l,_t,_x,_th=_byl[_p]
+    _slides+=(f'<article class="slide{" on" if _i==0 else ""}" data-i="{_i}">'
+      f'<a class="ttl" href="{_l}"><img src="{_th}" alt=""{" fetchpriority=\"high\"" if _i==0 else " loading=\"lazy\""}></a>'
       f'<div><span class="jp">Featured 特集</span><a class="ttl" href="{_l}"><h2>{html.escape(_t)}</h2></a>'
-      f'<p class="meta" style="margin:-.3rem 0 1rem">{_d}</p>'
-      f'<p>{html.escape(_x)}</p>'
-      f'<div class="btn-row"><a class="btn" href="{_l}">Read the story</a></div></div></div></section>')
-else:
-    FEATURED_HTML=""
+      f'<p class="meta" style="margin:-.3rem 0 1rem">{_d}</p><p>{html.escape(_x)}</p>'
+      f'<div class="btn-row"><a class="btn" href="{_l}">Read the story</a></div></div></article>')
+    _dots+=f'<button type="button" class="dot{" on" if _i==0 else ""}" data-i="{_i}" aria-label="Featured story {_i+1}"></button>'
+FEATURED_HTML=(f'<section class="featured" id="featured"><div class="wrap">'
+   f'<div class="slides">{_slides}</div><div class="dots">{_dots}</div></div></section>') if _slides else ""
 
 def tick_link(t):
     a,_,ti = t.partition(" - ")
@@ -479,6 +489,21 @@ def lead_card(d,l,t,x,th,big=False):
             + (f'<p>{html.escape(x)}</p>' if big else "") + '</a>')
 
 HOME_JS = """
+(function(){
+  var sl=[].slice.call(document.querySelectorAll('#featured .slide')),
+      dt=[].slice.call(document.querySelectorAll('#featured .dot')), i=0, timer;
+  if(sl.length>1){
+    var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function go(n){ sl[i].classList.remove('on'); dt[i].classList.remove('on');
+      i=(n+sl.length)%sl.length; sl[i].classList.add('on'); dt[i].classList.add('on'); }
+    function start(){ if(!rm) timer=setInterval(function(){go(i+1)},7000) }
+    dt.forEach(function(d){ d.addEventListener('click',function(){ clearInterval(timer); go(+d.dataset.i); start(); }) });
+    var box=document.getElementById('featured');
+    box.addEventListener('mouseenter',function(){clearInterval(timer)});
+    box.addEventListener('mouseleave',start);
+    start();
+  }
+})();
 (function(){
   var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if ('IntersectionObserver' in window && !rm){
@@ -622,7 +647,7 @@ buy_js = """
     li.innerHTML=cover+'<div><p class="meta"><span class="tag'+(r.isReissue?'':' new')+'">'+(r.isReissue?'Reissue':'New release')+'</span>'+
       r.year+(r.country?" · "+r.country:"")+'</p><h3>'+esc(r.title)+'</h3><p class="who">'+esc(r.artist)+'</p>'+
       '<p class="meta">'+esc(meta)+'</p><p class="buy">'+buy+
-      '<a href="'+r.discogs+'" target="_blank" rel="noopener" style="color:var(--mute)">Discogs</a></p></div>';
+      '</p></div>';
     return li;
   }
   function esc(t){var d=document.createElement("div");d.textContent=t==null?"":t;return d.innerHTML}
