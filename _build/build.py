@@ -202,8 +202,14 @@ def inline_buy(body):
     return body,True
 
 
-COVERS={}
 def ckey(x): return re.sub(r"[^a-z0-9]","",re.sub(r"\[[^\]]*\]|\([^)]*\)","",x).lower())
+COVERS={ckey("Miki Matsubara"+title):f"/img/miki-matsubara-{filename}.jpg" for title,filename in [
+    ("Mayonaka no Door / Stay With Me","stay-with-me"),
+    ("Pocket Park","pocketpark"),("Who Are You?","whoareyou"),
+    ("Cupid","cupid"),("Myself","myself"),("Aya","aya"),
+    ("Revue","revue"),("Blue Eyes","blueeyes"),("Cool Cut","coolcut"),
+    ("Lady Bounce","ladybounce"),("Wink","wink")
+]}
 def find_cover(artist,title):
     for k in (ckey(artist+title), ckey(title)):
         if k and k in COVERS: return COVERS[k]
@@ -252,15 +258,19 @@ def discography_block(artist, jp, recs, skip):
     cards=""
     for title,alt in rest:
         cov=find_cover(artist,title)
-        art=(f'<img src="{cov}" alt="" loading="lazy">' if cov
+        art=(f'<img src="{cov}" alt="{html.escape(artist+" — "+title+" cover artwork",quote=True)}" loading="lazy">' if cov
              else f'<div class="sleeve-ph"><span>{html.escape(title)}</span></div>')
         eb=shop_links(artist,title)[0][1]
         shops="".join(f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(artist,title))
         cards+=(f'<li><a class="disc-art" href="{eb}" target="_blank" rel="sponsored noopener">{art}</a>'
                 f'<h4>{html.escape(title)}{f" <span class=\'meta\'>{alt}</span>" if alt else ""}</h4>'
                 f'<p class="shops">{shops}</p></li>')
+    credit=('<p class="note">Cover artwork: <a href="https://miki-matsubara-45th.ponycanyon.co.jp/" target="_blank" rel="noopener">Pony Canyon</a>; '
+            '<a href="https://www.jvcmusic.co.jp/flyingdog/-/Discography/A000440/VEATP-37913.html" target="_blank" rel="noopener">Victor / FlyingDog (Wink)</a>.</p>'
+            if artist=="Miki Matsubara" else "")
     return (f'<div class="records"><h2 style="margin:0">The rest of the {html.escape(artist)} catalogue '
             f'<span class="jp">{jp}</span></h2><ul class="disc-grid">{cards}</ul>'
+            f'{credit}'
             f'<p class="note">Each cover opens a search on that store, so you see what is in stock today. '
             f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
             f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
