@@ -292,7 +292,7 @@ def top10_layout(body):
         img=im.group(0) if im else ""
         paras=re.findall(r"<p[^>]*>.*?</p>",rest,re.S)
         txt=paras[0] if paras else ""
-        outro+="".join(paras[1:])
+        outro+="".join(p for p in paras[1:] if not re.match(r"<p[^>]*>\s*(Buy it on|Pre-?order|Listen)",p))
         eb=shop_links(a,ti)[0][1]
         fig=(f'<a class="al-cover" href="{eb}" target="_blank" rel="sponsored noopener">{img}</a>' if img else "")
         out.append(f'<section class="album"><header class="al-head"><span class="rank">{int(r.group(1)):02d}</span>'
