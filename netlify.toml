@@ -1,0 +1,9 @@
+[build]
+  command = "python3 _build/build.py _build/export.xml . _build/style.css"
+  publish = "."
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.html]
+  pretty_urls = false
