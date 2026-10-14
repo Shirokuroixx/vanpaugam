@@ -11,7 +11,7 @@ SP="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq"
 HERO="/img/e0b5460d12093f.jpg"
 
 for p in os.listdir(OUT):
-    if p not in ("img",".git","_build","netlify"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
+    if p not in ("img",".git",".netlify","_build","netlify","netlify.toml"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
 
 images={}
 def local_img(url):
@@ -835,10 +835,14 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
   +"</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
+extra.append(("/blog/rare-city-pop-vinyl-repress","/blog/tatsuro-yamashita-vinyl-repress-pre-order"))
 open(os.path.join(OUT,"_redirects"),"w").write(
   "# /api/reissues is served by netlify/functions/reissues.mjs\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
-  +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b))
+  +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b)
+  +"# Serve generated blog pages directly without directory slash redirects.\n"
+  +"/blog  /blog/index.html  200!\n"
+  +"/blog/*  /blog/:splat/index.html  200!\n")
 missing=[u for u in images.values() if not os.path.exists(os.path.join(OUT,u.lstrip("/")))]
 print(len(urls),"pages,",len(images),"images referenced,",len(missing),"missing images")
