@@ -1,6 +1,10 @@
 # /api/reissues is served by netlify/functions/reissues.mjs
 # Squarespace -> static. 301 keeps Google rankings.
 https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!
+https://vanpaugam.netlify.app/*  https://vanpaugam.com/:splat  301!
+/who-is-van-paugam  /about-van-paugam  301
+/interviews  /about-van-paugam  301
+/blog/rare-city-pop-vinyl-repress  /blog/tatsuro-yamashita-vinyl-repress-pre-order  301
 /latest-news/category/*  /latest-news  301
 /latest-news/tag/*  /latest-news  301
 /blog/category/*  /blog  301
@@ -11,10 +15,10 @@ https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!
 /podcast/tag/*  /podcast  301
 /vinyl/category/*  /vinyl  301
 /vinyl/tag/*  /vinyl  301
-/home  /  301
-/contact-1  /contact  301
-/blog-1  /blog  301
-/new  /latest-news  301
-/city-pop-blog  /blog  301
-/new-page-1  /  301
-/member-site-homepage-1  /  301
+/home  /  301!
+/contact-1  /contact  301!
+/blog-1  /blog  301!
+/new  /latest-news  301!
+/city-pop-blog  /blog  301!
+/new-page-1  /  301!
+/member-site-homepage-1  /  301!

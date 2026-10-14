@@ -25,6 +25,13 @@ ATTR_D=re.compile(r'\s(?:data-[a-z0-9-]+|class|id|style|aria-hidden)\s*=\s*"[^"]
 ATTR_S=re.compile(r"\s(?:data-[a-z0-9-]+|class|id|style|aria-hidden)\s*=\s*'[^']*'",re.S)
 IMG_RE=re.compile(r'https?://images\.squarespace-cdn\.com/[^"\'\s)>]+')
 
+# retired Squarespace URLs still linked from post bodies -> live pages
+DEAD={"/who-is-van-paugam":"/about-van-paugam","/interviews":"/about-van-paugam",
+      "/blog/rare-city-pop-vinyl-repress":"/blog/tatsuro-yamashita-vinyl-repress-pre-order"}
+# duplicate pages Squarespace left behind; never built, always redirected
+RETIRED={"/home":"/","/contact-1":"/contact","/blog-1":"/blog","/new":"/latest-news","/city-pop-blog":"/blog",
+        "/new-page-1":"/","/member-site-homepage-1":"/"}
+
 def clean(body):
     body=re.sub(r"<style.*?</style>","",body,flags=re.S)
     def cap(m):
@@ -49,6 +56,7 @@ def clean(body):
         body=re.sub(r"<(div|section|article|span|p)(?:\s[^>]*)?>\s*</\1>","",body)
     body=re.sub(r'<a href="https://vanpaugam.com/blog\?format=rss"[^>]*>Blog RSS</a>',"",body)
     body=re.sub(r"https?://(www\.)?vanpaugam(\.squarespace)?\.com/","/",body)
+    for a,b in DEAD.items(): body=body.replace(f'href="{a}"',f'href="{b}"')
     body=re.sub(r"<(div|section|article)>\s*</\1>","",body)
     body=re.sub(r"<(/?)h1(\s|>)",r"<\1h2\2",body)
     body=re.sub(r"<h3[^>]*>\s*AUTHOR\s*</h3>.*$","",body,flags=re.S|re.I)
@@ -70,6 +78,7 @@ def head(path,title,desc,img,date):
 <title>{html.escape(title)} — Van Paugam</title>
 <meta name="description" content="{html.escape(desc)}">
 <link rel="canonical" href="{canon}">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/favicon.png" type="image/png"><link rel="apple-touch-icon" href="/favicon.png">
 <meta property="og:site_name" content="Van Paugam"><meta property="og:title" content="{html.escape(title)}">
 <meta property="og:description" content="{html.escape(desc)}"><meta property="og:url" content="{canon}">
 <meta property="og:type" content="{'article' if date else 'website'}">{f'<meta property="og:image" content="{SITE}{img}">' if img else ''}
@@ -429,7 +438,7 @@ for it in items:
     typ=it.findtext("wp:post_type",namespaces=NS)
     if typ not in ("post","page") or it.findtext("wp:status",namespaces=NS)!="publish": continue
     link=it.findtext("link") or ""
-    if link.startswith("http") or link=="/home": continue
+    if link.startswith("http") or link in RETIRED: continue
     title=html.unescape(html.unescape(it.findtext("title") or ""))
     title=re.sub(r"([\u3040-\u30ff\u4e00-\u9fff])([A-Za-z(])",r"\1 \2",title)
     title=re.sub(r"([A-Za-z)])([\u3040-\u30ff\u4e00-\u9fff])",r"\1 \2",title)
@@ -809,11 +818,13 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
   +"".join(f"  <url><loc>{SITE}{u}</loc>{f'<lastmod>{d}</lastmod>' if d else ''}</url>\n" for u,d in sorted(set(urls)))
   +"</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
-extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
 open(os.path.join(OUT,"_redirects"),"w").write(
   "# /api/reissues is served by netlify/functions/reissues.mjs\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
-  +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b))
+  "https://vanpaugam.netlify.app/*  https://vanpaugam.com/:splat  301!\n"
+  +"".join(f"{a}  {b}  301\n" for a,b in DEAD.items())
+  +"".join(f"{a}  {b}  301\n" for a,b in redirects if a!=b)
+  +"".join(f"{a}  {b}  301!\n" for a,b in RETIRED.items()))
 missing=[u for u in images.values() if not os.path.exists(os.path.join(OUT,u.lstrip("/")))]
 print(len(urls),"pages,",len(images),"images referenced,",len(missing),"missing images")
