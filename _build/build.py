@@ -303,6 +303,7 @@ def top10_layout(body):
     return "".join(out),True
 
 LISTPOST="/blog/city-pop-top-albums-list"
+LISTPOSTS=(LISTPOST,"/blog/2020/10/20/city-pop-summer")
 def list_layout(body):
     body=re.sub(r'<div class="video">.*?</iframe></div>','',body,flags=re.S)
     body=re.sub(r'<p class="buy-row">.*?</p>',"",body,flags=re.S)
@@ -310,8 +311,15 @@ def list_layout(body):
     for m in re.finditer(r"<h2[^>]*>(.*?)</h2>",body,re.S):
         t=_txt(m.group(1)); pm=PAIR.match(t) if t else None
         if pm and ok_pair(pm.group(1).strip(),pm.group(2).strip()): heads.append((m,pm))
+    if len(heads)<8:
+        heads=[]
+        for m in re.finditer(r"<p[^>]*>(.*?)</p>",body,re.S):
+            t=_txt(m.group(1))
+            if not t or len(t)>72 or ":" in t or t.endswith("."): continue
+            pm=PAIR.match(t)
+            if pm and ok_pair(pm.group(1).strip(),pm.group(2).strip()): heads.append((m,pm))
     if len(heads)<8: return body,False
-    intro=re.sub(r"<h2[^>]*>\s*</h2>","",body[:heads[0][0].start()])
+    intro=re.sub(r"<h2[^>]*>\s*(City Pop Songs[^<]*)?</h2>","",body[:heads[0][0].start()])
     intro=re.sub(r"</?div>","",intro)
     out=[intro]; outro=""
     for i,(m,pm) in enumerate(heads):
@@ -325,19 +333,29 @@ def list_layout(body):
         txt=paras[0] if paras else ""
         outro+="".join(p for p in paras[1:] if not re.match(r"<p[^>]*>\s*(Buy it on|Pre-?order|Listen)",p) and not (len(_txt(p))<70 and ":" in _txt(p) and "<a " in p))
         eb=shop_links(a,ti)[0][1]
+        if not img:
+            _c=find_cover(a,ti); img=f'<img src="{_c}" alt="">' if _c else ""
         fig=(f'<a class="al-cover" href="{eb}" target="_blank" rel="sponsored noopener">{img}</a>' if img else "")
         out.append(f'<section class="album"><header class="al-head"><span class="rank">{i+1:02d}</span>'
                    f'<h2><span class="al-artist">{html.escape(a)}</span><span class="al-title">{html.escape(ti)}</span>'
                    f'<span class="al-year">{yr}</span></h2></header>'
-                   f'<div class="al-main">{fig}<div class="al-text">{txt}</div></div>{buy_row(a,ti,None)}</section>')
+                   f'<div class="al-main{"" if fig else " nocover"}">{fig}<div class="al-text">{txt}</div></div>{buy_row(a,ti,None)}</section>')
     if outro: out.append(f'<div class="al-outro">{outro}</div>')
     return "".join(out),True
+
+MORE={"/blog/2020/10/19/the-top-10-city-pop-albums":[
+  ("/blog/2020/10/20/city-pop-summer","10 City Pop Songs About Summer","/img/1c88cb968d75f0.jpg"),
+  ("/blog/city-pop-top-albums-list","Another Top 10 City Pop Songs List","/img/bf1d1fb833caeb.png")]}
+def more_block(link):
+    if link not in MORE: return ""
+    cards="".join(f'<li><a href="{l}"><img src="{im}" alt="" loading="lazy"><span>{html.escape(t)}</span></a></li>' for l,t,im in MORE[link])
+    return f'<div class="more-reads"><h2>Keep reading <span class="jp">続き</span></h2><ul>{cards}</ul></div>'
 
 AUTO={"/blog/2020/10/19/the-top-10-city-pop-albums":"Buy these albums",
       "/blog/city-pop-top-albums-list":"Buy these albums",
       "/blog/2020/10/20/city-pop-summer":"Buy these records"}
 PAIR=re.compile(r"^(?:#?\s*\d+[.)]\s*)?([^-\u2013\u2014]{2,45}?)\s*[-\u2013\u2014]\s*([^-\u2013\u2014]{2,70}?)(?:\s*[\(\[](\d{4})[\)\]])?\s*$")
-def _txt(x): return re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>","",x))).strip()
+def _txt(x): return re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>","",x)).replace("\ufeff","")).strip()
 BADSTART=re.compile(r"(?i)^(pre-?order|order|buy|get|listen|stream|price|available|click|shop|find|here|out now|new)\b")
 def ok_pair(a,ti):
     return (a and ti and not BADSTART.match(a) and not BADSTART.match(ti)
@@ -428,7 +446,7 @@ for it in items:
         _a,_jp,_recs=RECORDS[link]
         body,_used=artist_post(body,_a,_jp,_recs)
         _disc=discography_block(_a,_jp,_recs,set(_used)); _inlined=True
-    elif link==LISTPOST:
+    elif link in LISTPOSTS:
         body,_inlined=list_layout(body)
         if not _inlined: body,_inlined=inline_buy(body)
     elif link==TOP10:
@@ -441,8 +459,8 @@ for it in items:
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
-             f'<div class="prose{" top10" if link in (TOP10,LISTPOST) else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
-             f'<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
+             f'<div class="prose{" top10" if link in (TOP10,)+LISTPOSTS else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
+             f'{more_block(link)}<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
     else:

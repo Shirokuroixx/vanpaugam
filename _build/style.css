@@ -486,3 +486,15 @@ iframe.sp{display:block;width:100%;border:0;margin:0}
 .rel .buy{gap:.4rem .5rem;margin-top:.75rem}
 .rel .buy a{display:inline-block;padding:.35em .85em;background:var(--btn-bg);color:var(--btn-fg);text-decoration:none;font-size:.75rem;font-weight:600;letter-spacing:.03em;transition:background .18s ease}
 .rel .buy a:hover{background:var(--shu);color:#fff}
+.top10 .al-main.nocover{display:block}
+.top10 .al-year:empty{display:none}
+
+/* Keep reading picture links */
+.more-reads{margin:1rem 0 2rem;padding-top:1.75rem;border-top:3px solid var(--shu)}
+.more-reads h2{margin:0 0 1.1rem;font-size:1.5rem}
+.more-reads ul{list-style:none;margin:0;padding:0;display:grid;gap:1.25rem}
+@media (min-width:640px){.more-reads ul{grid-template-columns:1fr 1fr}}
+.more-reads a{display:block;position:relative;text-decoration:none;box-shadow:6px 6px 0 var(--rule);transition:transform .25s ease,box-shadow .25s ease}
+.more-reads a:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--shu)}
+.more-reads img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;margin:0}
+.more-reads span{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 1rem .9rem;color:#fff;font-family:"Zen Old Mincho",serif;font-weight:700;font-size:1.2rem;line-height:1.25;background:linear-gradient(transparent,rgba(9,11,15,.88))}
