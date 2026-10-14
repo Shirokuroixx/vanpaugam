@@ -417,10 +417,27 @@ def records_block(path):
             f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
             f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
 
+# ---------- podcast players: Apple Podcasts episode ids for each post ----------
+PODSHOW="1533448486"; PODSPOT="https://open.spotify.com/show/61mrej1uf1xmFyo7tSHC3C"
+EPISODES={"/podcast/2020/9/22/episode-1-city-pop-genre-overview":"1000492519458",
+          "/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":"1000492869996",
+          "/podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi":"1000496198255",
+          "/podcast/city-pop-podcast-miki-matsubara":"1000532022511",
+          "/podcast/city-pop-podcast-toshiki-kadomatsu":"1000535356536",
+          "/podcast/city-pop-podcast-momoko-kikuchi":"1000538143553",
+          "/podcast/city-pop-podcast-hideki-saijo":"1000542582468"}
+def episode_player(i):
+    return (f'<div class="episode"><iframe class="ap" src="https://embed.podcasts.apple.com/us/podcast/id{PODSHOW}?i={i}&amp;theme=auto" '
+            f'height="175" frameborder="0" loading="lazy" title="Play this episode" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" '
+            f'sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>'
+            f'<p class="also">Also on <a href="{PODSPOT}" target="_blank" rel="noopener">Spotify</a> and '
+            f'<a href="https://podcasts.apple.com/us/podcast/id{PODSHOW}?i={i}" target="_blank" rel="noopener">Apple Podcasts</a></p></div>')
+
 # ---------- parse ----------
 root=ET.parse(SRC).getroot(); items=root.find("channel").findall("item")
 attach={it.findtext("wp:post_id",namespaces=NS):it.findtext("wp:attachment_url",namespaces=NS)
         for it in items if it.findtext("wp:post_type",namespaces=NS)=="attachment"}
+
 for it in items:
     if it.findtext("wp:post_type",namespaces=NS)!="post": continue
     _l=it.findtext("link") or ""
@@ -467,6 +484,7 @@ for it in items:
         body,_inlined=inline_buy(body)
     if typ=="post":
         col="/"+link.strip("/").split("/")[0]
+        if link in EPISODES: body=episode_player(EPISODES[link])+body
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
