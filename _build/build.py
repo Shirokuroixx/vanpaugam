@@ -11,7 +11,7 @@ SP="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq"
 HERO="/img/e0b5460d12093f.jpg"
 
 for p in os.listdir(OUT):
-    if p not in ("img",".git","_build"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
+    if p not in ("img",".git","_build","netlify"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
 
 images={}
 def local_img(url):
@@ -588,7 +588,7 @@ HOME_JS = """
       a.querySelector('h4').textContent=r.title; a.querySelector('p').textContent=r.artist;
       li.appendChild(a); ul.appendChild(li);
     });
-    document.getElementById('strip-note').textContent='Reissued or newly pressed this season.';
+    document.getElementById('pressed').hidden=false;
   }).catch(function(){});
 })();
 """
@@ -618,10 +618,10 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div class="lead-grid"><div>{lead_card(*blog[0],big=True) if blog else ''}</div>
 <ul class="entries" style="margin:0">{"".join(entry_li(*b) for b in blog[1:4])}</ul></div></section>
 
-<section class="band"><div class="band-head"><h2>Just pressed</h2><span class="jp">新譜</span><a class="more" href="/buy-vinyl">Buy vinyl</a></div>
+<section class="band" id="pressed" hidden><div class="band-head"><h2>Just pressed</h2><span class="jp">新譜</span><a class="more" href="/buy-vinyl">Buy vinyl</a></div>
 <div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
-<ul class="strip" id="strip">{"".join(strip_li(l,t,th) for _,l,t,_,th in vin[:6])}</ul>
-<p class="meta" id="strip-note" style="padding-top:1rem">From the shelf — see Buy vinyl for the live reissue feed.</p></section>
+<ul class="strip" id="strip"></ul>
+<p class="meta" id="strip-note" style="padding-top:1rem">Reissued or newly pressed this season.</p></section>
 
 <section class="band"><div class="band-head"><h2>On the turntable</h2><span class="jp">プレイリスト</span><a class="more" href="/new-music">New music</a></div>
 <div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
@@ -758,8 +758,7 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
 open(os.path.join(OUT,"_redirects"),"w").write(
-  "# Live reissue feed, proxied so the browser sees it as same-origin.\n"
-  "/api/reissues  https://citypopwiki.org/api/reissues  200\n\n"
+  "# /api/reissues is served by netlify/functions/reissues.mjs\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
   +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b))
