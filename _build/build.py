@@ -451,6 +451,13 @@ for col,posts in cols.items():
 
 SPOT="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq"
 OTONAMI_RE=re.compile(r'<a href="(https://otonami\.io/submit/[^"]+)"[^>]*>.*?</a>',re.S)
+
+def sp(kind,i,h=352):
+    return (f'<iframe class="sp" style="border-radius:12px" src="https://open.spotify.com/embed/{kind}/{i}" width="100%" height="{h}" '
+            f'frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" title="Spotify"></iframe>')
+PLAYLIST=sp("playlist","6US7ZVtZ163U0ylpB0vBdb")
+ARTISTS="".join(sp("artist",a) for a in ("070Fcof8UsnauUrWgURSMd","6YdN2wFgj8ChwVhSkVQJOD","7b7UbINKyRM9cq1Au8kRK3"))
+
 def page_extras(link,body):
     if link!="/new-music": return body
     body=OTONAMI_RE.sub(lambda m:
@@ -460,7 +467,9 @@ def page_extras(link,body):
            f'<p style="max-width:40rem">Everything I am playing out, and the new Japanese records worth your time, '
            f'collected on Spotify.</p>'
            f'<p class="cta"><a class="btn btn-xl" href="{SPOT}" target="_blank" rel="noopener">'
-           f'Listen on Spotify<span>Van Paugam</span></a></p></div>')
+           f'Listen on Spotify<span>Van Paugam</span></a></p>'
+           f'<div class="sp-grid">{ARTISTS}</div>'
+           f'<h3 style="margin:2rem 0 .8rem">The playlist</h3>{PLAYLIST}</div>')
     return body
 
 for link,(title,desc,body,thumb) in pages.items():
@@ -614,6 +623,10 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
 <ul class="strip" id="strip">{"".join(strip_li(l,t,th) for _,l,t,_,th in vin[:6])}</ul>
 <p class="meta" id="strip-note" style="padding-top:1rem">From the shelf — see Buy vinyl for the live reissue feed.</p></section>
+
+<section class="band"><div class="band-head"><h2>On the turntable</h2><span class="jp">プレイリスト</span><a class="more" href="/new-music">New music</a></div>
+<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
+{PLAYLIST}</section>
 
 <section class="band"><div class="band-head"><h2>Somehow, City Pop</h2><span class="jp">書籍</span></div>
 <div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
