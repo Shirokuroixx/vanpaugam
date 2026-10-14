@@ -447,6 +447,7 @@ for it in items:
         body,_used=artist_post(body,_a,_jp,_recs)
         _disc=discography_block(_a,_jp,_recs,set(_used)); _inlined=True
     elif link in LISTPOSTS:
+        body=body.replace("As an added feature to these kinds of posts, I am hyperlinking the lyrics and also the Discogs page for each one, where you can see purchase options for every record if you’re in the market for picking up one of these on wax.","Each song links to its lyrics where I could find them, and every entry has quick links to hunt down a copy on vinyl if you want to pick one up on wax.")
         body,_inlined=list_layout(body)
         if not _inlined: body,_inlined=inline_buy(body)
     elif link==TOP10:
