@@ -469,6 +469,20 @@ for it in items:
         pages[link]=(title,desc,body,thumb)
 
 
+reissues_link="/latest-news/japanese-city-pop-vinyl-reissues"
+reissues_title="Japanese City Pop Vinyl Reissues: Where to Find the Best Japanese Records Online"
+reissues_desc="Explore Japanese City Pop vinyl reissues, original pressings, and a guide to finding Japanese records online. Start digging with our Buy Vinyl directory."
+reissues_date="2026-10-14"
+reissues_thumb="/img/anri-timely-wikipedia.png"
+with open(os.path.join(os.path.dirname(__file__),"reissues.html"),encoding="utf-8") as reissues_file:
+    reissues_body=reissues_file.read()
+reissues_art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{reissues_date}</p>'
+              f'<h1>{reissues_title}</h1><div class="lede-rule"></div></div><div class="prose">{reissues_body}</div>'
+              '<p style="padding:1.5rem 0 2rem"><a href="/latest-news">← All news</a></p></div>')
+write(reissues_link,reissues_art,reissues_title,reissues_desc,reissues_thumb,reissues_date)
+cols.setdefault("/latest-news",[]).append((reissues_date,reissues_link,reissues_title,reissues_desc,reissues_thumb))
+urls.append((reissues_link,reissues_date))
+
 names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop — its records, its people, and how a 1980s genre found a second life."),
        "/latest-news":("News","最新情報","Press, interviews, and upcoming dates."),
        "/news1":("Archive","記録","Earlier press and event notes, 2017–2020."),
