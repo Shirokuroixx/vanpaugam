@@ -57,6 +57,9 @@ def clean(body):
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
      ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
+with open(os.path.join(os.path.dirname(__file__),"social.html"),encoding="utf-8") as social_file:
+    SOCIAL_HTML=social_file.read().strip()
+
 def head(path,title,desc,img,date):
     canon=SITE+path
     ld=""
@@ -76,15 +79,15 @@ def head(path,title,desc,img,date):
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">{ld}
+<link rel="stylesheet" href="/style.css"><script src="/img/kitsune-cursor.js" defer></script>{ld}
 <script>try{{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body>
-<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav">{nav}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
+<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav">{nav}{SOCIAL_HTML}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
 <main id="main">"""
 
 FOOT=f"""</main>
 <footer class="site-foot"><div class="wrap"><div class="foot-grid">
-<div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese City Pop on original pressings — writing, radio, and records from Chicago.</p></div>
+<div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese music, writing, and DJ sets from Chicago.</p></div>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
 <div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
 <div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="/media-kit/">Interactive media kit</a></li><li><a href="/media-kit/van-paugam-media-kit.pdf" download>Media kit PDF</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
@@ -589,6 +592,12 @@ def page_extras(link,body):
     return body
 
 for link,(title,desc,body,thumb) in pages.items():
+    if link=="/about-van-paugam":
+        with open(os.path.join(os.path.dirname(__file__),"about.html"),encoding="utf-8") as about_file:
+            about_body=about_file.read()
+        write(link,about_body,title,"Chicago-based City Pop DJ, writer, and vinyl collector. Explore Van Paugam’s approach, selected work, international coverage, and booking information.",thumb)
+        urls.append((link,""))
+        continue
     body=page_extras(link,body)
     if not re.search(r"<h1",body): body=f"<h1>{html.escape(title)}</h1>"+body
     body=re.sub(r"<h1[^>]*>(.*?)</h1>",lambda m:f'<div class="article-head"><h1>{m.group(1)}</h1><div class="lede-rule"></div></div>',body,count=1,flags=re.S)
@@ -609,9 +618,7 @@ book_img=None
 if "/somehow-city-pop-book" in pages:
     m=re.search(r'src="(/img/[^"]+)"',pages["/somehow-city-pop-book"][2]); book_img=m.group(1) if m else None
 
-FEATURED=["/blog/who-is-miki-matsubara",
-          "/blog/2020/10/19/the-top-10-city-pop-albums",
-          "/blog/city-pop-top-albums-list"]
+FEATURED=[r[1] for r in sorted(cols.get("/blog",[]),reverse=True)]
 _byl={r[1]:r for r in cols.get("/blog",[])}
 _slides=""; _dots=""
 for _i,_p in enumerate([x for x in FEATURED if x in _byl]):
@@ -623,7 +630,7 @@ for _i,_p in enumerate([x for x in FEATURED if x in _byl]):
       f'<div class="btn-row"><a class="btn" href="{_l}">Read the story</a></div></div></article>')
     _dots+=f'<button type="button" class="dot{" on" if _i==0 else ""}" data-i="{_i}" aria-label="Featured story {_i+1}"></button>'
 FEATURED_HTML=(f'<section class="featured" id="featured"><div class="wrap">'
-   f'<div class="slides">{_slides}</div><div class="dots">{_dots}</div></div></section>') if _slides else ""
+   f'<div class="slides">{_slides}</div><div class="dots" aria-label="Choose a featured story">{_dots}</div></div></section>') if _slides else ""
 
 def tick_link(t):
     a,_,ti = t.partition(" - ")
@@ -657,19 +664,56 @@ def lead_card(d,l,t,x,th,big=False):
 
 HOME_JS = """
 (function(){
-  var sl=[].slice.call(document.querySelectorAll('#featured .slide')),
-      dt=[].slice.call(document.querySelectorAll('#featured .dot')), i=0, timer;
-  if(sl.length>1){
-    var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function go(n){ sl[i].classList.remove('on'); dt[i].classList.remove('on');
-      i=(n+sl.length)%sl.length; sl[i].classList.add('on'); dt[i].classList.add('on'); }
-    function start(){ if(!rm) timer=setInterval(function(){go(i+1)},7000) }
-    dt.forEach(function(d){ d.addEventListener('click',function(){ clearInterval(timer); go(+d.dataset.i); start(); }) });
-    var box=document.getElementById('featured');
-    box.addEventListener('mouseenter',function(){clearInterval(timer)});
-    box.addEventListener('mouseleave',start);
-    start();
+  var box=document.getElementById('featured');
+  if(!box) return;
+  var sl=Array.from(box.querySelectorAll('.slide')), dt=Array.from(box.querySelectorAll('.dot'));
+  var i=0, timer, opener, request=0, rm=matchMedia('(prefers-reduced-motion: reduce)');
+  var dialog=document.createElement('dialog');
+  dialog.className='story-reader';
+  dialog.setAttribute('aria-labelledby','reader-title');
+  dialog.innerHTML='<div class="reader-toolbar"><a class="reader-link">Open full page</a><button type="button" class="btn reader-close" autofocus>Close</button></div><div class="reader-content" aria-live="polite"></div>';
+  document.body.appendChild(dialog);
+  var content=dialog.querySelector('.reader-content');
+  function stop(){clearInterval(timer)}
+  function start(){stop(); if(sl.length>1 && !rm.matches && !dialog.open && !box.matches(':hover') && !box.contains(document.activeElement) && !document.hidden) timer=setInterval(function(){go(i+1)},7000)}
+  function go(n){
+    i=(n+sl.length)%sl.length;
+    sl.forEach(function(s,k){s.classList.toggle('on',k===i);s.inert=k!==i;s.setAttribute('aria-hidden',String(k!==i))});
+    dt.forEach(function(d,k){d.classList.toggle('on',k===i);d.setAttribute('aria-pressed',String(k===i))});
   }
+  function openStory(slide){
+    if(typeof dialog.showModal!=='function'){location.href=slide.querySelector('a').href;return}
+    stop(); opener=slide;
+    var url=slide.querySelector('a').href, title=slide.querySelector('h2').textContent, token=++request;
+    dialog.querySelector('.reader-link').href=url;
+    content.replaceChildren();
+    var heading=document.createElement('h1');heading.id='reader-title';heading.textContent=title;
+    var status=document.createElement('p');status.textContent='Loading story…';
+    content.append(heading,status);content.setAttribute('aria-busy','true');
+    dialog.showModal();document.documentElement.classList.add('reading-story');dialog.scrollTop=0;
+    fetch(url).then(function(r){if(!r.ok)throw new Error();return r.text()}).then(function(text){
+      if(token!==request || !dialog.open)return;
+      var doc=new DOMParser().parseFromString(text,'text/html'), article=doc.querySelector('main .narrow');
+      if(!article)throw new Error();
+      article.querySelectorAll('script').forEach(function(el){el.remove()});
+      content.innerHTML=article.innerHTML;
+      var h=content.querySelector('h1');if(h)h.id='reader-title';
+      content.querySelectorAll('a[target="_blank"]').forEach(function(a){a.rel+=' noopener'});
+    }).catch(function(){if(token===request && dialog.open)status.textContent='This story could not be loaded. Use “Open full page” to keep reading.'}).finally(function(){if(token===request)content.removeAttribute('aria-busy')});
+  }
+  dialog.querySelector('.reader-close').addEventListener('click',function(){dialog.close()});
+  dialog.addEventListener('click',function(e){if(e.target===dialog){var r=dialog.getBoundingClientRect();if(e.clientX<r.left || e.clientX>r.right || e.clientY<r.top || e.clientY>r.bottom)dialog.close()}});
+  dialog.addEventListener('close',function(){request++;document.documentElement.classList.remove('reading-story');if(opener)opener.focus();start()});
+  sl.forEach(function(s){
+    s.tabIndex=0;s.setAttribute('aria-label','Read '+s.querySelector('h2').textContent);s.setAttribute('aria-haspopup','dialog');
+    s.addEventListener('click',function(e){if(e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)return;e.preventDefault();openStory(s)});
+    s.addEventListener('keydown',function(e){if(e.target===s && (e.key==='Enter'||e.key===' ')){e.preventDefault();openStory(s)}});
+  });
+  dt.forEach(function(d,k){d.addEventListener('click',function(){go(k);start()})});
+  box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',start);
+  box.addEventListener('focusin',stop);box.addEventListener('focusout',function(){setTimeout(start,0)});
+  document.addEventListener('visibilitychange',start);rm.addEventListener('change',start);
+  go(0);start();
 })();
 (function(){
   var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -711,13 +755,16 @@ HOME_JS = """
 })();
 """
 
+with open(os.path.join(os.path.dirname(__file__),"photo-slides.html"),encoding="utf-8") as photo_file:
+    PHOTO_SLIDES_HTML=photo_file.read().strip()
+
 home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div><p class="kicker">SIDE A — 和製ポップス</p>
 <h1><span class="ln"><span>Japanese City Pop:</span></span><span class="ln"><span>records, writing,</span></span><span class="ln"><span>and DJ sets.</span></span></h1>
 <p class="lede">Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop — over a hundred nights in Chicago, Paris, Berlin, and Tokyo, all of it from original Japanese pressings.</p>
 <div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/buy-vinyl">Buy vinyl</a></div></div>
 <div class="turntable"><div class="platter" aria-hidden="true"></div>
-<figure class="sleeve"><img src="{HERO}" alt="Van Paugam DJing a set from vinyl" fetchpriority="high"></figure></div>
+{PHOTO_SLIDES_HTML}</div>
 </div>
 <div class="ticker"><div class="ticker-track"><span>{TICKER}</span><span aria-hidden="true">{TICKER}</span></div></div>
 </section>
