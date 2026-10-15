@@ -87,7 +87,7 @@ FOOT=f"""</main>
 <div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese City Pop on original pressings — writing, radio, and records from Chicago.</p></div>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
 <div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
-<div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
+<div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="/media-kit/">Interactive media kit</a></li><li><a href="/media-kit/van-paugam-media-kit.pdf" download>Media kit PDF</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
 </div>
 <div class="foot-sub"><h4>The mailing list</h4>
 <p>New writing, upcoming dates, and a note when something worth owning gets repressed.</p>
@@ -780,6 +780,7 @@ urls.append(("/",""))
 # ---------- contact ----------
 contact=f"""<div class="wrap narrow"><div class="article-head"><h1>Booking &amp; press</h1><div class="lede-rule"></div></div>
 <p class="hero-lede">For club nights, festivals, private events, interviews, and licensing. Tell me the date and the room, and I'll come back to you with availability and a rate.</p>
+<div class="btn-row" style="margin-bottom:2rem"><a class="btn" href="/media-kit/van-paugam-media-kit.pdf" download>Download media kit PDF</a><a class="btn btn-ghost" href="/media-kit/">View interactive media kit</a></div>
 <form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/thank-you">
 <input type="hidden" name="form-name" value="contact">
 <input type="hidden" name="subject" value="New contact form message — %{{siteName}}">
@@ -871,6 +872,12 @@ write("/thank-you",'<div class="wrap narrow"><div class="article-head"><h1>Messa
       '<p class="hero-lede">Thanks — it landed. I answer booking enquiries within a few days.</p>'
       '<div class="btn-row" style="padding-bottom:3rem"><a class="btn" href="/">Back to the homepage</a></div></div>',
       "Message sent","Your message has been sent.")
+
+# ---------- media kit ----------
+os.makedirs(os.path.join(OUT,"media-kit"),exist_ok=True)
+for asset in ("index.html","van-paugam-media-kit.pdf"):
+    shutil.copy(os.path.join(os.path.dirname(SRC),"media-kit",asset),os.path.join(OUT,"media-kit",asset))
+urls.append(("/media-kit/",""))
 
 # ---------- assets ----------
 shutil.copy(CSS,os.path.join(OUT,"style.css"))
