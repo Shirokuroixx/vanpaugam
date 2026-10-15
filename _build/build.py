@@ -640,8 +640,10 @@ TRACKS=[("A1","Writing","記事","/blog","Essays on the records, the people, and
         ("B2","Mayonaka Hour","真夜中アワー","/podcast","One artist, one era, one record at a time."),
         ("B3","Booking","出演依頼","/contact","Clubs, festivals, private rooms. Tell me the date."),]
 
+RECORD_ICON = '<svg viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false"><g stroke="currentColor" stroke-width="1.3"><circle cx="32" cy="32" r="30"/><circle cx="32" cy="32" r="25"/><circle cx="32" cy="32" r="21"/><circle cx="32" cy="32" r="13"/><path d="M9 25a24 24 0 0 1 16-16m14 46a24 24 0 0 0 16-16" stroke-width="2.2" stroke-linecap="round"/></g></svg>'
+
 def track_row(c,t,jp,href,d):
-    return (f'<a class="track" href="{href}"><span class="cue">{c}</span>'
+    return (f'<a class="track" href="{href}"><span class="record-mark">{RECORD_ICON}<span class="cue">{c}</span></span>'
             f'<h3>{html.escape(t)} <em>{jp}</em></h3><p>{html.escape(d)}</p></a>')
 
 def strip_li(l,t,th):
@@ -723,10 +725,14 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 {FEATURED_HTML}
 
 <div class="wrap"><nav class="index" aria-label="Sections">
-<p class="side-label">SIDE A</p>
+<section class="record-side" aria-labelledby="side-a"><h2 class="side-label" id="side-a">SIDE A</h2>
+<div class="record-tracks">
 {"".join(track_row(*t) for t in TRACKS[:3])}
-<p class="side-label">SIDE B</p>
+</div></section>
+<section class="record-side" aria-labelledby="side-b"><h2 class="side-label" id="side-b">SIDE B</h2>
+<div class="record-tracks">
 {"".join(track_row(*t) for t in TRACKS[3:])}
+</div></section>
 </nav>
 
 <section class="band"><div class="band-head"><h2>Latest writing</h2><span class="jp">記事</span><a class="more" href="/blog">All writing</a></div>
