@@ -21,3 +21,10 @@ blog rewrites. `/blog/rare-city-pop-vinyl-repress` redirects to
 The generator preserves the deployment configuration and regenerates the routing
 rules, so subsequent deployments retain these fixes. `/api/reissues` is served
 by `netlify/functions/reissues.mjs`.
+
+The media kit source and checked-in PDF live in `_build/media-kit/`. Deployment
+copies the HTML and PDF into `/media-kit/`; no PDF tooling is needed at deploy
+time. The original uploaded HTML is retained alongside the edited source.
+After editing the media kit, regenerate its PDF with Python and
+`weasyprint==66.0` installed using `python3 _build/render-media-kit.py`.
+The PDF uses clickable video previews; the matching web edition embeds players.
