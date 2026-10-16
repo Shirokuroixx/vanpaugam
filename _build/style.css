@@ -654,3 +654,28 @@ html.reading-story{overflow:hidden}
 .photo-count{font-size:.7rem;color:var(--mute);font-variant-numeric:tabular-nums;margin:0 .3rem}
 .photo-controls [hidden]{display:none}
 @media(prefers-reduced-motion:reduce){.sleeve .photo-slide,.site-nav .nav-socials a{transition:none}}
+
+/* City Pop introduction: a quiet, readable long-form essay. */
+.city-pop-page{padding-bottom:clamp(3rem,6vw,5rem)}
+.city-pop-page .article-head{padding-top:clamp(2.5rem,6vw,4rem)}
+.city-pop-lede{font-family:"Zen Old Mincho",Georgia,serif;font-size:clamp(1.125rem,2.4vw,1.375rem);line-height:1.7;max-width:36rem;color:var(--ink-2)}
+.city-pop-contents{display:flex;flex-wrap:wrap;gap:.6rem 1.25rem;padding:1.25rem 0;margin:1.75rem 0 2rem;border-bottom:1px solid var(--rule);font-size:.9375rem}
+.city-pop-contents span{flex-basis:100%;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.city-pop-contents a{padding:.2rem 0}
+.city-pop-page .city-pop-film{margin:2rem 0}
+.city-pop-page .city-pop-film .video{margin:0}
+.city-pop-page .city-pop-film iframe{margin:0}
+.city-pop-film figcaption{padding-top:.65rem;font-family:"Zen Kaku Gothic New",sans-serif;font-size:.8125rem;color:var(--mute);text-align:left}
+.city-pop-page .city-pop-essay{max-width:40rem;margin-inline:auto;padding-top:0}
+.city-pop-essay section{margin:2.75rem 0}
+.city-pop-essay h2{font-size:clamp(1.4rem,3vw,1.8rem);line-height:1.35;margin:0 0 1rem;scroll-margin-top:12rem}
+.city-pop-essay p{overflow-wrap:break-word}
+.city-pop-book{margin:3rem 0;padding:1.5rem 0 1.5rem 1.25rem;border-block:1px solid var(--rule);border-left:3px solid var(--shu)}
+.city-pop-book p{margin-bottom:1rem}
+.city-pop-book>a{font-family:"Zen Kaku Gothic New",sans-serif;font-size:1rem;font-weight:500}
+@media(max-width:600px){
+  .city-pop-page .city-pop-essay{font-size:1.0625rem;line-height:1.85}
+  .city-pop-essay section{margin:2rem 0}
+  .city-pop-contents{gap:.5rem 1rem}
+  .city-pop-essay h2{scroll-margin-top:15rem}
+}
