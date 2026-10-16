@@ -592,6 +592,12 @@ def page_extras(link,body):
     return body
 
 for link,(title,desc,body,thumb) in pages.items():
+    if link=="/what-is-city-pop":
+        with open(os.path.join(os.path.dirname(__file__),"what-is-city-pop.html"),encoding="utf-8") as city_pop_file:
+            city_pop_body=city_pop_file.read()
+        write(link,city_pop_body,title,"An introduction to City Pop: the sound, history, English lyrics, and global rediscovery of Japanese pop from the 1970s and 1980s.",thumb)
+        urls.append((link,""))
+        continue
     if link=="/about-van-paugam":
         with open(os.path.join(os.path.dirname(__file__),"about.html"),encoding="utf-8") as about_file:
             about_body=about_file.read()
