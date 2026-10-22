@@ -14,6 +14,11 @@ for p in os.listdir(OUT):
     if p not in ("img",".git","_build","netlify"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
 
 images={}
+import json as _json
+_RP=os.path.join(os.path.dirname(os.path.abspath(__file__)),"img-renames.json")
+RENAMES=_json.load(open(_RP)) if os.path.exists(_RP) else {}
+_REN_RE=re.compile("|".join(re.escape(k) for k in sorted(RENAMES,key=len,reverse=True))) if RENAMES else None
+def ren_img(t): return _REN_RE.sub(lambda m:RENAMES[m.group(0)],t) if _REN_RE else t
 def local_img(url):
     url=url.replace("http://","https://").split("?")[0]
     if url not in images:
@@ -107,7 +112,7 @@ try{{localStorage.setItem("vp-theme",r.dataset.theme)}}catch(e){{}}label()}});}}
 
 def write(path,body,title,desc,img=None,date=None):
     d=os.path.join(OUT,path.strip("/")); os.makedirs(d,exist_ok=True)
-    open(os.path.join(d,"index.html"),"w",encoding="utf-8").write(head(path,title,desc,img,date)+body+FOOT)
+    open(os.path.join(d,"index.html"),"w",encoding="utf-8").write(ren_img(head(path,title,desc,img,date)+body+FOOT))
 
 def plain(s,n=165):
     s=re.sub(r"<figcaption.*?</figcaption>"," ",s or "",flags=re.S)
@@ -810,10 +815,14 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
   +"</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
+open(os.path.join(OUT,"_headers"),"w").write(
+  "/img/*\n  Cache-Control: public, max-age=31536000, immutable\n\n"
+  "/style.css\n  Cache-Control: public, max-age=3600\n\n"
+  "/*\n  X-Content-Type-Options: nosniff\n")
 open(os.path.join(OUT,"_redirects"),"w").write(
   "# /api/reissues is served by netlify/functions/reissues.mjs\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
   +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b))
-missing=[u for u in images.values() if not os.path.exists(os.path.join(OUT,u.lstrip("/")))]
+missing=[RENAMES.get(u,u) for u in images.values() if not os.path.exists(os.path.join(OUT,RENAMES.get(u,u).lstrip("/")))]
 print(len(urls),"pages,",len(images),"images referenced,",len(missing),"missing images")
