@@ -91,7 +91,12 @@ def head(path,title,desc,img,date):
 <main id="main">"""
 
 FOOT=f"""</main>
-<footer class="site-foot"><div class="wrap"><div class="foot-grid">
+<footer class="site-foot"><div class="wrap"><!--bkp--><a class="bk-promo" href="/somehow-city-pop-book" aria-label="Somehow, City Pop: the book. Launching on Kickstarter 30 October 2026">
+<span class="bkp-art"><img src="/img/book/cover.webp" alt="" width="920" height="1200" loading="lazy"><span class="bkp-obi">初版 · 1ST ED.</span></span>
+<span class="bkp-copy"><span class="bkp-kick">Kickstarter · 30 Oct 2026</span><span class="bkp-title">Somehow, City Pop</span>
+<span class="bkp-rot"><span>A City Pop reference guide with photographs</span><span>102 records, 1975–1990</span><span>Only 150 numbered copies</span></span></span>
+<span class="bkp-cta">See the book <span aria-hidden="true">→</span></span></a>
+<!--/bkp--><div class="foot-grid">
 <div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese music, writing, and DJ sets from Chicago.</p></div>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
 <div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
@@ -115,7 +120,8 @@ try{{localStorage.setItem("vp-theme",r.dataset.theme)}}catch(e){{}}label()}});}}
 
 def write(path,body,title,desc,img=None,date=None):
     d=os.path.join(OUT,path.strip("/")); os.makedirs(d,exist_ok=True)
-    open(os.path.join(d,"index.html"),"w",encoding="utf-8").write(ren_img(head(path,title,desc,img,date)+body+FOOT))
+    foot=re.sub(r"<!--bkp-->.*?<!--/bkp-->","",FOOT,flags=re.S) if path=="/somehow-city-pop-book" else FOOT
+    open(os.path.join(d,"index.html"),"w",encoding="utf-8").write(ren_img(head(path,title,desc,img,date)+body+foot))
 
 def plain(s,n=165):
     s=re.sub(r"<figcaption.*?</figcaption>"," ",s or "",flags=re.S)

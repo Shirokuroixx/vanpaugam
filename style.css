@@ -741,3 +741,26 @@ html.reading-story{overflow:hidden}
 .bk-stretch{grid-template-columns:1fr 1fr}.bk-stretch li{border-right:0;padding-left:0}
 .bk-facts{grid-template-columns:repeat(3,1fr);row-gap:.8rem}.bk-facts div:nth-child(4){border-left:0}}
 @media (max-width:480px){.bk-facts{grid-template-columns:1fr 1fr}.bk-facts div{border-left:0;padding-left:0}}
+/* footer book promo */
+.bk-promo{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:clamp(18px,4vw,40px);margin:0 0 2.5rem;padding:clamp(1.25rem,3vw,1.75rem) clamp(1.25rem,4vw,2.5rem);
+  background:#14120d;color:#efe9dd;text-decoration:none;border-radius:14px;overflow:hidden;
+  box-shadow:inset 0 0 0 6px #14120d,inset 0 0 0 7px #4a4538,inset 0 0 0 11px #14120d,inset 0 0 0 12px #bf4430}
+.bk-promo::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%);transform:translateX(-100%);animation:bkpShine 6s ease-in-out infinite}
+.bkp-art{position:relative;width:96px;height:96px;flex:none;animation:bkpFloat 5s ease-in-out infinite}
+.bkp-art img{width:100%;height:100%;object-fit:cover;border-radius:4px;box-shadow:0 10px 24px rgba(0,0,0,.45);transform:rotate(-4deg)}
+.bkp-obi{position:absolute;left:-6px;right:-6px;bottom:14px;background:#bf4430;color:#fff;font:700 .5rem/1 "Space Mono",monospace;letter-spacing:.14em;text-align:center;padding:.3rem 0;transform:rotate(-4deg);white-space:nowrap;overflow:hidden;animation:bkpObi 5s ease-in-out infinite}
+.bkp-copy{display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.bkp-kick{font:.66rem "Space Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:#e2694c}
+.bkp-title{font:700 clamp(1.4rem,3vw,2rem)/1.05 "Space Grotesk","Zen Kaku Gothic New",sans-serif;letter-spacing:-.02em;color:#efe9dd}
+.bkp-rot{position:relative;height:1.5em;overflow:hidden;font:italic 1rem/1.5 "Newsreader","Zen Old Mincho",serif;color:#c9c0ac}
+.bkp-rot span{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;animation:bkpRot 9s infinite}
+.bkp-rot span:nth-child(2){animation-delay:3s}.bkp-rot span:nth-child(3){animation-delay:6s}
+.bkp-cta{position:relative;z-index:1;font:.75rem "Space Mono",monospace;letter-spacing:.08em;text-transform:uppercase;background:#bf4430;color:#fff;padding:.8rem 1.1rem;white-space:nowrap;transition:background .2s}
+.bk-promo:hover .bkp-cta{background:#e2694c}
+.bkp-cta span{display:inline-block;transition:transform .2s}.bk-promo:hover .bkp-cta span{transform:translateX(4px)}
+@keyframes bkpShine{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes bkpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes bkpObi{0%,100%{clip-path:inset(0 0 0 0)}45%{clip-path:inset(0 0 0 0)}50%{clip-path:inset(0 100% 0 0)}55%{clip-path:inset(0 0 0 0)}}
+@keyframes bkpRot{0%{opacity:0;transform:translateY(100%)}6%,30%{opacity:1;transform:none}36%,100%{opacity:0;transform:translateY(-100%)}}
+@media (max-width:640px){.bk-promo{grid-template-columns:auto 1fr}.bkp-cta{grid-column:1/-1;text-align:center}.bkp-art{width:72px;height:72px}.bkp-rot{font-size:.9rem;height:3em}.bkp-rot span{white-space:normal;right:0}}
+@media (prefers-reduced-motion:reduce){.bk-promo::after,.bkp-art,.bkp-obi{animation:none}.bkp-rot span{animation:none}.bkp-rot span:first-child{opacity:1}}
