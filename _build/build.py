@@ -606,7 +606,7 @@ for link,(title,desc,body,thumb) in pages.items():
     if link=="/somehow-city-pop-book":
         with open(os.path.join(os.path.dirname(__file__),"book.html"),encoding="utf-8") as book_file:
             book_body=book_file.read()
-        write(link,book_body,title,"Somehow, City Pop: Japanese Records, 1975–1990. A 208-page hardcover art book by Chicago City Pop DJ Van Paugam. Kickstarter launches 30 October 2026.","/img/book/cover.webp")
+        write(link,book_body,title,"Somehow, City Pop: Japanese Records, 1975–1990. A 208-page hardcover City Pop reference guide with photographs, by Chicago City Pop DJ Van Paugam. Kickstarter launches 30 October 2026.","/img/book/cover.webp")
         urls.append((link,""))
         continue
     if link=="/about-van-paugam":
