@@ -11,7 +11,7 @@ SP="https://open.spotify.com/user/925qp40lrceautk2wzvnkdmwq"
 HERO="/img/e0b5460d12093f.jpg"
 
 for p in os.listdir(OUT):
-    if p not in ("img",".git","_build","netlify"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
+    if p not in ("img",".git",".netlify","_build","netlify","netlify.toml"): shutil.rmtree(os.path.join(OUT,p),ignore_errors=True) if os.path.isdir(os.path.join(OUT,p)) else os.remove(os.path.join(OUT,p))
 
 images={}
 import json as _json
@@ -62,6 +62,9 @@ def clean(body):
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
      ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
+with open(os.path.join(os.path.dirname(__file__),"social.html"),encoding="utf-8") as social_file:
+    SOCIAL_HTML=social_file.read().strip()
+
 def head(path,title,desc,img,date):
     canon=SITE+path
     ld=""
@@ -81,18 +84,18 @@ def head(path,title,desc,img,date):
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">{ld}
+<link rel="stylesheet" href="/style.css"><script src="/img/kitsune-cursor.js" defer></script>{ld}
 <script>try{{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body>
-<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav">{nav}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
+<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav">{nav}{SOCIAL_HTML}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
 <main id="main">"""
 
 FOOT=f"""</main>
 <footer class="site-foot"><div class="wrap"><div class="foot-grid">
-<div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese City Pop on original pressings — writing, radio, and records from Chicago.</p></div>
+<div><h4>VAN PAUGAM</h4><p style="margin:0;max-width:22rem">Japanese music, writing, and DJ sets from Chicago.</p></div>
 <div><h4>Read</h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
 <div><h4>Listen</h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
-<div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
+<div><h4>Contact</h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="/media-kit/">Interactive media kit</a></li><li><a href="/media-kit/van-paugam-media-kit.pdf" download>Media kit PDF</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
 </div>
 <div class="foot-sub"><h4>The mailing list</h4>
 <p>New writing, upcoming dates, and a note when something worth owning gets repressed.</p>
@@ -207,8 +210,14 @@ def inline_buy(body):
     return body,True
 
 
-COVERS={}
 def ckey(x): return re.sub(r"[^a-z0-9]","",re.sub(r"\[[^\]]*\]|\([^)]*\)","",x).lower())
+COVERS={ckey("Miki Matsubara"+title):f"/img/miki-matsubara-{filename}.jpg" for title,filename in [
+    ("Mayonaka no Door / Stay With Me","stay-with-me"),
+    ("Pocket Park","pocketpark"),("Who Are You?","whoareyou"),
+    ("Cupid","cupid"),("Myself","myself"),("Aya","aya"),
+    ("Revue","revue"),("Blue Eyes","blueeyes"),("Cool Cut","coolcut"),
+    ("Lady Bounce","ladybounce"),("Wink","wink")
+]}
 def find_cover(artist,title):
     for k in (ckey(artist+title), ckey(title)):
         if k and k in COVERS: return COVERS[k]
@@ -257,15 +266,19 @@ def discography_block(artist, jp, recs, skip):
     cards=""
     for title,alt in rest:
         cov=find_cover(artist,title)
-        art=(f'<img src="{cov}" alt="" loading="lazy">' if cov
+        art=(f'<img src="{cov}" alt="{html.escape(artist+" — "+title+" cover artwork",quote=True)}" loading="lazy">' if cov
              else f'<div class="sleeve-ph"><span>{html.escape(title)}</span></div>')
         eb=shop_links(artist,title)[0][1]
         shops="".join(f'<a href="{h}" target="_blank" rel="sponsored noopener">{n}</a>' for n,h in shop_links(artist,title))
         cards+=(f'<li><a class="disc-art" href="{eb}" target="_blank" rel="sponsored noopener">{art}</a>'
                 f'<h4>{html.escape(title)}{f" <span class=\'meta\'>{alt}</span>" if alt else ""}</h4>'
                 f'<p class="shops">{shops}</p></li>')
+    credit=('<p class="note">Cover artwork: <a href="https://miki-matsubara-45th.ponycanyon.co.jp/" target="_blank" rel="noopener">Pony Canyon</a>; '
+            '<a href="https://www.jvcmusic.co.jp/flyingdog/-/Discography/A000440/VEATP-37913.html" target="_blank" rel="noopener">Victor / FlyingDog (Wink)</a>.</p>'
+            if artist=="Miki Matsubara" else "")
     return (f'<div class="records"><h2 style="margin:0">The rest of the {html.escape(artist)} catalogue '
             f'<span class="jp">{jp}</span></h2><ul class="disc-grid">{cards}</ul>'
+            f'{credit}'
             f'<p class="note">Each cover opens a search on that store, so you see what is in stock today. '
             f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
             f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
@@ -350,7 +363,7 @@ def list_layout(body):
 
 MORE={"/blog/2020/10/19/the-top-10-city-pop-albums":[
   ("/blog/2020/10/20/city-pop-summer","10 City Pop Songs About Summer","/img/1c88cb968d75f0.jpg"),
-  ("/blog/city-pop-top-albums-list","Another Top 10 City Pop Songs List","/img/bf1d1fb833caeb.png")]}
+  ("/blog/city-pop-top-albums-list","Another Top 10 City Pop Songs List","/img/bf1d1fb833caeb.jpg")]}
 def more_block(link):
     if link not in MORE: return ""
     cards="".join(f'<li><a href="{l}"><img src="{im}" alt="" loading="lazy"><span>{html.escape(t)}</span></a></li>' for l,t,im in MORE[link])
@@ -412,10 +425,27 @@ def records_block(path):
             f'These are affiliate links: buying through them may earn me a small commission at no extra cost to you. '
             f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
 
+# ---------- podcast players: Apple Podcasts episode ids for each post ----------
+PODSHOW="1533448486"; PODSPOT="https://open.spotify.com/show/61mrej1uf1xmFyo7tSHC3C"
+EPISODES={"/podcast/2020/9/22/episode-1-city-pop-genre-overview":"1000492519458",
+          "/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":"1000492869996",
+          "/podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi":"1000496198255",
+          "/podcast/city-pop-podcast-miki-matsubara":"1000532022511",
+          "/podcast/city-pop-podcast-toshiki-kadomatsu":"1000535356536",
+          "/podcast/city-pop-podcast-momoko-kikuchi":"1000538143553",
+          "/podcast/city-pop-podcast-hideki-saijo":"1000542582468"}
+def episode_player(i):
+    return (f'<div class="episode"><iframe class="ap" src="https://embed.podcasts.apple.com/us/podcast/id{PODSHOW}?i={i}&amp;theme=auto" '
+            f'height="175" frameborder="0" loading="lazy" title="Play this episode" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" '
+            f'sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>'
+            f'<p class="also">Also on <a href="{PODSPOT}" target="_blank" rel="noopener">Spotify</a> and '
+            f'<a href="https://podcasts.apple.com/us/podcast/id{PODSHOW}?i={i}" target="_blank" rel="noopener">Apple Podcasts</a></p></div>')
+
 # ---------- parse ----------
 root=ET.parse(SRC).getroot(); items=root.find("channel").findall("item")
 attach={it.findtext("wp:post_id",namespaces=NS):it.findtext("wp:attachment_url",namespaces=NS)
         for it in items if it.findtext("wp:post_type",namespaces=NS)=="attachment"}
+
 for it in items:
     if it.findtext("wp:post_type",namespaces=NS)!="post": continue
     _l=it.findtext("link") or ""
@@ -462,6 +492,7 @@ for it in items:
         body,_inlined=inline_buy(body)
     if typ=="post":
         col="/"+link.strip("/").split("/")[0]
+        if link in EPISODES: body=episode_player(EPISODES[link])+body
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
@@ -474,6 +505,20 @@ for it in items:
         pages[link]=(title,desc,body,thumb)
 
 
+reissues_link="/latest-news/japanese-city-pop-vinyl-reissues"
+reissues_title="Japanese City Pop Vinyl Reissues: Where to Find the Best Japanese Records Online"
+reissues_desc="Explore Japanese City Pop vinyl reissues, original pressings, and a guide to finding Japanese records online. Start digging with our Buy Vinyl directory."
+reissues_date="2026-10-14"
+reissues_thumb="/img/anri-timely-wikipedia.png"
+with open(os.path.join(os.path.dirname(__file__),"reissues.html"),encoding="utf-8") as reissues_file:
+    reissues_body=reissues_file.read()
+reissues_art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{reissues_date}</p>'
+              f'<h1>{reissues_title}</h1><div class="lede-rule"></div></div><div class="prose">{reissues_body}</div>'
+              '<p style="padding:1.5rem 0 2rem"><a href="/latest-news">← All news</a></p></div>')
+write(reissues_link,reissues_art,reissues_title,reissues_desc,reissues_thumb,reissues_date)
+cols.setdefault("/latest-news",[]).append((reissues_date,reissues_link,reissues_title,reissues_desc,reissues_thumb))
+urls.append((reissues_link,reissues_date))
+
 names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop — its records, its people, and how a 1980s genre found a second life."),
        "/latest-news":("News","最新情報","Press, interviews, and upcoming dates."),
        "/news1":("Archive","記録","Earlier press and event notes, 2017–2020."),
@@ -483,16 +528,37 @@ names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop �
 def short(t):
     return re.sub(r"^Mayonaka Hour\s*真夜中アワー\s*City Pop Podcast\s*","",t).strip() or t
 
+# Mayonaka Hour episodes: (Spotify episode id, Apple Podcasts episode id)
+POD_SHOW_SP="https://open.spotify.com/show/61mrej1uf1xmFyo7tSHC3C"
+POD_SHOW_AP="https://podcasts.apple.com/us/podcast/id1533448486"
+LISTEN={"/podcast/city-pop-podcast-hideki-saijo":("2rh4hjqs6WV9RQMVnNAZg9","1000542582468"),
+        "/podcast/city-pop-podcast-momoko-kikuchi":("0XprwvkXjp6WmcnHMlr5Aa","1000538143553"),
+        "/podcast/city-pop-podcast-toshiki-kadomatsu":("75KXeet7uJ7MyYgUnHGrpQ","1000535356536"),
+        "/podcast/city-pop-podcast-miki-matsubara":("7buCAgg5m8PskwE8f7SG87","1000532022511"),
+        "/podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi":("4tKkDMssgq50fPLvzbZMwh","1000496198255"),
+        "/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":("6m0pehX03LQO8cBHZjWQxi","1000492869996"),
+        "/podcast/2020/9/22/episode-1-city-pop-genre-overview":("6KFUd6dMHJpSmcjEA08c5v","1000492519458")}
+
+def listen_row(l,t):
+    if l not in LISTEN: return ""
+    s,a=LISTEN[l]; t=html.escape(t)
+    return (f'<p class="listen"><a class="sp" href="https://open.spotify.com/episode/{s}" target="_blank" rel="noopener" '
+            f'aria-label="Play {t} on Spotify">▶ Play on Spotify</a>'
+            f'<a href="{POD_SHOW_AP}?i={a}" target="_blank" rel="noopener" aria-label="Play {t} on Apple Podcasts">Apple Podcasts</a></p>')
+
 def entry_li(d,l,t,x,th):
     t=short(t)
     im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="no-img"></div>'
     return (f'<li><a class="entry" href="{l}">{im}<div><p class="meta">{d}</p><h3>{html.escape(t)}</h3>'
-            f'<p>{html.escape(x)}</p></div></a></li>')
+            f'<p>{html.escape(x)}</p></div></a>{listen_row(l,t)}</li>')
 
 def card(l,t,th,d=""):
     t=short(t)
     im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="no-img" style="width:100%;aspect-ratio:1"></div>'
     return f'<li><a class="card" href="{l}">{im}<h3>{html.escape(t)}</h3><p class="meta">{d}</p></a></li>'
+
+pod_follow=(f'<div class="btn-row" style="margin-top:1.25rem"><a class="btn" href="{POD_SHOW_SP}" target="_blank" rel="noopener">Follow on Spotify</a>'
+            f'<a class="btn btn-ghost" href="{POD_SHOW_AP}" target="_blank" rel="noopener">Apple Podcasts</a></div>')
 
 for col,posts in cols.items():
     posts.sort(reverse=True)
@@ -502,7 +568,7 @@ for col,posts in cols.items():
     else:
         listing=f'<ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in posts)}</ul>'
     body=(f'<div class="wrap"><div class="page-head"><div class="band-head"><h1>{nm}</h1><span class="jp">{jp}</span></div>'
-          f'<p class="hero-lede">{html.escape(blurb)}</p></div>'
+          f'<p class="hero-lede">{html.escape(blurb)}</p>{pod_follow if col=="/podcast" else ""}</div>'
           f'<div style="padding-bottom:3rem">{listing}</div></div>')
     write(col,body,nm,blurb,None,None); urls.append((col,posts[0][0]))
     redirects += [(f"{col}/category/*",col),(f"{col}/tag/*",col)]
@@ -531,6 +597,18 @@ def page_extras(link,body):
     return body
 
 for link,(title,desc,body,thumb) in pages.items():
+    if link=="/what-is-city-pop":
+        with open(os.path.join(os.path.dirname(__file__),"what-is-city-pop.html"),encoding="utf-8") as city_pop_file:
+            city_pop_body=city_pop_file.read()
+        write(link,city_pop_body,title,"An introduction to City Pop: the sound, history, English lyrics, and global rediscovery of Japanese pop from the 1970s and 1980s.",thumb)
+        urls.append((link,""))
+        continue
+    if link=="/about-van-paugam":
+        with open(os.path.join(os.path.dirname(__file__),"about.html"),encoding="utf-8") as about_file:
+            about_body=about_file.read()
+        write(link,about_body,title,"Chicago-based City Pop DJ, writer, and vinyl collector. Explore Van Paugam’s approach, selected work, international coverage, and booking information.",thumb)
+        urls.append((link,""))
+        continue
     body=page_extras(link,body)
     if not re.search(r"<h1",body): body=f"<h1>{html.escape(title)}</h1>"+body
     body=re.sub(r"<h1[^>]*>(.*?)</h1>",lambda m:f'<div class="article-head"><h1>{m.group(1)}</h1><div class="lede-rule"></div></div>',body,count=1,flags=re.S)
@@ -551,9 +629,7 @@ book_img=None
 if "/somehow-city-pop-book" in pages:
     m=re.search(r'src="(/img/[^"]+)"',pages["/somehow-city-pop-book"][2]); book_img=m.group(1) if m else None
 
-FEATURED=["/blog/who-is-miki-matsubara",
-          "/blog/2020/10/19/the-top-10-city-pop-albums",
-          "/blog/city-pop-top-albums-list"]
+FEATURED=[r[1] for r in sorted(cols.get("/blog",[]),reverse=True)]
 _byl={r[1]:r for r in cols.get("/blog",[])}
 _slides=""; _dots=""
 for _i,_p in enumerate([x for x in FEATURED if x in _byl]):
@@ -565,7 +641,7 @@ for _i,_p in enumerate([x for x in FEATURED if x in _byl]):
       f'<div class="btn-row"><a class="btn" href="{_l}">Read the story</a></div></div></article>')
     _dots+=f'<button type="button" class="dot{" on" if _i==0 else ""}" data-i="{_i}" aria-label="Featured story {_i+1}"></button>'
 FEATURED_HTML=(f'<section class="featured" id="featured"><div class="wrap">'
-   f'<div class="slides">{_slides}</div><div class="dots">{_dots}</div></div></section>') if _slides else ""
+   f'<div class="slides">{_slides}</div><div class="dots" aria-label="Choose a featured story">{_dots}</div></div></section>') if _slides else ""
 
 def tick_link(t):
     a,_,ti = t.partition(" - ")
@@ -582,8 +658,10 @@ TRACKS=[("A1","Writing","記事","/blog","Essays on the records, the people, and
         ("B2","Mayonaka Hour","真夜中アワー","/podcast","One artist, one era, one record at a time."),
         ("B3","Booking","出演依頼","/contact","Clubs, festivals, private rooms. Tell me the date."),]
 
+RECORD_ICON = '<svg viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false"><g stroke="currentColor" stroke-width="1.3"><circle cx="32" cy="32" r="30"/><circle cx="32" cy="32" r="25"/><circle cx="32" cy="32" r="21"/><circle cx="32" cy="32" r="13"/><path d="M9 25a24 24 0 0 1 16-16m14 46a24 24 0 0 0 16-16" stroke-width="2.2" stroke-linecap="round"/></g></svg>'
+
 def track_row(c,t,jp,href,d):
-    return (f'<a class="track" href="{href}"><span class="cue">{c}</span>'
+    return (f'<a class="track" href="{href}"><span class="record-mark">{RECORD_ICON}<span class="cue">{c}</span></span>'
             f'<h3>{html.escape(t)} <em>{jp}</em></h3><p>{html.escape(d)}</p></a>')
 
 def strip_li(l,t,th):
@@ -597,19 +675,56 @@ def lead_card(d,l,t,x,th,big=False):
 
 HOME_JS = """
 (function(){
-  var sl=[].slice.call(document.querySelectorAll('#featured .slide')),
-      dt=[].slice.call(document.querySelectorAll('#featured .dot')), i=0, timer;
-  if(sl.length>1){
-    var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function go(n){ sl[i].classList.remove('on'); dt[i].classList.remove('on');
-      i=(n+sl.length)%sl.length; sl[i].classList.add('on'); dt[i].classList.add('on'); }
-    function start(){ if(!rm) timer=setInterval(function(){go(i+1)},7000) }
-    dt.forEach(function(d){ d.addEventListener('click',function(){ clearInterval(timer); go(+d.dataset.i); start(); }) });
-    var box=document.getElementById('featured');
-    box.addEventListener('mouseenter',function(){clearInterval(timer)});
-    box.addEventListener('mouseleave',start);
-    start();
+  var box=document.getElementById('featured');
+  if(!box) return;
+  var sl=Array.from(box.querySelectorAll('.slide')), dt=Array.from(box.querySelectorAll('.dot'));
+  var i=0, timer, opener, request=0, rm=matchMedia('(prefers-reduced-motion: reduce)');
+  var dialog=document.createElement('dialog');
+  dialog.className='story-reader';
+  dialog.setAttribute('aria-labelledby','reader-title');
+  dialog.innerHTML='<div class="reader-toolbar"><a class="reader-link">Open full page</a><button type="button" class="btn reader-close" autofocus>Close</button></div><div class="reader-content" aria-live="polite"></div>';
+  document.body.appendChild(dialog);
+  var content=dialog.querySelector('.reader-content');
+  function stop(){clearInterval(timer)}
+  function start(){stop(); if(sl.length>1 && !rm.matches && !dialog.open && !box.matches(':hover') && !box.contains(document.activeElement) && !document.hidden) timer=setInterval(function(){go(i+1)},7000)}
+  function go(n){
+    i=(n+sl.length)%sl.length;
+    sl.forEach(function(s,k){s.classList.toggle('on',k===i);s.inert=k!==i;s.setAttribute('aria-hidden',String(k!==i))});
+    dt.forEach(function(d,k){d.classList.toggle('on',k===i);d.setAttribute('aria-pressed',String(k===i))});
   }
+  function openStory(slide){
+    if(typeof dialog.showModal!=='function'){location.href=slide.querySelector('a').href;return}
+    stop(); opener=slide;
+    var url=slide.querySelector('a').href, title=slide.querySelector('h2').textContent, token=++request;
+    dialog.querySelector('.reader-link').href=url;
+    content.replaceChildren();
+    var heading=document.createElement('h1');heading.id='reader-title';heading.textContent=title;
+    var status=document.createElement('p');status.textContent='Loading story…';
+    content.append(heading,status);content.setAttribute('aria-busy','true');
+    dialog.showModal();document.documentElement.classList.add('reading-story');dialog.scrollTop=0;
+    fetch(url).then(function(r){if(!r.ok)throw new Error();return r.text()}).then(function(text){
+      if(token!==request || !dialog.open)return;
+      var doc=new DOMParser().parseFromString(text,'text/html'), article=doc.querySelector('main .narrow');
+      if(!article)throw new Error();
+      article.querySelectorAll('script').forEach(function(el){el.remove()});
+      content.innerHTML=article.innerHTML;
+      var h=content.querySelector('h1');if(h)h.id='reader-title';
+      content.querySelectorAll('a[target="_blank"]').forEach(function(a){a.rel+=' noopener'});
+    }).catch(function(){if(token===request && dialog.open)status.textContent='This story could not be loaded. Use “Open full page” to keep reading.'}).finally(function(){if(token===request)content.removeAttribute('aria-busy')});
+  }
+  dialog.querySelector('.reader-close').addEventListener('click',function(){dialog.close()});
+  dialog.addEventListener('click',function(e){if(e.target===dialog){var r=dialog.getBoundingClientRect();if(e.clientX<r.left || e.clientX>r.right || e.clientY<r.top || e.clientY>r.bottom)dialog.close()}});
+  dialog.addEventListener('close',function(){request++;document.documentElement.classList.remove('reading-story');if(opener)opener.focus();start()});
+  sl.forEach(function(s){
+    s.tabIndex=0;s.setAttribute('aria-label','Read '+s.querySelector('h2').textContent);s.setAttribute('aria-haspopup','dialog');
+    s.addEventListener('click',function(e){if(e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)return;e.preventDefault();openStory(s)});
+    s.addEventListener('keydown',function(e){if(e.target===s && (e.key==='Enter'||e.key===' ')){e.preventDefault();openStory(s)}});
+  });
+  dt.forEach(function(d,k){d.addEventListener('click',function(){go(k);start()})});
+  box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',start);
+  box.addEventListener('focusin',stop);box.addEventListener('focusout',function(){setTimeout(start,0)});
+  document.addEventListener('visibilitychange',start);rm.addEventListener('change',start);
+  go(0);start();
 })();
 (function(){
   var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -651,13 +766,16 @@ HOME_JS = """
 })();
 """
 
+with open(os.path.join(os.path.dirname(__file__),"photo-slides.html"),encoding="utf-8") as photo_file:
+    PHOTO_SLIDES_HTML=photo_file.read().strip()
+
 home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div><p class="kicker">SIDE A — 和製ポップス</p>
 <h1><span class="ln"><span>Japanese City Pop:</span></span><span class="ln"><span>records, writing,</span></span><span class="ln"><span>and DJ sets.</span></span></h1>
 <p class="lede">Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop — over a hundred nights in Chicago, Paris, Berlin, and Tokyo, all of it from original Japanese pressings.</p>
 <div class="btn-row"><a class="btn" href="/contact">Book a set</a><a class="btn btn-ghost" href="/buy-vinyl">Buy vinyl</a></div></div>
 <div class="turntable"><div class="platter" aria-hidden="true"></div>
-<figure class="sleeve"><img src="{HERO}" alt="Van Paugam DJing a set from vinyl" fetchpriority="high"></figure></div>
+{PHOTO_SLIDES_HTML}</div>
 </div>
 <div class="ticker"><div class="ticker-track"><span>{TICKER}</span><span aria-hidden="true">{TICKER}</span></div></div>
 </section>
@@ -665,10 +783,14 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 {FEATURED_HTML}
 
 <div class="wrap"><nav class="index" aria-label="Sections">
-<p class="side-label">SIDE A</p>
+<section class="record-side" aria-labelledby="side-a"><h2 class="side-label" id="side-a">SIDE A</h2>
+<div class="record-tracks">
 {"".join(track_row(*t) for t in TRACKS[:3])}
-<p class="side-label">SIDE B</p>
+</div></section>
+<section class="record-side" aria-labelledby="side-b"><h2 class="side-label" id="side-b">SIDE B</h2>
+<div class="record-tracks">
 {"".join(track_row(*t) for t in TRACKS[3:])}
+</div></section>
 </nav>
 
 <section class="band"><div class="band-head"><h2>Latest writing</h2><span class="jp">記事</span><a class="more" href="/blog">All writing</a></div>
@@ -701,7 +823,7 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <p style="max-width:40rem">New writing, upcoming dates, and a note when something worth owning gets repressed. A few times a year, never more.</p>
 <form class="form signup" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="company" action="/subscribed">
 <input type="hidden" name="form-name" value="newsletter">
-<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1"></label></p>
 <label for="nl-email">Email address</label><input id="nl-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
 <button class="btn" type="submit">Join the list</button></form></div></section>
 
@@ -716,9 +838,11 @@ urls.append(("/",""))
 # ---------- contact ----------
 contact=f"""<div class="wrap narrow"><div class="article-head"><h1>Booking &amp; press</h1><div class="lede-rule"></div></div>
 <p class="hero-lede">For club nights, festivals, private events, interviews, and licensing. Tell me the date and the room, and I'll come back to you with availability and a rate.</p>
+<div class="btn-row" style="margin-bottom:2rem"><a class="btn" href="/media-kit/van-paugam-media-kit.pdf" download>Download media kit PDF</a><a class="btn btn-ghost" href="/media-kit/">View interactive media kit</a></div>
 <form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/thank-you">
 <input type="hidden" name="form-name" value="contact">
-<p class="hp"><label>Leave this empty <input name="company"></label></p>
+<input type="hidden" name="subject" value="New contact form message — %{{siteName}}">
+<p class="hp"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
 <label for="name">Your name</label><input id="name" name="name" required autocomplete="name">
 <label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email">
 <label for="kind">What is this about?</label><select id="kind" name="kind">
@@ -807,6 +931,12 @@ write("/thank-you",'<div class="wrap narrow"><div class="article-head"><h1>Messa
       '<div class="btn-row" style="padding-bottom:3rem"><a class="btn" href="/">Back to the homepage</a></div></div>',
       "Message sent","Your message has been sent.")
 
+# ---------- media kit ----------
+os.makedirs(os.path.join(OUT,"media-kit"),exist_ok=True)
+for asset in ("index.html","van-paugam-media-kit.pdf"):
+    shutil.copy(os.path.join(os.path.dirname(SRC),"media-kit",asset),os.path.join(OUT,"media-kit",asset))
+urls.append(("/media-kit/",""))
+
 # ---------- assets ----------
 shutil.copy(CSS,os.path.join(OUT,"style.css"))
 open(os.path.join(OUT,"sitemap.xml"),"w").write(
@@ -815,6 +945,7 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
   +"</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
+extra.append(("/blog/rare-city-pop-vinyl-repress","/blog/tatsuro-yamashita-vinyl-repress-pre-order"))
 open(os.path.join(OUT,"_headers"),"w").write(
   "/img/*\n  Cache-Control: public, max-age=31536000, immutable\n\n"
   "/style.css\n  Cache-Control: public, max-age=3600\n\n"
@@ -823,6 +954,9 @@ open(os.path.join(OUT,"_redirects"),"w").write(
   "# /api/reissues is served by netlify/functions/reissues.mjs\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
-  +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b))
-missing=[RENAMES.get(u,u) for u in images.values() if not os.path.exists(os.path.join(OUT,RENAMES.get(u,u).lstrip("/")))]
+  +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b)
+  +"# Serve generated blog pages directly without directory slash redirects.\n"
+  +"/blog  /blog/index.html  200!\n"
+  +"/blog/*  /blog/:splat/index.html  200!\n")
+missing=[u for u in images.values() if not os.path.exists(os.path.join(OUT,RENAMES.get(u,u).lstrip("/")))]
 print(len(urls),"pages,",len(images),"images referenced,",len(missing),"missing images")
