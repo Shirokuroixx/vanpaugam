@@ -603,6 +603,12 @@ for link,(title,desc,body,thumb) in pages.items():
         write(link,city_pop_body,title,"An introduction to City Pop: the sound, history, English lyrics, and global rediscovery of Japanese pop from the 1970s and 1980s.",thumb)
         urls.append((link,""))
         continue
+    if link=="/somehow-city-pop-book":
+        with open(os.path.join(os.path.dirname(__file__),"book.html"),encoding="utf-8") as book_file:
+            book_body=book_file.read()
+        write(link,book_body,title,"Somehow, City Pop: Japanese Records, 1975–1990. A 208-page hardcover art book by Chicago City Pop DJ Van Paugam. Kickstarter launches 30 October 2026.","/img/book/cover.webp")
+        urls.append((link,""))
+        continue
     if link=="/about-van-paugam":
         with open(os.path.join(os.path.dirname(__file__),"about.html"),encoding="utf-8") as about_file:
             about_body=about_file.read()
@@ -627,7 +633,7 @@ for r in vin:
 vin=_v[:14]
 book_img=None
 if "/somehow-city-pop-book" in pages:
-    m=re.search(r'src="(/img/[^"]+)"',pages["/somehow-city-pop-book"][2]); book_img=m.group(1) if m else None
+    book_img="/img/book/cover.webp"
 
 FEATURED=[r[1] for r in sorted(cols.get("/blog",[]),reverse=True)]
 _byl={r[1]:r for r in cols.get("/blog",[])}

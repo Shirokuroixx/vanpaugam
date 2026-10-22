@@ -685,3 +685,14 @@ html.reading-story{overflow:hidden}
 .site-head .site-nav .nav-socials a{color:#D6DBE3}
 .site-head .site-nav .nav-socials a:hover{color:#E2694C;background:rgba(255,255,255,.1)}
 .site-head .nav-socials path[stroke]{stroke:#12161D}
+/* book page */
+.book-page figure{margin:1.75rem 0 0}
+.book-page figure img{width:100%;height:auto;display:block}
+.book-tiers{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:1.5rem 0}
+.book-tiers article{border-top:2px solid var(--shu);padding:1rem 0 .5rem}
+.book-tiers .jp{color:var(--shu);margin:0;font-size:.9rem}
+.book-tiers h3{margin:.25rem 0}
+.book-tiers .price{font-size:2rem;margin:.25rem 0}
+.book-tiers .limit{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;opacity:.7;margin:0 0 .6rem}
+.book-note{border-left:3px solid var(--shu);padding-left:1rem}
+.book-page .signup{margin-top:1rem}
