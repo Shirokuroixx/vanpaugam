@@ -91,9 +91,9 @@ def head(path,title,desc,img,date):
 <main id="main">"""
 
 FOOT=f"""</main>
-<footer class="site-foot"><div class="wrap"><!--bkp--><a class="bk-promo" href="/somehow-city-pop-book" aria-label="Somehow, City Pop: the book. Launching on Kickstarter 30 October 2026">
+<footer class="site-foot"><div class="wrap"><!--bkp--><a class="bk-promo" href="/somehow-city-pop-book" aria-label="Somehow, City Pop: the book. Launching on Kickstarter 11 November 2026">
 <span class="bkp-art"><img src="/img/book/cover.webp" alt="" width="920" height="1200" loading="lazy"><span class="bkp-obi">初版 · 1ST ED.</span></span>
-<span class="bkp-copy"><span class="bkp-kick">Kickstarter · 30 Oct 2026</span><span class="bkp-title">Somehow, City Pop</span>
+<span class="bkp-copy"><span class="bkp-kick">Kickstarter · 11 Nov 2026</span><span class="bkp-title">Somehow, City Pop</span>
 <span class="bkp-rot"><span>A City Pop reference guide with photographs</span><span>102 records, 1975–1990</span><span>Only 150 numbered copies</span></span></span>
 <span class="bkp-cta">See the book <span aria-hidden="true">→</span></span></a>
 <!--/bkp--><div class="foot-grid">
@@ -612,7 +612,7 @@ for link,(title,desc,body,thumb) in pages.items():
     if link=="/somehow-city-pop-book":
         with open(os.path.join(os.path.dirname(__file__),"book.html"),encoding="utf-8") as book_file:
             book_body=book_file.read()
-        write(link,book_body,title,"Somehow, City Pop: Japanese Records, 1975–1990. A 208-page hardcover City Pop reference guide with photographs, by Chicago City Pop DJ Van Paugam. Kickstarter launches 30 October 2026.","/img/book/cover.webp")
+        write(link,book_body,title,"Somehow, City Pop: Japanese Records, 1975–1990. A 208-page hardcover City Pop reference guide with photographs, by Chicago City Pop DJ Van Paugam. Kickstarter launches 11 November 2026.","/img/book/cover.webp")
         urls.append((link,""))
         continue
     if link=="/about-van-paugam":
