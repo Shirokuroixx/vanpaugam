@@ -1074,3 +1074,12 @@ h2>.fx-fox,h3>.fx-fox,h2>.fx-item,h3>.fx-item{display:inline-block;vertical-alig
 @keyframes fxNeon{0%,100%{opacity:1}31%{opacity:.35}32%{opacity:1}34%{opacity:.4}35%,100%{opacity:1}}
 @media (max-width:860px){.fx-dj{position:relative;right:auto;bottom:auto;margin:1.5rem 0 0}}
 @media (prefers-reduced-motion:reduce){.fx-fox,.fx-item,.fx-fox .fx-eyes,.fx-steam,.fx-neon,.fx-note,.dj-tail,.dj-arm,.dj-gl,.dj-vu,.dj-shut,.dj-bob{animation:none!important}.dj-tail.b,.dj-arm.b,.dj-gl:not(.g0),.dj-vu:not(.v1){opacity:0}}
+/* sprites blend into their surroundings: no button chrome, softer outlines, deck in page tones */
+:root{--px-line:#5E4A3C;--dj-D:#CFCFC8;--dj-d:#BDBEB6;--dj-L:#E1E2DC}
+html[data-theme="dark"]{--px-line:#0A1120;--dj-D:#232E42;--dj-d:#19223A;--dj-L:#33405A}
+@media (prefers-color-scheme:dark){html:not([data-theme="light"]){--px-line:#0A1120;--dj-D:#232E42;--dj-d:#19223A;--dj-L:#33405A}}
+.fx-fox,.fx-item,.fx-dj,.px-cat{-webkit-appearance:none;appearance:none;background:transparent!important;box-shadow:none!important;border-radius:0;outline:none;color:inherit}
+.fx-fox:focus-visible,.fx-item:focus-visible,.fx-dj:focus-visible,.px-cat:focus-visible{outline:2px dashed var(--shu);outline-offset:4px}
+.fx-fox:hover,.fx-item:hover,.fx-dj svg,.px-cat svg{filter:none!important}
+.fx-fox .k,.fx-item .k,.fx-dj .k{fill:var(--px-line)}
+.fx-dj .dD{fill:var(--dj-D)}.fx-dj .dd{fill:var(--dj-d)}.fx-dj .dL{fill:var(--dj-L)}
