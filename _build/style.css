@@ -1045,7 +1045,7 @@ h2>.fx-fox,h3>.fx-fox,h2>.fx-item,h3>.fx-item{display:inline-block;vertical-alig
 .fx-toast.on{animation:fxToast 3.2s cubic-bezier(.2,.7,.2,1) both}
 .fx-neon{display:inline-block;margin-left:.9rem;padding:.1rem .45rem;font:700 .7rem/1.4 "Space Mono",ui-monospace,monospace;letter-spacing:.12em;color:#ff7a59;border:1px solid #ff7a59;border-radius:3px;text-shadow:0 0 6px rgba(255,122,89,.8);box-shadow:0 0 8px rgba(255,122,89,.35),inset 0 0 6px rgba(255,122,89,.25);animation:fxNeon 6s steps(1) infinite}
 .foot-sub{position:relative}
-.fx-dj{position:absolute;right:-230px;bottom:-6px;width:192px;height:152px;display:block}
+.fx-dj{position:absolute;right:-150px;bottom:-4px;width:112px;height:98px;display:block}
 .fx-dj svg{filter:drop-shadow(3px 3px 0 rgba(14,22,38,.25))}
 .dj-tail.a,.dj-arm.a{animation:dj2 .8s steps(1) infinite}.dj-tail.b,.dj-arm.b{animation:dj2 .8s steps(1) -.4s infinite}
 .dj-arm.a,.dj-arm.b{animation-duration:.6s}.dj-arm.b{animation-delay:-.3s}
@@ -1060,7 +1060,7 @@ h2>.fx-fox,h3>.fx-fox,h2>.fx-item,h3>.fx-item{display:inline-block;vertical-alig
 @keyframes dj4{0%{opacity:1}25%{opacity:0}}
 @keyframes djBlink{0%{opacity:0}93%{opacity:1}97%{opacity:0}}
 @keyframes djBob{0%{transform:none}50%{transform:translateY(1px)}}
-.fx-note{position:absolute;top:10px;left:22px;font:700 .9rem/1 monospace;color:#E8772E;opacity:0;animation:pxNote 2.4s ease-out infinite}
+.fx-note{position:absolute;top:0;left:4px;font:700 .9rem/1 monospace;color:#E8772E;opacity:0;animation:pxNote 2.4s ease-out infinite}
 .fx-note.n2{left:auto;right:10px;animation-delay:1.2s}
 .fx-dj .fx-rec{animation-name:fxSpin}
 @keyframes fxSpin{to{transform:rotate(360deg)}}
