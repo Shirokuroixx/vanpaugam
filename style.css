@@ -1126,3 +1126,9 @@ html[data-theme="dark"]{--px-line:#0A1120;--dj-D:#232E42;--dj-d:#19223A;--dj-L:#
   .site-foot .foot-grid ul{display:flex;flex-wrap:wrap;gap:.15rem .9rem}
   .site-foot .foot-grid li{margin:0}
 }
+/* never let anything push the page sideways */
+html,body{overflow-x:clip}
+@supports not (overflow:clip){html,body{overflow-x:hidden}}
+.sub-row .fx-dj .fx-say{left:auto;right:0;transform:translateY(4px)}
+@keyframes pxSayR{0%{opacity:0}15%,80%{opacity:1;transform:none}100%{opacity:0}}
+.sub-row .fx-dj.fx-hop .fx-say{animation-name:pxSayR}
