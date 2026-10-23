@@ -1284,3 +1284,86 @@ html,body{overflow-x:clip}
 @keyframes navLbl{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes navFox{0%,70%,100%{transform:none}76%{transform:translateY(-6px) rotate(-6deg)}84%{transform:translateY(0) rotate(4deg)}90%{transform:none}}
 @media (max-width:860px) and (prefers-reduced-motion:reduce){.nav-open .nav-btn,.nav-open .site-head .site-nav>.fx-navfox svg{animation:none}}
+
+/* ===== Countdown list posts (.tt): top 10 albums, another top 10, summer songs ===== */
+.tt{padding-top:clamp(1.2rem,4vw,2.5rem);overflow-x:clip}
+.tt-head{position:relative;overflow:hidden;margin-bottom:clamp(1.5rem,4vw,2.5rem)}
+.tt-head h1{font-size:clamp(2.1rem,7vw,3.8rem);line-height:1;margin:.2rem 0 .9rem;max-width:15ch;position:relative;z-index:1}
+.tt-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .9rem;font:.68rem var(--bk-mono)!important;letter-spacing:.12em;text-transform:uppercase;color:var(--hm-mute)!important;position:relative;z-index:1}
+.tt-tag{background:var(--bk-red);color:#fff;border-radius:999px;padding:.35rem .75rem;animation:ttWob 3.2s ease-in-out infinite}
+.tt-jp{font:700 .95rem "Zen Old Mincho",serif;letter-spacing:.3em;color:var(--bk-red-s)}
+.tt-disc{position:absolute;top:-70px;right:-70px;width:260px;height:260px;border-radius:50%;opacity:.9;
+  background:repeating-radial-gradient(circle,var(--bk-deep) 0 2px,#2a2620 3px 4px);animation:ttSpin 7s linear infinite;box-shadow:0 0 0 6px var(--bk-light)}
+.tt-disc span{position:absolute;inset:36%;border-radius:50%;background:conic-gradient(var(--bk-red) 0 25%,#e9b949 0 50%,var(--bk-red) 0 75%,#e9b949 0)}
+.tt-disc span::after{content:"";position:absolute;inset:44%;border-radius:50%;background:var(--bk-cream)}
+.tt-tick{margin:1.3rem 0 0;position:relative;z-index:1}
+.tt-tick ol{list-style:none;margin:0;padding:3px 2px;display:flex;gap:6px;flex-wrap:wrap}
+.tt-tick a{display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:50%;border:1px solid var(--bk-rule);font:700 .8rem var(--bk-mono);color:var(--bk-ink);text-decoration:none;transition:background .2s,color .2s,transform .25s cubic-bezier(.3,1.45,.5,1)}
+.tt-tick a:hover,.tt-tick a:focus-visible,.tt-tick a.cur{background:var(--bk-red);border-color:var(--bk-red);color:#fff;transform:translateY(-3px) rotate(-8deg)}
+.tt-head .cover{margin:1.5rem 0 0;border-radius:20px;overflow:hidden;position:relative;z-index:1}
+.tt-head .cover img{width:100%;max-height:420px;object-fit:cover;margin:0}
+.tt .prose.top10{max-width:52rem;margin:0 auto}
+.tt-intro,.tt .al-outro{background:var(--bk-cream);color:var(--bk-ink);border-radius:28px;padding:clamp(1.2rem,4vw,2rem);margin:0 0 2rem;
+  box-shadow:inset 0 0 0 5px var(--bk-cream),inset 0 0 0 6px var(--bk-rule),0 0 0 1px var(--bk-rule)}
+.tt-intro p,.tt .al-outro p{font-family:var(--bk-read);color:var(--bk-ink)}
+.tt-intro>:first-child,.tt .al-outro>:first-child{margin-top:0}.tt-intro>:last-child,.tt .al-outro>:last-child{margin-bottom:0}
+.tt .al-outro{border-top:0;font-style:italic}
+.tt .album{border:0;margin:0 0 clamp(1.4rem,4vw,2.2rem);padding:clamp(1.1rem,4vw,1.9rem);background:var(--bk-cream);color:var(--bk-ink);border-radius:30px;
+  box-shadow:inset 0 0 0 5px var(--bk-cream),inset 0 0 0 6px var(--bk-rule),0 0 0 1px var(--bk-rule),0 12px 28px -16px rgba(20,18,13,.4);
+  transition:box-shadow .35s,transform .35s cubic-bezier(.3,1.45,.5,1)}
+.tt .album:hover{box-shadow:inset 0 0 0 5px var(--bk-cream),inset 0 0 0 6px var(--bk-red),0 0 0 1px var(--bk-red),0 18px 32px -16px rgba(20,18,13,.5)}
+.tt .album:nth-of-type(odd){--tilt:-1.2deg}.tt .album:nth-of-type(even){--tilt:1.2deg}
+.tt .al-head{align-items:center;gap:1rem}
+.tt .rank{position:relative;flex:none;display:grid;place-items:center;width:clamp(4.2rem,14vw,5.6rem);aspect-ratio:1;border-radius:50%;background:var(--bk-red);
+  color:#fff;-webkit-text-stroke:0;font:700 clamp(1.7rem,6vw,2.4rem)/1 var(--bk-disp);letter-spacing:-.04em;transform:rotate(var(--tilt,0deg));
+  box-shadow:0 0 0 4px var(--bk-cream),0 0 0 5px var(--bk-red),4px 6px 0 5px var(--bk-ink)}
+.tt .rank::after{content:attr(data-jp);position:absolute;top:-.5rem;right:-.55rem;display:grid;place-items:center;width:1.7rem;height:1.7rem;border-radius:50%;
+  background:#e9b949;color:#1a1813;font:700 .8rem "Zen Old Mincho",serif;box-shadow:0 0 0 2px var(--bk-cream)}
+.tt .rank[data-jp=""]::after{display:none}
+.tt .al-artist{font:.7rem var(--bk-mono);letter-spacing:.14em;color:var(--bk-red-s)}
+.tt .al-title{font-family:var(--bk-disp);color:var(--bk-ink);letter-spacing:-.02em;overflow-wrap:anywhere}
+.tt .al-year{font:.68rem var(--bk-mono);color:var(--hm-mute);letter-spacing:.12em}
+.tt .al-year:not(:empty)::before{content:"◆ "}
+.tt .al-head h2{min-width:0}
+.tt .al-cover{position:relative;border-radius:20px;overflow:visible;box-shadow:none;transition:transform .35s cubic-bezier(.3,1.45,.5,1)}
+.tt .al-cover img{position:relative;z-index:1;border-radius:18px;box-shadow:0 0 0 1px var(--bk-rule)}
+.tt .al-cover::before{content:"";position:absolute;inset:6%;border-radius:50%;background:radial-gradient(circle,var(--bk-red) 0 14%,var(--bk-deep) 15% 16%,transparent 17%),repeating-radial-gradient(circle,var(--bk-deep) 0 2px,#2a2620 3px 4px);
+  transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tt .al-cover:hover{transform:translate(-2px,-4px) rotate(-1deg);box-shadow:none}
+.tt .al-cover:hover::before,.tt .album.in .al-cover::before{transform:translateX(22%) rotate(200deg)}
+.tt .al-text p{font-family:var(--bk-read);color:var(--bk-ink)}
+.tt .al-text a,.tt-intro a,.tt .al-outro a{color:var(--bk-red-s)}
+.tt .buy-row{margin:1.2rem 0 0;border-top:1px dashed var(--bk-rule);padding-top:1rem}
+.tt .buy-row a{border-radius:999px}
+.tt iframe{max-width:100%}
+.tt .more-reads{border-top:0;margin:2rem auto 0;max-width:52rem}
+.tt .more-reads a{border-radius:24px;overflow:hidden;box-shadow:0 0 0 1px var(--bk-rule);transition:transform .35s cubic-bezier(.3,1.45,.5,1)}
+.tt .more-reads a:hover{transform:translateY(-6px) rotate(-1deg);box-shadow:0 0 0 2px var(--bk-red)}
+.tt-back{max-width:52rem;margin:0 auto;padding:1.5rem 0 2rem}
+.tt-back a{font:.72rem var(--bk-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--bk-red-s)}
+.tt-pill{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));z-index:40;margin:0;display:flex;align-items:baseline;gap:.35rem;padding:.5rem 1rem;border-radius:999px;
+  background:var(--bk-ink);color:var(--bk-cream);font:.68rem var(--bk-mono);letter-spacing:.1em;text-transform:uppercase;pointer-events:none;
+  box-shadow:0 0 0 3px var(--bk-red),0 10px 20px -8px rgba(0,0,0,.5);transform:translate(-50%,160%);transition:transform .45s cubic-bezier(.3,1.45,.5,1)}
+.tt-pill b{font:700 1.15rem/1 var(--bk-disp);color:var(--bk-red)}
+.tt-pill.on{transform:translate(-50%,0)}
+.bk-js .tt .album,.bk-js .tt-intro,.bk-js .tt .al-outro{opacity:0;transform:translateY(30px) scale(.94)}
+.bk-js .tt .album.in,.bk-js .tt-intro.in,.bk-js .tt .al-outro.in{animation:blPop .75s cubic-bezier(.3,1.45,.5,1) forwards}
+.tt .album.in .rank{animation:ttStamp .6s cubic-bezier(.3,1.6,.5,1) .15s both}
+@keyframes ttSpin{to{transform:rotate(360deg)}}
+@keyframes ttWob{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes ttStamp{0%{transform:scale(1.6) rotate(-25deg);opacity:0}100%{transform:rotate(var(--tilt,0deg));opacity:1}}
+@media (max-width:600px){
+  .tt-disc{width:170px;height:170px;top:-55px;right:-60px;opacity:.55}
+  .tt-tick a{width:2.15rem;height:2.15rem;font-size:.72rem}
+  .tt .album{border-radius:24px}
+  .tt .al-head{align-items:flex-start}
+  .tt .al-cover::before{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .tt-disc,.tt-tag,.tt .album.in .rank{animation:none!important}
+  .bk-js .tt .album,.bk-js .tt-intro,.bk-js .tt .al-outro{opacity:1;transform:none;animation:none!important}
+  .tt .album,.tt .al-cover,.tt .al-cover::before,.tt-tick a,.tt-pill,.tt .more-reads a{transition:none}
+  .tt .al-cover:hover,.tt .more-reads a:hover{transform:none}
+  .tt .al-cover:hover::before,.tt .album.in .al-cover::before{transform:translateX(12%)}
+}
+.tt .more-reads h2 span{position:static;background:none;padding:0;font:inherit;color:var(--bk-red-s)}

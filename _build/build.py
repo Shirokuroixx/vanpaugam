@@ -296,6 +296,7 @@ def discography_block(artist, jp, recs, skip):
             f'As an Amazon Associate I earn from qualifying purchases.</p></div>')
 
 TOP10="/blog/2020/10/19/the-top-10-city-pop-albums"
+TT_JP="一二三四五六七八九十"
 def top10_layout(body):
     body=re.sub(r'<div class="video">.*?</iframe></div>','',body,flags=re.S)
     rank=re.compile(r"<h2[^>]*>\s*#?\s*(\d+)\s*\.?\s*</h2>")
@@ -304,7 +305,7 @@ def top10_layout(body):
     intro=body[:ranks[0].start()]
     intro=re.sub(r"<h2[^>]*>\s*The Top 10[^<]*</h2>","",intro)
     intro=re.sub(r"</?div>","",intro)
-    out=[intro]; outro=""
+    out=[f'<div class="tt-intro">{intro}</div>' if _txt(intro) or "<iframe" in intro else ""]; outro=""
     for i,r in enumerate(ranks):
         end=ranks[i+1].start() if i+1<len(ranks) else len(body)
         seg=body[r.end():end]
@@ -325,7 +326,8 @@ def top10_layout(body):
         outro+="".join(p for p in paras[1:] if not re.match(r"<p[^>]*>\s*(Buy it on|Pre-?order|Listen)",p) and not (len(_txt(p))<70 and ":" in _txt(p) and "<a " in p))
         eb=shop_links(a,ti)[0][1]
         fig=(f'<a class="al-cover" href="{eb}" target="_blank" rel="sponsored noopener">{img}</a>' if img else "")
-        out.append(f'<section class="album"><header class="al-head"><span class="rank">{int(r.group(1)):02d}</span>'
+        _n=int(r.group(1))
+        out.append(f'<section class="album" id="no-{_n}"><header class="al-head"><span class="rank" data-jp="{TT_JP[_n-1] if 0<_n<=10 else ""}">{_n:02d}</span>'
                    f'<h2><span class="al-artist">{html.escape(a)}</span><span class="al-title">{html.escape(ti)}</span>'
                    f'<span class="al-year">{yr}</span></h2></header>'
                    f'<div class="al-main">{fig}<div class="al-text">{txt}</div></div>{buy_row(a,ti,None)}</section>')
@@ -351,7 +353,7 @@ def list_layout(body):
     if len(heads)<8: return body,False
     intro=re.sub(r"<h2[^>]*>\s*(City Pop Songs[^<]*)?</h2>","",body[:heads[0][0].start()])
     intro=re.sub(r"</?div>","",intro)
-    out=[intro]; outro=""
+    out=[f'<div class="tt-intro">{intro}</div>' if _txt(intro) or "<iframe" in intro else ""]; outro=""
     for i,(m,pm) in enumerate(heads):
         end=heads[i+1][0].start() if i+1<len(heads) else len(body)
         rest=re.sub(r"</?div>","",body[m.end():end])
@@ -366,16 +368,51 @@ def list_layout(body):
         if not img:
             _c=find_cover(a,ti); img=f'<img src="{_c}" alt="">' if _c else ""
         fig=(f'<a class="al-cover" href="{eb}" target="_blank" rel="sponsored noopener">{img}</a>' if img else "")
-        out.append(f'<section class="album"><header class="al-head"><span class="rank">{i+1:02d}</span>'
+        out.append(f'<section class="album" id="no-{i+1}"><header class="al-head"><span class="rank" data-jp="{TT_JP[i] if i<10 else ""}">{i+1:02d}</span>'
                    f'<h2><span class="al-artist">{html.escape(a)}</span><span class="al-title">{html.escape(ti)}</span>'
                    f'<span class="al-year">{yr}</span></h2></header>'
                    f'<div class="al-main{"" if fig else " nocover"}">{fig}<div class="al-text">{txt}</div></div>{buy_row(a,ti,None)}</section>')
     if outro: out.append(f'<div class="al-outro">{outro}</div>')
     return "".join(out),True
 
+TT_JS=r"""
+(function(){
+  var d=document,root=d.querySelector('.tt');if(!root)return;
+  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;d.documentElement.classList.add('bk-js');
+  var cards=Array.from(root.querySelectorAll('.album,.bk-rv,.tt-intro,.al-outro')),pill=root.querySelector('.tt-pill'),chips=root.querySelectorAll('.tt-tick a');
+  if(rm||!('IntersectionObserver' in window)){cards.forEach(function(c){c.classList.add('in')})}
+  else{var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});cards.forEach(function(c){io.observe(c)})}
+  var al=Array.from(root.querySelectorAll('.album'));if(!pill||!('IntersectionObserver' in window))return;
+  var on=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var n=e.target.id.slice(3);
+    pill.querySelector('b').textContent=('0'+n).slice(-2);pill.classList.add('on');
+    chips.forEach(function(c){c.classList.toggle('cur',c.getAttribute('href')==='#'+e.target.id)})})},{rootMargin:'-45% 0px -50% 0px'});
+  al.forEach(function(a){on.observe(a)});
+  new IntersectionObserver(function(es){if(es[0].isIntersecting)pill.classList.remove('on')}).observe(root.querySelector('.tt-head'));
+})();
+"""
+def tt_page(link,date,title,cover,body):
+    ns=re.findall(r'<section class="album" id="no-(\d+)"',body)
+    tick="".join(f'<li><a href="#no-{n}">{int(n):02d}</a></li>' for n in ns)
+    kind="Albums" if link==TOP10 else "Songs"
+    if re.search(r'<div class="tt-intro">.*?<img',body.split('<section class="album"')[0],re.S): cover=""
+    return ('<div class="wrap bk hm tt"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">'
+      f'<section class="bk-rv bk-frame tt-head"><div class="tt-disc" aria-hidden="true"><span></span></div>'
+      f'<p class="bk-label">Countdown <span class="jp">ランキング</span></p><h1>{html.escape(title)}</h1>'
+      f'<p class="tt-meta"><span class="tt-tag">{len(ns)} {kind}</span><span>{date}</span><span class="tt-jp" aria-hidden="true">ベスト・テン</span></p>'
+      f'<nav class="tt-tick" aria-label="Jump to a pick"><ol>{tick}</ol></nav>{cover}</section>'
+      f'<div class="prose top10">{body}</div>{more_block(link)}'
+      f'<p class="tt-back"><a href="/blog">← All writing</a></p>'
+      f'<p class="tt-pill" aria-hidden="true">No.<b>--</b><span>/ {len(ns):02d}</span></p></div><script>{TT_JS}</script>')
+
 MORE={"/blog/2020/10/19/the-top-10-city-pop-albums":[
   ("/blog/2020/10/20/city-pop-summer","10 City Pop Songs About Summer","/img/1c88cb968d75f0.jpg"),
-  ("/blog/city-pop-top-albums-list","Another Top 10 City Pop Songs List","/img/bf1d1fb833caeb.jpg")]}
+  ("/blog/city-pop-top-albums-list","Another Top 10 City Pop Songs List","/img/bf1d1fb833caeb.jpg")],
+ "/blog/2020/10/20/city-pop-summer":[
+  ("/blog/2020/10/19/the-top-10-city-pop-albums","The Top 10 City Pop Albums","/img/3964130e1f65de.jpg"),
+  ("/blog/city-pop-top-albums-list","Another Top 10 City Pop Songs List","/img/bf1d1fb833caeb.jpg")],
+ "/blog/city-pop-top-albums-list":[
+  ("/blog/2020/10/19/the-top-10-city-pop-albums","The Top 10 City Pop Albums","/img/3964130e1f65de.jpg"),
+  ("/blog/2020/10/20/city-pop-summer","10 City Pop Songs About Summer","/img/1c88cb968d75f0.jpg")]}
 def more_block(link):
     if link not in MORE: return ""
     cards="".join(f'<li><a href="{l}"><img src="{im}" alt="" loading="lazy"><span>{html.escape(t)}</span></a></li>' for l,t,im in MORE[link])
@@ -506,6 +543,9 @@ for it in items:
         col="/"+link.strip("/").split("/")[0]
         if link in EPISODES: body=episode_player(EPISODES[link])+body
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
+        if link in (TOP10,)+LISTPOSTS and _inlined:
+            art=tt_page(link,date,title,cover,body); write(link,art,title,desc,thumb,date)
+            cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
              f'<div class="prose{" top10" if link in (TOP10,)+LISTPOSTS else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
