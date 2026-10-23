@@ -62,6 +62,8 @@ def clean(body):
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
      ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
+NAV_JP={"About":"略歴","The Book":"書籍","Writing":"記事","Top 10":"名盤","Podcast":"番組","New Music":"新曲","Buy Vinyl":"レコード","News":"情報","Contact":"連絡"}
+
 with open(os.path.join(os.path.dirname(__file__),"social.html"),encoding="utf-8") as social_file:
     SOCIAL_HTML=social_file.read().strip()
 
@@ -72,7 +74,7 @@ def head(path,title,desc,img,date):
         ld=('<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":'
             +json.dumps(title)+f',"datePublished":"{date}","author":{{"@type":"Person","name":"Van Paugam"}},"mainEntityOfPage":"{canon}"'
             +(f',"image":"{SITE}{img}"' if img else "")+'}</script>')
-    nav="".join(f'<a href="{u}"{" aria-current=\"page\"" if path==u or (u!="/" and path.startswith(u+"/")) else ""}>{n}</a>' for u,n in NAV)
+    nav="".join(f'<a href="{u}" data-jp="{NAV_JP.get(n,"")}"{" aria-current=\"page\"" if path==u or (u!="/" and path.startswith(u+"/")) else ""}>{n}</a>' for u,n in NAV)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(title)} — Van Paugam</title>
@@ -87,7 +89,7 @@ def head(path,title,desc,img,date):
 <link rel="stylesheet" href="/style.css"><script src="/img/kitsune-cursor.js" defer></script>{ld}
 <script>try{{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body>
-<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><nav class="site-nav">{nav}{SOCIAL_HTML}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
+<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><button class="nav-btn" type="button" aria-expanded="false" aria-controls="site-nav"><span class="nav-ico" aria-hidden="true"><i></i><i></i><i></i></span><span class="nav-lbl">Menu</span></button><nav class="site-nav" id="site-nav">{nav}{SOCIAL_HTML}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
 <main id="main">"""
 
 FOOT=f"""</main>
@@ -111,6 +113,9 @@ FOOT=f"""</main>
 </div>
 <p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer>
 <script src="/fox.js" defer></script>
+<script>(function(){{var h=document.querySelector(".nav-btn");if(!h)return;var r=document.documentElement;function set(o){{r.classList.toggle("nav-open",o);h.setAttribute("aria-expanded",o)}}
+h.addEventListener("click",function(){{set(!r.classList.contains("nav-open"))}});document.addEventListener("keydown",function(e){{if(e.key==="Escape")set(false)}});
+document.querySelectorAll(".site-nav a").forEach(function(a){{a.addEventListener("click",function(){{set(false)}})}});}})();</script>
 <script>(function(){{var r=document.documentElement,b=document.getElementById("theme");if(!b)return;
 function dark(){{return r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches}}
 function label(){{b.textContent=dark()?"Light":"Dark"}}
@@ -566,63 +571,38 @@ def card(l,t,th,d=""):
 pod_follow=(f'<div class="btn-row" style="margin-top:1.25rem"><a class="btn" href="{POD_SHOW_SP}" target="_blank" rel="noopener">Follow on Spotify</a>'
             f'<a class="btn btn-ghost" href="{POD_SHOW_AP}" target="_blank" rel="noopener">Apple Podcasts</a></div>')
 
-# ---------- blog index: gachapon ----------
-GC_COLS=["#C2422B","#E9B84A","#3FA7A0","#6FA8DC","#E98AA6","#7A6FD0"]
-GC_JS=r"""
+# ---------- blog index: bubble blocks in the homepage style ----------
+BL_JS=r"""
 (function(){
-  var d=document,rm=matchMedia('(prefers-reduced-motion: reduce)').matches,root=d.querySelector('.gc');if(!root)return;
-  var caps=Array.from(root.querySelectorAll('.gc-cap'));
-  function drop(list){list.forEach(function(c,i){c.classList.remove('in');c.style.setProperty('--dl',(i%6)*70+'ms')});
+  var d=document,rm=matchMedia('(prefers-reduced-motion: reduce)').matches,root=d.querySelector('.bl');if(!root)return;
+  d.documentElement.classList.add('bk-js');
+  var items=Array.from(root.querySelectorAll('.bl-item')),io;
+  function show(list){if(io)io.disconnect();list.forEach(function(c,i){c.classList.remove('in');c.style.setProperty('--dl',(i%4)*80+'ms')});
     if(rm||!('IntersectionObserver' in window)){list.forEach(function(c){c.classList.add('in')});return}
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});
+    io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -6% 0px'});
     list.forEach(function(c){io.observe(c)})}
-  drop(caps);
-  // year chips
-  var chips=Array.from(root.querySelectorAll('.gc-chip'));
+  show(items);
+  root.querySelectorAll('.bk-rv').forEach(function(n){n.classList.add('in')});
+  var chips=Array.from(root.querySelectorAll('.bl-chip'));
   chips.forEach(function(b){b.addEventListener('click',function(){
     chips.forEach(function(x){x.setAttribute('aria-pressed',x===b)});var y=b.dataset.y,vis=[];
-    caps.forEach(function(c){var on=y==='all'||c.dataset.y===y;c.hidden=!on;if(on)vis.push(c)});
-    root.querySelector('.gc-count').textContent=vis.length+(vis.length===1?' capsule':' capsules');drop(vis)})});
-  // the machine
-  var m=root.querySelector('.gc-machine'),btn=root.querySelector('.gc-spin'),out=root.querySelector('.gc-out'),rv=root.querySelector('.gc-reveal'),busy=false;
-  function pick(){var pool=caps.filter(function(c){return !c.hidden});return pool[Math.floor(Math.random()*pool.length)]}
-  function spin(){if(busy)return;busy=true;var c=pick(),a=c.querySelector('a'),col=c.style.getPropertyValue('--c');
-    rv.classList.remove('on');out.className='gc-out';out.style.setProperty('--c',col);m.classList.remove('go');void m.offsetWidth;m.classList.add('go');
-    if(navigator.vibrate)try{navigator.vibrate([12,40,12])}catch(e){}
-    var t=rm?50:1100;
-    setTimeout(function(){out.classList.add('drop')},rm?0:t-300);
-    setTimeout(function(){out.classList.add('open');
-      rv.querySelector('img').src=c.querySelector('img')?c.querySelector('img').src:'';rv.querySelector('h3').textContent=c.querySelector('h3').textContent;
-      rv.querySelector('.meta').textContent=c.querySelector('.meta').textContent;rv.querySelector('.gc-go').href=a.href;rv.style.setProperty('--c',col);
-      rv.querySelector('.gc-no').textContent=c.querySelector('.gc-no').textContent;
-      rv.hidden=false;void rv.offsetWidth;rv.classList.add('on');var rb=rv.getBoundingClientRect();if(rb.bottom>innerHeight||rb.top<70)rv.scrollIntoView({block:'center',behavior:rm?'auto':'smooth'});btn.textContent='Spin again ↻';busy=false},rm?60:t+500)}
-  btn.addEventListener('click',spin);m.addEventListener('click',spin);
-  // tap wobble on cards
-  caps.forEach(function(c){c.addEventListener('pointerdown',function(){c.classList.remove('wob');void c.offsetWidth;c.classList.add('wob')})});
+    items.forEach(function(c){var on=y==='all'||c.dataset.y===y;c.hidden=!on;if(on)vis.push(c)});
+    root.querySelector('.bl-count').textContent=vis.length+(vis.length===1?' story':' stories');show(vis)})});
 })();
 """
 def gacha_page(posts,blurb):
     years=sorted({d[:4] for d,*_ in posts if d},reverse=True)
-    balls="".join(f'<i style="--c:{GC_COLS[i%6]};--x:{x}%;--y:{y}%;--r:{r}deg;--t:{i*.23:.2f}s"></i>'
-        for i,(x,y,r) in enumerate([(14,58,10),(34,66,-30),(56,62,40),(74,52,-12),(22,36,60),(46,40,-50),(66,30,20),(38,16,-20),(58,12,70),(80,34,0),(8,44,30),(28,80,-60),(50,82,15),(70,74,-35)]))
-    chips='<button type="button" class="gc-chip" data-y="all" aria-pressed="true">All</button>'+"".join(f'<button type="button" class="gc-chip" data-y="{y}" aria-pressed="false">{y}</button>' for y in years)
+    chips='<button type="button" class="bl-chip" data-y="all" aria-pressed="true">All</button>'+"".join(f'<button type="button" class="bl-chip" data-y="{y}" aria-pressed="false">{y}</button>' for y in years)
     cards=""
     for i,(d,l,t,x,th) in enumerate(posts):
-        im=f'<img src="{th}" alt="" loading="lazy">' if th else '<span class="gc-ph"></span>'
-        cards+=(f'<li class="gc-cap" data-y="{d[:4]}" style="--c:{GC_COLS[i%6]}"><a href="{l}"><span class="gc-top"><span class="gc-no">No.{len(posts)-i:03d}</span></span>'
-                f'<span class="gc-win">{im}</span><div class="gc-txt"><h3>{html.escape(short(t))}</h3><span class="meta">{d}</span></div></a></li>')
-    return (f'<div class="gc"><section class="gc-hero"><div class="wrap gc-hero-in">'
-      f'<div class="gc-copy"><p class="gc-kick">WRITING · 記事ガチャ</p><h1>Pull a story<span>.</span></h1><p class="gc-lede">{html.escape(blurb)}</p>'
-      f'<button type="button" class="gc-spin">Turn the crank ↻</button></div>'
-      f'<div class="gc-stage"><div class="gc-machine" role="img" aria-label="A gachapon machine full of story capsules">'
-      f'<div class="gc-dome"><div class="gc-balls">{balls}</div><span class="gc-glare"></span></div>'
-      f'<div class="gc-body"><span class="gc-plate">記事 ¥100</span><span class="gc-knob"><b></b></span><span class="gc-slot"></span></div>'
-      f'<span class="gc-out"><i class="t"></i><i class="b"></i></span></div>'
-      f'<div class="gc-reveal" hidden aria-live="polite"><span class="gc-no"></span><img alt="" src=""><div><h3></h3><p class="meta"></p><a class="gc-go" href="/blog">Open capsule →</a></div></div></div>'
-      f'</div></section>'
-      f'<div class="wrap"><div class="gc-bar"><div class="gc-chips" role="group" aria-label="Filter by year">{chips}</div><span class="gc-count">{len(posts)} capsules</span></div>'
-      f'<ul class="gc-grid">{cards}</ul></div></div><script>{GC_JS}</script>')
-
+        im=f'<img src="{th}" alt="" loading="{"eager" if i<2 else "lazy"}">' if th else '<span class="bl-ph"></span>'
+        cards+=(f'<li class="bl-item{" bl-big" if i==0 else ""}" data-y="{d[:4]}"><a class="bl-bub" href="{l}"><span class="bl-img">{im}</span>'
+                f'<span class="bl-txt"><span class="bl-meta">No.{len(posts)-i:03d} · {d}</span><h3>{html.escape(short(t))}</h3>'
+                f'<span class="bl-ex">{html.escape(x)}</span><span class="bl-go">Read →</span></span></a></li>')
+    return ('<div class="wrap bk hm bl"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">'
+      f'<section class="bk-rv bk-frame bl-head"><p class="bk-label">Writing <span class="jp">記事</span></p><h1>Writing</h1><p class="bl-lede">{html.escape(blurb)}</p>'
+      f'<div class="bl-bar"><div class="bl-chips" role="group" aria-label="Filter by year">{chips}</div><span class="bl-count">{len(posts)} stories</span></div></section>'
+      f'<ul class="bl-grid">{cards}</ul></div><script>{BL_JS}</script>')
 for col,posts in cols.items():
     posts.sort(reverse=True)
     nm,jp,blurb=names.get(col,(col.strip("/").title(),"",""))
