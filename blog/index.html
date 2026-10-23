@@ -52,7 +52,7 @@
 <p class="colophon">© Van Paugam 2026. Chicago.</p></div></footer>
 <script src="/fox.js?v=f9575678" defer></script>
 <script>(function(){var h=document.querySelector(".nav-btn");if(!h)return;var r=document.documentElement;function set(o){r.classList.toggle("nav-open",o);h.setAttribute("aria-expanded",o)}
-h.addEventListener("click",function(){set(!r.classList.contains("nav-open"))});document.addEventListener("keydown",function(e){if(e.key==="Escape")set(false)});
+h.addEventListener("click",function(){set(!r.classList.contains("nav-open"))});document.addEventListener("keydown",function(e){if(e.key==="Escape")set(false)});document.addEventListener("click",function(e){if(r.classList.contains("nav-open")&&!e.target.closest(".site-nav,.nav-btn"))set(false)});
 document.querySelectorAll(".site-nav a").forEach(function(a){a.addEventListener("click",function(){set(false)})});})();</script>
 <script>(function(){var r=document.documentElement,b=document.getElementById("theme");if(!b)return;
 function dark(){return r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
