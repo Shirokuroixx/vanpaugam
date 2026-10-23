@@ -1236,3 +1236,15 @@ html,body{overflow-x:clip}
 }
 @media (max-width:860px) and (prefers-color-scheme:dark){html:not([data-theme="light"]){--mn-bg:rgba(14,22,38,.58);--mn-tag:rgba(30,44,72,.5);--mn-ink:#F3F2ED;--mn-line:rgba(243,242,237,.28);--mn-jp:#E2694C;--mn-sh:rgba(0,0,0,.45);--mn-veil:rgba(8,12,20,.28);--mn-sheen:rgba(255,255,255,.08)}}
 @keyframes mnSheen{0%{opacity:1;background-position:120% 0}100%{opacity:0;background-position:-60% 0}}
+/* mobile menu: neon tube instead of the tri-colour stripe */
+@media (max-width:860px){
+  :root{--neon:#ffffff;--neon-glow:rgba(140,190,255,.9);--neon-halo:rgba(120,170,255,.45)}
+  html[data-theme="dark"]{--neon:#bfe3ff;--neon-glow:#3aa0ff;--neon-halo:rgba(40,140,255,.55)}
+  .site-head .site-nav::before{height:3px;top:4px;left:14px;right:14px;border-radius:3px;background:var(--neon);
+    box-shadow:0 0 4px var(--neon),0 0 10px var(--neon-glow),0 0 22px var(--neon-glow),0 0 40px var(--neon-halo);opacity:0}
+  .nav-open .site-head .site-nav::before{animation:neonOn 1.2s steps(1) .2s forwards,neonHum 3.5s ease-in-out 1.4s infinite}
+}
+@media (max-width:860px) and (prefers-color-scheme:dark){html:not([data-theme="light"]){--neon:#bfe3ff;--neon-glow:#3aa0ff;--neon-halo:rgba(40,140,255,.55)}}
+@keyframes neonOn{0%{opacity:0}10%{opacity:1}16%{opacity:.15}24%{opacity:1}30%{opacity:.3}38%,100%{opacity:1}}
+@keyframes neonHum{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.88;filter:brightness(1.15)}}
+@media (max-width:860px) and (prefers-reduced-motion:reduce){.nav-open .site-head .site-nav::before{animation:none;opacity:1}}
