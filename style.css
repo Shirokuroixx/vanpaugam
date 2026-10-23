@@ -1486,3 +1486,15 @@ html,body{overflow-x:clip}
 @media (max-width:760px){.pd-list{grid-template-columns:minmax(0,1fr)}.pd-sky{transform:scale(.7);transform-origin:top right;top:8px;right:8px}}
 @media (max-width:420px){.pd-sky{display:none}.pd-top{flex-direction:column;align-items:stretch}.pd-cv{width:100%;aspect-ratio:16/10}.pd-ep.playing .pd-cv{animation:none;border-radius:20px}.pd .bl-bar{flex-wrap:wrap}}
 @media (prefers-reduced-motion:reduce){.pd-moon,.pd-star,.pd-onair,.pd-eq i,.pd-ep.playing .pd-cv,.pd-play:hover .pd-ic,.pd-player iframe{animation:none}.pd-bub,.pd-play,.pd-cv img{transition:none}.pd-ep:hover .pd-bub,.pd-ep:hover .pd-cv img,.pd-play:hover{transform:none}}
+/* podcast episode players appended to pages that mention an episode's artist */
+.pe{display:block;max-width:none;padding:0;margin:0 0 3rem;background:var(--bk-cream);color:var(--bk-ink);border-radius:28px;padding:clamp(1.2rem,4vw,1.8rem);
+  box-shadow:inset 0 0 0 5px var(--bk-cream),inset 0 0 0 6px var(--bk-red),0 0 0 1px var(--bk-rule),0 12px 24px -16px rgba(20,18,13,.45)}
+.pe h2{font-size:clamp(1.3rem,3vw,1.7rem)!important;margin:0 0 1rem}
+.pe .bk-label{margin-bottom:.8rem}
+.pe-list{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.pe .pd-ep{background:var(--bk-light);border-radius:22px;padding:10px;margin:0}
+.pe .pd-cv{width:64px;border-radius:14px}
+.pe .pd-txt h3{font-size:1.05rem;margin:0;line-height:1.25}
+.pe .pd-txt h3 a{color:var(--bk-ink);text-decoration:none}.pe .pd-txt h3 a:hover{color:var(--bk-red-s)}
+.pe .pd-player{margin-top:10px}
+@media (max-width:420px){.pe .pd-top{flex-direction:row;align-items:center}.pe .pd-cv{width:56px;aspect-ratio:1}}

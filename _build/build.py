@@ -132,10 +132,12 @@ label();b.addEventListener("click",function(){{r.dataset.theme=dark()?"light":"d
 try{{localStorage.setItem("vp-theme",r.dataset.theme)}}catch(e){{}}label()}});}})();</script>
 </body></html>"""
 
+WRITTEN={}
 def write(path,body,title,desc,img=None,date=None):
     d=os.path.join(OUT,path.strip("/")); os.makedirs(d,exist_ok=True)
     foot=re.sub(r"<!--bkp-->.*?<!--/bkp-->","",FOOT,flags=re.S) if path=="/somehow-city-pop-book" else FOOT
     open(os.path.join(d,"index.html"),"w",encoding="utf-8").write(ren_img(head(path,title,desc,img,date)+body+foot))
+    WRITTEN[path]=body
 
 def plain(s,n=165):
     s=re.sub(r"<figcaption.*?</figcaption>"," ",s or "",flags=re.S)
@@ -1123,5 +1125,30 @@ open(os.path.join(OUT,"_redirects"),"w").write(
   +"# Serve generated blog pages directly without directory slash redirects.\n"
   +"/blog  /blog/index.html  200!\n"
   +"/blog/*  /blog/:splat/index.html  200!\n")
+# ---------- Mayonaka Hour players on every page that mentions an episode's artist ----------
+POD_ARTISTS={"/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":r"Tatsuro|山下達郎",
+  "/podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi":r"Mariya|竹内まりや",
+  "/podcast/city-pop-podcast-miki-matsubara":r"Miki Matsubara|Matsubara Miki|松原みき",
+  "/podcast/city-pop-podcast-toshiki-kadomatsu":r"Kadomatsu|角松敏生",
+  "/podcast/city-pop-podcast-momoko-kikuchi":r"Momoko Kikuchi|Kikuchi Momoko|菊池桃子",
+  "/podcast/city-pop-podcast-hideki-saijo":r"Hideki Saij|Saij[oō] Hideki|西城秀樹"}
+_eps={l:(t,th) for d,l,t,x,th in cols.get("/podcast",[])}
+for path,body in WRITTEN.items():
+    if path in ("/",*names) or path.startswith("/podcast"): continue
+    txt=re.sub(r"<[^>]+>"," ",re.sub(r"<(script|style)\b.*?</\1>","",body,flags=re.S))
+    hits=sorted(((len(re.findall(rx,txt,re.I)),l) for l,rx in POD_ARTISTS.items() if l in _eps),reverse=True)
+    hits=[l for n,l in hits if n]
+    if not hits: continue
+    rows=""
+    for l in hits:
+        t,th=_eps[l]; tt=html.escape(short(t))
+        im=f'<img src="{th}" alt="" loading="lazy">' if th else '<span class="bl-ph"></span>'
+        rows+=(f'<li class="pd-ep"><div class="pd-top"><span class="pd-cv">{im}</span><div class="pd-txt"><span class="bl-meta">Mayonaka Hour · 真夜中アワー</span>'
+               f'<h3><a href="{pod_href(l)}">{tt}</a></h3></div></div><div class="pd-player"><button type="button" class="pd-play" data-ep="{LISTEN[l]}" data-t="{tt}">'
+               f'<span class="pd-ic" aria-hidden="true">▶</span><span>Play here <span class="jp">再生</span></span><span class="pd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button></div></li>')
+    blk=(f'<div class="wrap narrow"><aside class="bk hm pe" aria-label="Podcast episodes"><p class="bk-label">Listen <span class="jp">番組</span></p>'
+         f'<h2>Hear more on Mayonaka Hour</h2><ul class="pe-list">{rows}</ul></aside></div><script>{PD_JS}</script>')
+    f=os.path.join(OUT,path.strip("/"),"index.html"); h=open(f,encoding="utf-8").read()
+    open(f,"w",encoding="utf-8").write(h.replace("</main>",ren_img(blk)+"</main>",1))
 missing=[u for u in images.values() if not os.path.exists(os.path.join(OUT,RENAMES.get(u,u).lstrip("/")))]
 print(len(urls),"pages,",len(images),"images referenced,",len(missing),"missing images")
