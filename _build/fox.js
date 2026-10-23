@@ -35,13 +35,16 @@
   // a neon sign in the footer, and a DJ fox by the footer signup
   var col=d.querySelector('.colophon');
   if(col){var ne=d.createElement('span');ne.className='fx-neon';ne.setAttribute('aria-hidden','true');ne.textContent='営業中 24H';col.appendChild(ne)}
-  var fs=d.querySelector('.foot-sub');
+  var fs=d.querySelector('.sub-row')||d.querySelector('.foot-sub');
   if(fs){var dj=d.createElement('button');dj.type='button';dj.className='fx-dj';dj.setAttribute('aria-label','The DJ fox');
     dj.innerHTML='<span class="fx-say" aria-hidden="true">Now spinning ♪</span><span class="fx-note" aria-hidden="true">♪</span><span class="fx-note n2" aria-hidden="true">♫</span>'
       +DJSVG;
     var tunes=['Now spinning ♪','Plastic Love','真夜中のドア','Request? ✦','Ride on Time'],k=0;
     dj.addEventListener('click',function(){dj.classList.toggle('fx-scratch');hop(dj,tunes[k++%tunes.length]);if(!dj.dataset.f){dj.dataset.f=1;var f=found();if(f.indexOf('dj')<0){f.push('dj');try{localStorage.setItem('vp-foxes',JSON.stringify(f))}catch(e){}toast('狐 You found the DJ fox! '+f.length+' found so far.')}}});
     fs.appendChild(dj)}
+  // footer links rise in when the footer scrolls into view
+  var ft=d.querySelector('.site-foot');
+  if(ft){if('IntersectionObserver' in window&&!rm){ft.classList.add('fx-wait');var fo=new IntersectionObserver(function(es){if(es[0].isIntersecting){ft.classList.add('fx-in');fo.disconnect()}},{rootMargin:'0px 0px -10% 0px'});fo.observe(ft)}}
   // now and then a fox peeks in from the edge of the screen
   if(!rm){var shown=false,edge=foxBtn('edge:'+location.pathname,'fx-edge');d.body.appendChild(edge);
     addEventListener('scroll',function(){if(shown)return;var m=d.documentElement.scrollHeight-innerHeight;if(m>0&&scrollY/m>.45){shown=true;edge.classList.add('peek');setTimeout(function(){edge.classList.remove('peek')},9000)}},{passive:true})}
