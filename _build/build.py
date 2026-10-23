@@ -433,14 +433,15 @@ BL_JS=r"""
 })();
 """
 # ---------- artist feature posts: cream/navy frames, polaroid cover, section chips ----------
-ARTIST_FEATURE={"/blog/who-is-miki-matsubara":("松原みき","1959–2004",["Stay With Me","真夜中のドア","Pocket Park"])}
+ARTIST_FEATURE={"/blog/who-is-miki-matsubara":("松原みき","1959–2004",["Stay With Me","真夜中のドア","Pocket Park"],"/podcast/city-pop-podcast-miki-matsubara")}
 _SMALL={"a","an","and","as","at","but","by","for","in","is","of","on","or","the","to","with"}
 def _tcase(t):
     if t!=t.upper(): return t
     w=t.lower().split(" ")
     return " ".join(x.capitalize() if i==0 or x not in _SMALL else x for i,x in enumerate(w))
 def ar_page(link,date,title,thumb,body,disc):
-    jp,years,tags=ARTIST_FEATURE[link]
+    jp,years,tags,_ep=ARTIST_FEATURE[link]
+    body=re.sub(r"(<img[^>]*>)\s*[^<]+(<figcaption>)",r"\1\2",body)
     body=re.sub(r"<h2[^>]*>(?:\s|&nbsp;|<br\s*/?>)*</h2>","",body)
     chips=[]
     def h2(m):
@@ -455,6 +456,7 @@ def ar_page(link,date,title,thumb,body,disc):
       f'<section class="bk-rv bk-frame ar-hero"><div class="ar-hd"><p class="bk-label">Artist profile <span class="jp">歌手名鑑</span></p>'
       f'<p class="ar-jp" aria-hidden="true">{jp}</p><h1>{html.escape(title)}</h1><p class="ar-meta"><span>{date}</span>{tg}</p></div>{pol}</section>'
       +(f'<nav class="bl-item ar-nav" aria-label="In this story"><p class="bl-meta">In this story · 目次</p><ol>{nav}</ol></nav>' if chips else "")+
+      '<!--pdfeat-->'
       f'<article class="bl-item ar-body prose">{body}</article>'
       +(f'<section class="bl-item ar-recs">{disc}</section>' if disc else "")+
       f'<p class="ar-back"><a href="/blog">← All writing</a></p></div><script>{BL_JS}</script>')
@@ -670,7 +672,7 @@ PD_JS=r"""
 (function(){
   document.querySelectorAll('.pd-play').forEach(function(b){b.addEventListener('click',function(){
     var f=document.createElement('iframe');f.src='https://open.spotify.com/embed/episode/'+b.dataset.ep+'?utm_source=generator&theme=0';
-    f.height='152';f.width='100%';f.loading='lazy';f.title='Play '+b.dataset.t+' on Spotify';f.setAttribute('frameborder','0');
+    f.height=b.dataset.h||'152';f.style.height=f.height+'px';f.width='100%';f.loading='lazy';f.title='Play '+b.dataset.t+' on Spotify';f.setAttribute('frameborder','0');
     f.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
     var w=b.parentNode;w.classList.add('on');w.replaceChildren(f);
     var c=w.closest('.pd-ep');if(c)c.classList.add('playing')})});
@@ -1165,6 +1167,17 @@ POD_ARTISTS={"/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":r"Tatsu
 _eps={l:(t,th) for d,l,t,x,th in cols.get("/podcast",[])}
 for path,body in WRITTEN.items():
     if path in ("/",*names) or path.startswith("/podcast"): continue
+    if path in ARTIST_FEATURE:
+        l=ARTIST_FEATURE[path][3]; t,th=_eps[l]; tt=html.escape(short(t))
+        ft=(f'<section class="bl-item pf" aria-label="Podcast episode"><div class="pf-art"><span class="pf-disc" aria-hidden="true"></span><img src="{th}" alt="" loading="lazy"></div>'
+            f'<div class="pf-txt"><p class="pf-kick"><span class="pf-dot" aria-hidden="true"></span>Mayonaka Hour · 真夜中アワー</p><h2>{tt}</h2>'
+            f'<p class="pf-sub">The full story of her life and music, told on the podcast.</p>'
+            f'<div class="pd-player pf-player"><button type="button" class="pd-play pf-play" data-ep="{LISTEN[l]}" data-t="{tt}" data-h="232"><span class="pd-ic" aria-hidden="true">▶</span>'
+            f'<span>Listen now <span class="jp">再生</span></span><span class="pd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button></div>'
+            f'<a class="pf-more" href="{pod_href(l)}">All episodes →</a></div></section>')
+        f=os.path.join(OUT,path.strip("/"),"index.html"); h=open(f,encoding="utf-8").read()
+        open(f,"w",encoding="utf-8").write(h.replace("<!--pdfeat-->",ren_img(ft),1).replace("</main>",f"<script>{PD_JS}</script></main>",1))
+        continue
     txt=re.sub(r"<[^>]+>"," ",re.sub(r"<(script|style)\b.*?</\1>","",body,flags=re.S))
     hits=sorted(((len(re.findall(rx,txt,re.I)),l) for l,rx in POD_ARTISTS.items() if l in _eps),reverse=True)
     hits=[l for n,l in hits if n]
