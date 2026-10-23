@@ -414,6 +414,51 @@ def tt_page(link,date,title,cover,body):
       f'<p class="tt-back"><a href="/blog">← All writing</a></p>'
       f'<p class="tt-pill" aria-hidden="true">No.<b>--</b><span>/ {len(ns):02d}</span></p></div><script>{TT_JS}</script>')
 
+BL_JS=r"""
+(function(){
+  var d=document,rm=matchMedia('(prefers-reduced-motion: reduce)').matches,root=d.querySelector('.bl');if(!root)return;
+  d.documentElement.classList.add('bk-js');
+  var items=Array.from(root.querySelectorAll('.bl-item')),io;
+  function show(list){if(io)io.disconnect();list.forEach(function(c,i){c.classList.remove('in');c.style.setProperty('--dl',(i%4)*80+'ms')});
+    if(rm||!('IntersectionObserver' in window)){list.forEach(function(c){c.classList.add('in')});return}
+    io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -6% 0px'});
+    list.forEach(function(c){io.observe(c)})}
+  show(items);
+  root.querySelectorAll('.bk-rv').forEach(function(n){n.classList.add('in')});
+  var chips=Array.from(root.querySelectorAll('.bl-chip'));
+  chips.forEach(function(b){b.addEventListener('click',function(){
+    chips.forEach(function(x){x.setAttribute('aria-pressed',x===b)});var y=b.dataset.y,vis=[];
+    items.forEach(function(c){var on=y==='all'||c.dataset.y===y;c.hidden=!on;if(on)vis.push(c)});
+    root.querySelector('.bl-count').textContent=vis.length+(vis.length===1?' story':' stories');show(vis)})});
+})();
+"""
+# ---------- artist feature posts: cream/navy frames, polaroid cover, section chips ----------
+ARTIST_FEATURE={"/blog/who-is-miki-matsubara":("松原みき","1959–2004",["Stay With Me","真夜中のドア","Pocket Park"])}
+_SMALL={"a","an","and","as","at","but","by","for","in","is","of","on","or","the","to","with"}
+def _tcase(t):
+    if t!=t.upper(): return t
+    w=t.lower().split(" ")
+    return " ".join(x.capitalize() if i==0 or x not in _SMALL else x for i,x in enumerate(w))
+def ar_page(link,date,title,thumb,body,disc):
+    jp,years,tags=ARTIST_FEATURE[link]
+    body=re.sub(r"<h2[^>]*>(?:\s|&nbsp;|<br\s*/?>)*</h2>","",body)
+    chips=[]
+    def h2(m):
+        t=_tcase(re.sub(r"<[^>]+>","",m.group(1)).strip()); a=re.sub(r"[^a-z0-9]+","-",t.lower()).strip("-")
+        chips.append((a,t)); return f'<h2 id="{a}">{html.escape(t)}</h2>'
+    body=re.sub(r"<h2[^>]*>(.*?)</h2>",h2,body,flags=re.S)
+    if thumb and img_in(thumb,body): body=re.sub(r'<figure[^>]*>(?:(?!</figure>).)*'+re.escape(thumb)+r'.*?</figure>',"",body,count=1,flags=re.S)
+    nav="".join(f'<li><a href="#{a}"><span>{i+1:02d}</span>{html.escape(t)}</a></li>' for i,(a,t) in enumerate(chips))
+    tg="".join(f'<span class="ar-tag">{html.escape(x)}</span>' for x in tags)
+    pol=(f'<figure class="ar-pol"><span class="ar-disc" aria-hidden="true"></span><img src="{thumb}" alt="" loading="eager"><figcaption>{jp} · {years}</figcaption></figure>' if thumb else "")
+    return ('<div class="wrap bk hm bl ar"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">'
+      f'<section class="bk-rv bk-frame ar-hero"><div class="ar-hd"><p class="bk-label">Artist profile <span class="jp">歌手名鑑</span></p>'
+      f'<p class="ar-jp" aria-hidden="true">{jp}</p><h1>{html.escape(title)}</h1><p class="ar-meta"><span>{date}</span>{tg}</p></div>{pol}</section>'
+      +(f'<nav class="bl-item ar-nav" aria-label="In this story"><p class="bl-meta">In this story · 目次</p><ol>{nav}</ol></nav>' if chips else "")+
+      f'<article class="bl-item ar-body prose">{body}</article>'
+      +(f'<section class="bl-item ar-recs">{disc}</section>' if disc else "")+
+      f'<p class="ar-back"><a href="/blog">← All writing</a></p></div><script>{BL_JS}</script>')
+
 MORE={"/blog/2020/10/19/the-top-10-city-pop-albums":[
   ("/blog/2020/10/20/city-pop-summer","10 City Pop Songs About Summer","/img/1c88cb968d75f0.jpg"),
   ("/blog/city-pop-top-albums-list","Another Top 10 City Pop Songs List","/img/bf1d1fb833caeb.jpg")],
@@ -548,6 +593,8 @@ for it in items:
         body,_inlined=inline_buy(body)
     if typ=="post":
         col="/"+link.strip("/").split("/")[0]
+        # Mayonaka Hour is Spotify only; old Apple Podcasts embeds go (the episode box adds Spotify players)
+        body=re.sub(r'<iframe[^>]*podcasts\.apple\.com.*?</iframe>',"",body,flags=re.S)
         if col=="/podcast" and link in LISTEN:
             # episodes live on the podcast page; old URLs 301 to their anchor there
             POD_NOTES[link]=re.sub(r"<iframe.*?</iframe>","",body,flags=re.S)
@@ -555,6 +602,9 @@ for it in items:
         cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and not img_in(thumb,body) else ""
         if link in (TOP10,)+LISTPOSTS and _inlined:
             art=tt_page(link,date,title,cover,body); write(link,art,title,desc,thumb,date)
+            cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
+        if link in ARTIST_FEATURE:
+            write(link,ar_page(link,date,title,thumb,body,_disc),title,desc,thumb,date)
             cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
         art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
              f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
@@ -602,24 +652,6 @@ def card(l,t,th,d=""):
     return f'<li><a class="card" href="{l}">{im}<h3>{html.escape(t)}</h3><p class="meta">{d}</p></a></li>'
 
 # ---------- blog index: bubble blocks in the homepage style ----------
-BL_JS=r"""
-(function(){
-  var d=document,rm=matchMedia('(prefers-reduced-motion: reduce)').matches,root=d.querySelector('.bl');if(!root)return;
-  d.documentElement.classList.add('bk-js');
-  var items=Array.from(root.querySelectorAll('.bl-item')),io;
-  function show(list){if(io)io.disconnect();list.forEach(function(c,i){c.classList.remove('in');c.style.setProperty('--dl',(i%4)*80+'ms')});
-    if(rm||!('IntersectionObserver' in window)){list.forEach(function(c){c.classList.add('in')});return}
-    io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -6% 0px'});
-    list.forEach(function(c){io.observe(c)})}
-  show(items);
-  root.querySelectorAll('.bk-rv').forEach(function(n){n.classList.add('in')});
-  var chips=Array.from(root.querySelectorAll('.bl-chip'));
-  chips.forEach(function(b){b.addEventListener('click',function(){
-    chips.forEach(function(x){x.setAttribute('aria-pressed',x===b)});var y=b.dataset.y,vis=[];
-    items.forEach(function(c){var on=y==='all'||c.dataset.y===y;c.hidden=!on;if(on)vis.push(c)});
-    root.querySelector('.bl-count').textContent=vis.length+(vis.length===1?' story':' stories');show(vis)})});
-})();
-"""
 def gacha_page(posts,blurb):
     years=sorted({d[:4] for d,*_ in posts if d},reverse=True)
     chips='<button type="button" class="bl-chip" data-y="all" aria-pressed="true">All</button>'+"".join(f'<button type="button" class="bl-chip" data-y="{y}" aria-pressed="false">{y}</button>' for y in years)
