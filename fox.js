@@ -52,3 +52,10 @@
   if(!rm){var shown=false,edge=foxBtn('edge:'+location.pathname,'fx-edge');d.body.appendChild(edge);
     addEventListener('scroll',function(){if(shown)return;var m=d.documentElement.scrollHeight-innerHeight;if(m>0&&scrollY/m>.45){shown=true;edge.classList.add('peek');setTimeout(function(){edge.classList.remove('peek')},9000)}},{passive:true})}
 })();
+/* Neon scroll progress bar on every page (book/about pages already ship their own). */
+(function(){
+  var d=document;if(d.querySelector('.bk-progress'))return;
+  var pb=d.createElement('div');pb.className='bk-progress';pb.setAttribute('aria-hidden','true');d.body.appendChild(pb);
+  var up=function(){var m=d.documentElement.scrollHeight-innerHeight;pb.style.transform='scaleX('+(m>0?scrollY/m:0)+')';};
+  addEventListener('scroll',up,{passive:true});addEventListener('resize',up);up();
+})();
