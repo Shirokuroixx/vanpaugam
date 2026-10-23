@@ -20,6 +20,14 @@ _RP=os.path.join(os.path.dirname(os.path.abspath(__file__)),"img-renames.json")
 RENAMES=_json.load(open(_RP)) if os.path.exists(_RP) else {}
 _REN_RE=re.compile("|".join(re.escape(k) for k in sorted(RENAMES,key=len,reverse=True))) if RENAMES else None
 def ren_img(t): return _REN_RE.sub(lambda m:RENAMES[m.group(0)],t) if _REN_RE else t
+_IH={}
+def _ih(p):
+    if p not in _IH:
+        try: _IH[p]=hashlib.md5(open(os.path.join(OUT,ren_img(p).lstrip("/")),"rb").read()).hexdigest()
+        except OSError: _IH[p]=p
+    return _IH[p]
+# WordPress often uploaded the featured image twice under different names, so compare file contents
+def img_in(img,body): return img in body or any(_ih(s)==_ih(img) for s in re.findall(r'src="(/img/[^"]+)"',body))
 def local_img(url):
     url=url.replace("http://","https://").split("?")[0]
     if url not in images:
@@ -542,7 +550,7 @@ for it in items:
     if typ=="post":
         col="/"+link.strip("/").split("/")[0]
         if link in EPISODES: body=episode_player(EPISODES[link])+body
-        cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and thumb not in body else ""
+        cover=f'<figure class="cover"><img src="{thumb}" alt="" loading="lazy"></figure>' if thumb and not img_in(thumb,body) else ""
         if link in (TOP10,)+LISTPOSTS and _inlined:
             art=tt_page(link,date,title,cover,body); write(link,art,title,desc,thumb,date)
             cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
