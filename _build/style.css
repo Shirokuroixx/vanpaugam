@@ -1618,3 +1618,6 @@ html,body{overflow-x:clip}
 .ar-ja .ar-lead::first-line{font-weight:700}
 .ar-ja .ar-nav a{font-family:var(--bk-disp)}
 .ar-ja .pf-sub{font-style:normal!important}
+/* about page: cream page in light mode (matches its blocks); dark mode uses the homepage navy via .hm */
+html:not([data-theme="dark"]) body:has(.ab){background:#e4ddcf}
+@media (prefers-color-scheme:dark){html:not([data-theme="light"]) body:has(.ab){background:var(--paper)}}
