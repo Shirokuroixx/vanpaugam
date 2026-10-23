@@ -1,4 +1,4 @@
-import re, os, sys, hashlib, html, shutil, json
+import re, os, sys, hashlib, html, shutil, json, random
 import xml.etree.ElementTree as ET
 from urllib.parse import unquote
 
@@ -1055,16 +1055,15 @@ buy_js = """
   });
 })();
 """ % (EBAY_CAMPID,AMAZON_TAG,CDJ)
-SLV=["#bf4430","#e3a33b","#2f6f73","#23345a","#e48aa0","#7a5aa6"]
 def crate(o):
-    return '<span class="rs-crate" aria-hidden="true">'+"".join(f'<i style="--c:{SLV[(o+k)%6]};--r:{(k-2)*7}deg"></i>' for k in range(5))+'</span>'
+    rnd=random.Random(o)
+    return '<span class="rs-crate" aria-hidden="true">'+"".join(f'<i{" class=\"up\"" if k==o%7+5 else ""} style="--h:{rnd.randint(55,100)}%"></i>' for k in range(26))+'</span>'
 BINS=[(eb,"eBay","中古盤 · Used","Original Japanese pressings, obi strips intact. The deepest pool, and where most of my shelf came from.","Originals"),
       (am,"Amazon","新品 · New","Modern reissues and remasters. Fastest shipping if you want the music more than the artifact.","Reissues"),
       (cd,"CDJapan","直輸入 · From Japan","New Japanese reissues at Japanese retail, shipped from Japan. First stop for a current repress.","Represses")]
-_bins="".join(f'<li><a class="rs-bin" href="{h}" target="_blank" rel="sponsored noopener">{crate(i*2)}<span class="rs-div">{d}</span><h3>{n}</h3><p>{x}</p><span class="rs-tag">{t} · Dig →</span></a></li>' for i,(h,n,d,x,t) in enumerate(BINS))
+_bins="".join(f'<li><a class="rs-bin" href="{h}" target="_blank" rel="sponsored noopener">{crate(i*2)}<span class="rs-div">{d}</span><h3>{n}</h3><p>{x}</p><span class="rs-tag">{t} · Browse →</span></a></li>' for i,(h,n,d,x,t) in enumerate(BINS))
 buyp=f"""<div class="wrap bk hm rs"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">
-<section class="bk-frame rs-front"><div class="rs-noren" aria-hidden="true"><span>レ</span><span>コ</span><span>ー</span><span>ド</span></div>
-<div class="rs-sign"><span class="rs-kick">中古・新品レコード · Used &amp; new records</span><span class="rs-neon" aria-hidden="true">営業中 OPEN</span></div>
+<section class="bk-frame rs-front"><span class="rs-kick">中古・新品レコード · Used &amp; new records</span><div class="rs-sign" aria-hidden="true"><span class="rs-tate">レコード</span><span class="rs-open">Open</span></div>
 <h1>Buy vinyl</h1>
 <p class="rs-lede">Where I actually dig for City Pop records, and a live wall of what has just been reissued or newly pressed, straight from the Discogs database.</p>
 <ul class="rs-hours"><li>Originals</li><li>Reissues</li><li>Represses</li><li>Open 24h</li></ul></section>
@@ -1072,8 +1071,7 @@ buyp=f"""<div class="wrap bk hm rs"><link rel="stylesheet" href="https://fonts.g
 <section class="bk-frame"><div class="rs-h"><p class="bk-label">The bins <span class="jp">売り場</span></p><h2>Start digging</h2></div>
 <ul class="rs-bins">{_bins}</ul></section>
 
-<section class="bk-frame rs-new"><div class="rs-h"><p class="bk-label">Just in <span class="jp">新入荷</span></p><span class="rs-pop" aria-hidden="true">新入荷!</span>
-<h2>Fresh off the truck</h2><a class="rs-more" href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki →</a></div>
+<section class="bk-frame rs-new"><div class="rs-h"><p class="bk-label">Just in <span class="jp">新入荷</span></p><h2>Fresh off the truck</h2><a class="rs-more" href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki →</a></div>
 <p id="feed-wait" class="meta">Loading the latest releases…</p>
 <div id="feed" hidden><div class="rs-cols">
 <section><h3 class="rs-col">Reissues 再発 <span>· <span id="ri-n">0</span></span></h3><ul id="ri" class="rs-list"></ul></section>
