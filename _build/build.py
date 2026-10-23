@@ -434,15 +434,24 @@ BL_JS=r"""
 """
 # ---------- artist feature posts: cream/navy frames, polaroid cover, section chips ----------
 # posts that show one big featured episode instead of the generic episode box
-FEATURE_EP={"/blog/hideki-saijo":"/podcast/city-pop-podcast-hideki-saijo"}
-ARTIST_FEATURE={"/blog/who-is-miki-matsubara":("松原みき","1959–2004",["Stay With Me","真夜中のドア","Pocket Park"],"/podcast/city-pop-podcast-miki-matsubara")}
+FEATURE_EP={}
+ARTIST_FEATURE={"/blog/who-is-miki-matsubara":("松原みき","1959–2004",["Stay With Me","真夜中のドア","Pocket Park"],"/podcast/city-pop-podcast-miki-matsubara"),
+ "/blog/hideki-saijo":("西城秀樹","1955–2018",["The Japanese Elvis","Young Man (Y.M.C.A.)","From Tokyo"],"/podcast/city-pop-podcast-hideki-saijo",
+   {"Thanks to City Pop":"A Second Life Through City Pop","Having been inspired by western music":"Western Roots, Japanese Star",
+    "Saijo led a bit of a rebellious youth":"The Rebel Years","Regardless of the cold treatment":"Confidence Against the Critics",
+    "Sadly, Saijo passed away":"Remembering Saijo"},"The mark of a true artist","Thank you very much")}
+# optional extras per post: {paragraph opening: new section heading}, pull-quote opening, sign-off opening
 _SMALL={"a","an","and","as","at","but","by","for","in","is","of","on","or","the","to","with"}
 def _tcase(t):
     if t!=t.upper(): return t
     w=t.lower().split(" ")
     return " ".join(x.capitalize() if i==0 or x not in _SMALL else x for i,x in enumerate(w))
 def ar_page(link,date,title,thumb,body,disc):
-    jp,years,tags,_ep=ARTIST_FEATURE[link]
+    jp,years,tags,_ep,*_x=ARTIST_FEATURE[link]; secs,pull,sign=(_x+[{},None,None])[:3]
+    body=re.sub(r"^\s*<img[^>]*>","",body)
+    for k,h in secs.items(): body=re.sub(r"<p>(\s*"+re.escape(k)+")",f"<h2>{h}</h2><p>\\1",body,count=1)
+    if pull: body=re.sub(r"<p>\s*("+re.escape(pull)+r".*?)</p>",r'<blockquote class="ar-pull"><p>\1</p></blockquote>',body,count=1,flags=re.S)
+    if sign: body=body.replace("<p>"+sign,'<p class="ar-sign">'+sign,1)
     body=re.sub(r"(<img[^>]*>)\s*[^<]+(<figcaption>)",r"\1\2",body)
     body=re.sub(r"<h2[^>]*>(?:\s|&nbsp;|<br\s*/?>)*</h2>","",body)
     chips=[]
@@ -450,15 +459,15 @@ def ar_page(link,date,title,thumb,body,disc):
         t=_tcase(re.sub(r"<[^>]+>","",m.group(1)).strip()); a=re.sub(r"[^a-z0-9]+","-",t.lower()).strip("-")
         chips.append((a,t)); return f'<h2 id="{a}">{html.escape(t)}</h2>'
     body=re.sub(r"<h2[^>]*>(.*?)</h2>",h2,body,flags=re.S)
+    body=re.sub(r"(</h2>\s*)<p>",r'\1<p class="ar-lead">',body,count=1)
     if thumb and img_in(thumb,body): body=re.sub(r'<figure[^>]*>(?:(?!</figure>).)*'+re.escape(thumb)+r'.*?</figure>',"",body,count=1,flags=re.S)
     nav="".join(f'<li><a href="#{a}"><span>{i+1:02d}</span>{html.escape(t)}</a></li>' for i,(a,t) in enumerate(chips))
     tg="".join(f'<span class="ar-tag">{html.escape(x)}</span>' for x in tags)
     pol=(f'<figure class="ar-pol"><span class="ar-disc" aria-hidden="true"></span><img src="{thumb}" alt="" loading="eager"><figcaption>{jp} · {years}</figcaption></figure>' if thumb else "")
     return ('<div class="wrap bk hm bl ar"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">'
       f'<section class="bk-rv bk-frame ar-hero"><div class="ar-hd"><p class="bk-label">Artist profile <span class="jp">歌手名鑑</span></p>'
-      f'<p class="ar-jp" aria-hidden="true">{jp}</p><h1>{html.escape(title)}</h1><p class="ar-meta"><span>{date}</span>{tg}</p></div>{pol}</section>'
+      f'<p class="ar-jp" aria-hidden="true">{jp}</p><h1>{html.escape(title)}</h1><p class="ar-meta"><span>{date}</span>{tg}</p></div>{pol}</section><!--pdfeat-->'
       +(f'<nav class="bl-item ar-nav" aria-label="In this story"><p class="bl-meta">In this story · 目次</p><ol>{nav}</ol></nav>' if chips else "")+
-      '<!--pdfeat-->'
       f'<article class="bl-item ar-body prose">{body}</article>'
       +(f'<section class="bl-item ar-recs">{disc}</section>' if disc else "")+
       f'<p class="ar-back"><a href="/blog">← All writing</a></p></div><script>{BL_JS}</script>')
