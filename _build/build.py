@@ -1010,10 +1010,10 @@ buy_js = """
   }
   function card(r){
     var li=document.createElement("li"); li.className="rel";
-    var cover=r.cover?'<img src="'+r.cover+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<div class="ph"></div>';
+    var cover='<span class="rs-cv">'+(r.cover?'<img src="'+r.cover+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<span class="ph"></span>')+'</span>';
     var meta=[r.label,r.catno,(r.formats||[]).filter(function(f){return !/^\\d+$/.test(f)}).slice(0,4).join(" / ")].filter(Boolean).join(" · ");
     var buy=links(r).map(function(b){return '<a href="'+b[1]+'" target="_blank" rel="sponsored noopener">'+b[0]+'</a>'}).join("");
-    li.innerHTML=cover+'<div><p class="meta"><span class="tag'+(r.isReissue?'':' new')+'">'+(r.isReissue?'Reissue':'New release')+'</span>'+
+    li.innerHTML=cover+'<div><p class="meta"><span class="tag'+(r.isReissue?'':' new')+'">'+(r.isReissue?'再発 Reissue':'新譜 New')+'</span>'+
       r.year+(r.country?" · "+r.country:"")+'</p><h3>'+esc(r.title)+'</h3><p class="who">'+esc(r.artist)+'</p>'+
       '<p class="meta">'+esc(meta)+'</p><p class="buy">'+buy+
       '</p></div>';
@@ -1033,26 +1033,35 @@ buy_js = """
   });
 })();
 """ % (EBAY_CAMPID,AMAZON_TAG,CDJ)
-buyp=f"""<div class="wrap"><div class="page-head"><div class="band-head"><h1>Buy vinyl</h1><span class="jp">レコード</span></div>
-<p class="hero-lede">Where I actually look for City Pop records — and a live feed of what has just been reissued or newly pressed, straight from the Discogs database.</p></div>
+SLV=["#bf4430","#e3a33b","#2f6f73","#23345a","#e48aa0","#7a5aa6"]
+def crate(o):
+    return '<span class="rs-crate" aria-hidden="true">'+"".join(f'<i style="--c:{SLV[(o+k)%6]};--r:{(k-2)*7}deg"></i>' for k in range(5))+'</span>'
+BINS=[(eb,"eBay","中古盤 · Used","Original Japanese pressings, obi strips intact. The deepest pool, and where most of my shelf came from.","Originals"),
+      (am,"Amazon","新品 · New","Modern reissues and remasters. Fastest shipping if you want the music more than the artifact.","Reissues"),
+      (cd,"CDJapan","直輸入 · From Japan","New Japanese reissues at Japanese retail, shipped from Japan. First stop for a current repress.","Represses")]
+_bins="".join(f'<li><a class="rs-bin" href="{h}" target="_blank" rel="sponsored noopener">{crate(i*2)}<span class="rs-div">{d}</span><h3>{n}</h3><p>{x}</p><span class="rs-tag">{t} · Dig →</span></a></li>' for i,(h,n,d,x,t) in enumerate(BINS))
+buyp=f"""<div class="wrap bk hm rs"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">
+<section class="bk-frame rs-front"><div class="rs-noren" aria-hidden="true"><span>レ</span><span>コ</span><span>ー</span><span>ド</span></div>
+<div class="rs-sign"><span class="rs-kick">中古・新品レコード · Used &amp; new records</span><span class="rs-neon" aria-hidden="true">営業中 OPEN</span></div>
+<h1>Buy vinyl</h1>
+<p class="rs-lede">Where I actually dig for City Pop records, and a live wall of what has just been reissued or newly pressed, straight from the Discogs database.</p>
+<ul class="rs-hours"><li>Originals</li><li>Reissues</li><li>Represses</li><li>Open 24h</li></ul></section>
 
-<ul class="stores">
-<li><a class="store" href="{eb}" target="_blank" rel="sponsored noopener"><h3>eBay</h3><p>Original Japanese pressings, obi strips intact. The deepest pool, and where most of my shelf came from.</p></a></li>
-<li><a class="store" href="{am}" target="_blank" rel="sponsored noopener"><h3>Amazon</h3><p>Modern reissues and remasters. Fastest shipping if you want the music more than the artifact.</p></a></li>
-<li><a class="store" href="{cd}" target="_blank" rel="sponsored noopener"><h3>CDJapan</h3><p>New Japanese reissues at Japanese retail, shipped from Japan. First stop for a current repress.</p></a></li>
-</ul>
+<section class="bk-frame"><div class="rs-h"><p class="bk-label">The bins <span class="jp">売り場</span></p><h2>Start digging</h2></div>
+<ul class="rs-bins">{_bins}</ul></section>
 
-<section class="band" style="border-top:0;padding-bottom:1rem"><div class="band-head"><h2>Just reissued</h2><span class="jp">新譜</span>
-<a class="more" href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki</a></div>
+<section class="bk-frame rs-new"><div class="rs-h"><p class="bk-label">Just in <span class="jp">新入荷</span></p><span class="rs-pop" aria-hidden="true">新入荷!</span>
+<h2>Fresh off the truck</h2><a class="rs-more" href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki →</a></div>
 <p id="feed-wait" class="meta">Loading the latest releases…</p>
-<div id="feed" hidden><div class="cols">
-<section><h3 style="margin-top:0">Reissues <span class="meta">· <span id="ri-n">0</span></span></h3><ul id="ri" style="list-style:none;padding:0;margin:0"></ul></section>
-<section><h3 style="margin-top:0">New releases <span class="meta">· <span id="nr-n">0</span></span></h3><ul id="nr" style="list-style:none;padding:0;margin:0"></ul></section>
+<div id="feed" hidden><div class="rs-cols">
+<section><h3 class="rs-col">Reissues 再発 <span>· <span id="ri-n">0</span></span></h3><ul id="ri" class="rs-list"></ul></section>
+<section><h3 class="rs-col">New releases 新譜 <span>· <span id="nr-n">0</span></span></h3><ul id="nr" class="rs-list"></ul></section>
 </div></div></section>
 
-<p class="feed-note">Release data from Discogs, by way of <a href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki</a>, refreshed every few hours.
+<div class="rs-receipt"><p class="rs-rh">VAN PAUGAM RECORDS<br>ありがとうございました</p>
+<p>Release data from Discogs, by way of <a href="https://citypopwiki.org/reissues" rel="noopener">City Pop Wiki</a>, refreshed every few hours.
 Links to eBay, Amazon and CDJapan are affiliate links: buying through them may earn a small commission at no extra cost to you.
-As an Amazon Associate I earn from qualifying purchases.</p>
+As an Amazon Associate I earn from qualifying purchases.</p><p class="rs-rh">★ Please come again ★</p></div>
 </div><script>{buy_js}</script>"""
 write("/buy-vinyl",buyp,"Buy vinyl","Where to buy Japanese City Pop records — eBay, Amazon and CDJapan — plus a live feed of the latest reissues and new pressings.")
 urls.append(("/buy-vinyl",""))
