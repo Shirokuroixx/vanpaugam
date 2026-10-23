@@ -111,6 +111,7 @@ FOOT=f"""</main>
 <input id="foot-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
 <button class="btn" type="submit">Join</button></div></form></div>
 <p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer>
+<script src="/fox.js" defer></script>
 <script>(function(){{var r=document.documentElement,b=document.getElementById("theme");if(!b)return;
 function dark(){{return r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches}}
 function label(){{b.textContent=dark()?"Light":"Dark"}}
@@ -679,20 +680,20 @@ def track_row(c,t,jp,href,d):
     return (f'<a class="track" href="{href}"><span class="record-mark">{RECORD_ICON}<span class="cue">{c}</span></span>'
             f'<h3>{html.escape(t)} <em>{jp}</em></h3><p>{html.escape(d)}</p></a>')
 
-# pixel cat that lives by the mailing list
-_PX=["..K........K..",
-     ".KWK......KWK.",
-     ".KWWKKKKKKWWK.",
-     "RKWWWWWWWWWWKR",
-     "RKWWWWWWWWWWKR",
-     "RKWEEWWWWEEWKR",
-     ".KWWWWKKWWWWK.",
-     ".KPWWWWWWWWPK.",
-     "..KWWWWWWWWK..",
-     "..KWWWWWWWWK..",
-     "..KWKWWWWKWK..",
+# pixel fox that lives by the mailing list
+_PX=[".K..........K.",
+     ".KK........KK.",
+     ".KOK......KOK.",
+     "RKOOKKKKKKOOKR",
+     "RKOOOOOOOOOOKR",
+     "RKOEEOOOOEEOKR",
+     ".KWWOOOOOOWWK.",
+     "..KWWWKKWWWK..",
+     "...KWWWWWWK...",
+     "..KOOWWWWOOK..",
+     "..KOOWWWWOOK..",
      "..KKKKKKKKKK.."]
-_PXC={"K":"#0E1626","W":"#F3F2ED","R":"#C2422B","P":"#F2A08C","E":"#0E1626"}
+_PXC={"K":"#0E1626","W":"#F3F2ED","R":"#C2422B","O":"#E8772E","E":"#0E1626"}
 def _px_rects(keys):
     out=""
     for y,row in enumerate(_PX):
@@ -706,11 +707,11 @@ def _px_rects(keys):
                 x=e
             else: x+=1
     return out
-PIXEL_CAT=('<button type="button" class="px-cat" aria-label="Pet the record cat">'
-  '<span class="px-bubble" aria-hidden="true">ニャ!</span><span class="px-note" aria-hidden="true">♪</span><span class="px-note n2" aria-hidden="true">♫</span>'
+PIXEL_CAT=('<button type="button" class="px-cat" aria-label="Pet the record fox">'
+  '<span class="px-bubble" aria-hidden="true">コン!</span><span class="px-note" aria-hidden="true">♪</span><span class="px-note n2" aria-hidden="true">♫</span>'
   '<svg viewBox="-1 -1 17 13" shape-rendering="crispEdges" aria-hidden="true">'
-  '<g class="px-tail"><rect x="13" y="8" width="1" height="1" fill="#0E1626"/><rect x="14" y="7" width="1" height="1" fill="#0E1626"/><rect x="14" y="6" width="1" height="1" fill="#C2422B"/></g>'
-  f'<g class="px-body">{_px_rects("KWRP")}<g class="px-eyes">{_px_rects("E")}</g></g></svg></button>')
+  '<g class="px-tail"><rect x="12" y="9" width="2" height="2" fill="#E8772E"/><rect x="13" y="7" width="2" height="2" fill="#E8772E"/><rect x="14" y="5" width="1" height="2" fill="#F3F2ED"/></g>'
+  f'<g class="px-body">{_px_rects("KWRO")}<g class="px-eyes">{_px_rects("E")}</g></g></svg></button>')
 
 def prog_tile(i,c,t,jp,href,d):
     return (f'<a class="hm-tile" href="{href}"><span class="hm-n">{i+1:02d}</span><span class="hm-jp" aria-hidden="true">{jp}</span>'
@@ -992,6 +993,7 @@ urls.append(("/media-kit/",""))
 
 # ---------- assets ----------
 shutil.copy(CSS,os.path.join(OUT,"style.css"))
+shutil.copy(os.path.join(os.path.dirname(CSS),"fox.js"),os.path.join(OUT,"fox.js"))
 open(os.path.join(OUT,"sitemap.xml"),"w").write(
   '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
   +"".join(f"  <url><loc>{SITE}{u}</loc>{f'<lastmod>{d}</lastmod>' if d else ''}</url>\n" for u,d in sorted(set(urls)))
