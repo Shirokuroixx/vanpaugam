@@ -644,16 +644,19 @@ if "/somehow-city-pop-book" in pages:
 FEATURED=[r[1] for r in sorted(cols.get("/blog",[]),reverse=True)]
 _byl={r[1]:r for r in cols.get("/blog",[])}
 _slides=""; _dots=""
-for _i,_p in enumerate([x for x in FEATURED if x in _byl]):
+for _i,_p in enumerate([x for x in FEATURED if x in _byl][:8]):
     _d,_l,_t,_x,_th=_byl[_p]
     _slides+=(f'<article class="slide{" on" if _i==0 else ""}" data-i="{_i}">'
       f'<a class="ttl" href="{_l}"><img src="{_th}" alt=""{" fetchpriority=\"high\"" if _i==0 else " loading=\"lazy\""}></a>'
-      f'<div><span class="jp">Featured 特集</span><a class="ttl" href="{_l}"><h2>{html.escape(_t)}</h2></a>'
+      f'<div><span class="hm-no">No.{_i+1:02d}</span><a class="ttl" href="{_l}"><h2>{html.escape(_t)}</h2></a>'
       f'<p class="meta" style="margin:-.3rem 0 1rem">{_d}</p><p>{html.escape(_x)}</p>'
       f'<div class="btn-row"><a class="btn" href="{_l}">Read the story</a></div></div></article>')
-    _dots+=f'<button type="button" class="dot{" on" if _i==0 else ""}" data-i="{_i}" aria-label="Featured story {_i+1}"></button>'
-FEATURED_HTML=(f'<section class="featured" id="featured"><div class="wrap">'
-   f'<div class="slides">{_slides}</div><div class="dots" aria-label="Choose a featured story">{_dots}</div></div></section>') if _slides else ""
+    _dots+=f'<button type="button" class="dot{" on" if _i==0 else ""}" data-i="{_i}" aria-label="Featured story {_i+1}">{_i+1:02d}</button>'
+FEATURED_HTML=(f'<section class="bk-rv bk-frame hm-feat" id="featured" aria-labelledby="hm-feat-h">'
+   f'<div class="hm-head"><p class="bk-label" id="hm-feat-h">01 · Featured writing <span class="jp">特集</span></p><a class="hm-more" href="/blog">All writing →</a></div>'
+   f'<div class="slides">{_slides}</div><div class="hm-ctl"><button type="button" class="hm-arw" data-step="-1" aria-label="Previous story">←</button>'
+   f'<div class="dots" aria-label="Choose a featured story">{_dots}</div><button type="button" class="hm-arw" data-step="1" aria-label="Next story">→</button></div>'
+   f'<div class="hm-bar" aria-hidden="true"><i></i></div></section>') if _slides else ""
 
 def tick_link(t):
     a,_,ti = t.partition(" - ")
@@ -664,7 +667,7 @@ def tick_link(t):
 TICKER="".join(tick_link(t) for _,_,t,_,_ in vin) or "<i>&#9679;</i>Japanese City Pop on original pressings"
 
 TRACKS=[("A1","Writing","記事","/blog","Essays on the records, the people, and how a 1980s genre found a second life."),
-        ("A2","Somehow, City Pop","書籍","/somehow-city-pop-book","The first English-language reference book on the genre."),
+        ("A2","Somehow, City Pop","書籍","/somehow-city-pop-book","A City Pop reference guide with photographs."),
         ("A3","About","略歴","/about-van-paugam","A decade of nights, a board seat, and a wall of Japanese pressings."),
         ("B1","Buy vinyl","レコード","/buy-vinyl","Where to find reissues and originals, plus what was pressed this month."),
         ("B2","Mayonaka Hour","真夜中アワー","/podcast","One artist, one era, one record at a time."),
@@ -675,6 +678,14 @@ RECORD_ICON = '<svg viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable
 def track_row(c,t,jp,href,d):
     return (f'<a class="track" href="{href}"><span class="record-mark">{RECORD_ICON}<span class="cue">{c}</span></span>'
             f'<h3>{html.escape(t)} <em>{jp}</em></h3><p>{html.escape(d)}</p></a>')
+
+def prog_tile(i,c,t,jp,href,d):
+    return (f'<a class="hm-tile" href="{href}"><span class="hm-n">{i+1:02d}</span><span class="hm-jp" aria-hidden="true">{jp}</span>'
+            f'<strong>{html.escape(t)}</strong><span class="hm-d">{html.escape(d)}</span></a>')
+
+def hm_row(d,l,t,x,th):
+    im=f'<img src="{th}" alt="" loading="lazy">' if th else '<span class="ph"></span>'
+    return f'<li><a href="{l}">{im}<span><small>{d}</small><b>{html.escape(short(t))}</b></span></a></li>'
 
 def strip_li(l,t,th):
     im=f'<img src="{th}" alt="" loading="lazy">' if th else '<div class="ph"></div>'
@@ -697,12 +708,13 @@ HOME_JS = """
   dialog.innerHTML='<div class="reader-toolbar"><a class="reader-link">Open full page</a><button type="button" class="btn reader-close" autofocus>Close</button></div><div class="reader-content" aria-live="polite"></div>';
   document.body.appendChild(dialog);
   var content=dialog.querySelector('.reader-content');
-  function stop(){clearInterval(timer)}
-  function start(){stop(); if(sl.length>1 && !rm.matches && !dialog.open && !box.matches(':hover') && !box.contains(document.activeElement) && !document.hidden) timer=setInterval(function(){go(i+1)},7000)}
+  function stop(){clearInterval(timer);timer=0;box.classList.remove('run')}
+  function start(){stop(); if(sl.length>1 && !rm.matches && !dialog.open && !box.matches(':hover') && !box.contains(document.activeElement) && !document.hidden) {timer=setInterval(function(){go(i+1)},7000);box.classList.remove('run');void box.offsetWidth;box.classList.add('run')}}
   function go(n){
     i=(n+sl.length)%sl.length;
     sl.forEach(function(s,k){s.classList.toggle('on',k===i);s.inert=k!==i;s.setAttribute('aria-hidden',String(k!==i))});
     dt.forEach(function(d,k){d.classList.toggle('on',k===i);d.setAttribute('aria-pressed',String(k===i))});
+    box.classList.remove('run');void box.offsetWidth;if(timer)box.classList.add('run');
   }
   function openStory(slide){
     if(typeof dialog.showModal!=='function'){location.href=slide.querySelector('a').href;return}
@@ -733,23 +745,22 @@ HOME_JS = """
     s.addEventListener('keydown',function(e){if(e.target===s && (e.key==='Enter'||e.key===' ')){e.preventDefault();openStory(s)}});
   });
   dt.forEach(function(d,k){d.addEventListener('click',function(){go(k);start()})});
+  box.querySelectorAll('.hm-arw').forEach(function(b){b.addEventListener('click',function(){go(i+(+b.dataset.step));start()})});
   box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',start);
   box.addEventListener('focusin',stop);box.addEventListener('focusout',function(){setTimeout(start,0)});
   document.addEventListener('visibilitychange',start);rm.addEventListener('change',start);
   go(0);start();
 })();
 (function(){
-  var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if ('IntersectionObserver' in window && !rm){
-    var io = new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('seen'); io.unobserve(e.target); } });
-    },{rootMargin:'0px 0px -12% 0px'});
-    document.querySelectorAll('.reveal').forEach(function(n){ io.observe(n); });
-  } else {
-    document.querySelectorAll('.reveal').forEach(function(n){ n.classList.add('seen'); });
-  }
+  var d=document, rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  d.documentElement.classList.add('bk-js');
+  var els=d.querySelectorAll('.bk-rv');
+  if('IntersectionObserver' in window && !rm){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+    els.forEach(function(n){io.observe(n)});
+  } else els.forEach(function(n){n.classList.add('in')});
   if (!rm){
-    var plat=document.querySelector('.platter'), slv=document.querySelector('.sleeve'), tick=false;
+    var plat=d.querySelector('.platter'), slv=d.querySelector('.sleeve'), tick=false;
     if(plat) addEventListener('scroll',function(){
       if(tick) return; tick=true;
       requestAnimationFrame(function(){
@@ -760,20 +771,21 @@ HOME_JS = """
       });
     },{passive:true});
   }
-  var enc=encodeURIComponent;
-  fetch('/api/reissues').then(function(r){ if(!r.ok) throw 0; return r.json() }).then(function(d){
-    var it=(d.items||[]).slice(0,6); if(!it.length) throw 0;
-    var ul=document.getElementById('strip'); ul.innerHTML='';
+  var tabs=Array.from(d.querySelectorAll('.hm-tablist [role=tab]'));
+  function sel(t,focus){tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;d.getElementById(x.getAttribute('aria-controls')).hidden=!on});if(focus)t.focus()}
+  tabs.forEach(function(t,k){t.addEventListener('click',function(){sel(t)});t.addEventListener('keydown',function(e){var n=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(n){e.preventDefault();sel(tabs[(k+n+tabs.length)%tabs.length],true)}})});
+  var c=d.querySelector('.bk-count');
+  if(c){var t=Date.parse(c.dataset.launch),f=function(){var x=Math.max(0,t-Date.now()),u={d:Math.floor(x/864e5),h:Math.floor(x/36e5)%24,m:Math.floor(x/6e4)%60,s:Math.floor(x/1e3)%60};
+    for(var k in u){var e=c.querySelector('[data-u="'+k+'"]');if(e)e.textContent=String(u[k]).padStart(2,'0')}};f();setInterval(f,1000)}
+  fetch('/api/reissues').then(function(r){ if(!r.ok) throw 0; return r.json() }).then(function(j){
+    var it=(j.items||[]).slice(0,6); if(!it.length) throw 0;
+    var ul=d.getElementById('strip'); ul.innerHTML='';
     it.forEach(function(r){
-      var q=((r.artist&&r.artist!=='Various Artists'?r.artist:'')+' '+r.title).trim();
-      var li=document.createElement('li');
-      var cov=r.cover?'<img src="'+r.cover+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<div class="ph"></div>';
-      var a=document.createElement('a');
-      a.href='/buy-vinyl'; a.innerHTML=cov+'<h4></h4><p></p>';
+      var li=d.createElement('li'), a=d.createElement('a');
+      a.href='/buy-vinyl'; a.innerHTML=(r.cover?'<img src="'+r.cover+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<div class="ph"></div>')+'<h4></h4><p></p>';
       a.querySelector('h4').textContent=r.title; a.querySelector('p').textContent=r.artist;
       li.appendChild(a); ul.appendChild(li);
     });
-    document.getElementById('pressed').hidden=false;
   }).catch(function(){});
 })();
 """
@@ -792,56 +804,46 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div class="ticker"><div class="ticker-track"><span>{TICKER}</span><span aria-hidden="true">{TICKER}</span></div></div>
 </section>
 
+<div class="wrap bk hm">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">
+<nav class="bk-rv hm-prog" aria-label="Sections"><p class="hm-prog-h"><span>番組表</span> Programme</p>
+<div class="hm-tiles">{"".join(prog_tile(i,*t) for i,t in enumerate(TRACKS))}</div></nav>
+
 {FEATURED_HTML}
 
-<div class="wrap"><nav class="index" aria-label="Sections">
-<section class="record-side" aria-labelledby="side-a"><h2 class="side-label" id="side-a">SIDE A</h2>
-<div class="record-tracks">
-{"".join(track_row(*t) for t in TRACKS[:3])}
-</div></section>
-<section class="record-side" aria-labelledby="side-b"><h2 class="side-label" id="side-b">SIDE B</h2>
-<div class="record-tracks">
-{"".join(track_row(*t) for t in TRACKS[3:])}
-</div></section>
-</nav>
+<div class="hm-duo">
+<section class="bk-rv bk-frame hm-tabs" aria-labelledby="hm-tabs-h"><p class="bk-label" id="hm-tabs-h">02 · On the shelf <span class="jp">棚</span></p>
+<div class="hm-tablist" role="tablist" aria-label="On the shelf">
+<button type="button" role="tab" id="t-pr" aria-controls="p-pr" aria-selected="true">Just pressed <span class="jp">新譜</span></button>
+<button type="button" role="tab" id="t-po" aria-controls="p-po" aria-selected="false" tabindex="-1">Podcast <span class="jp">真夜中</span></button>
+<button type="button" role="tab" id="t-nw" aria-controls="p-nw" aria-selected="false" tabindex="-1">News <span class="jp">情報</span></button></div>
+<div class="hm-panel" role="tabpanel" id="p-pr" aria-labelledby="t-pr"><ul class="hm-covers" id="strip">{"".join(strip_li(l,t,th) for _,l,t,_,th in vin[:6])}</ul>
+<a class="hm-more" href="/buy-vinyl">Buy vinyl →</a></div>
+<div class="hm-panel" role="tabpanel" id="p-po" aria-labelledby="t-po" hidden><ul class="hm-rows">{"".join(hm_row(*x) for x in pod)}</ul><a class="hm-more" href="/podcast">All episodes →</a></div>
+<div class="hm-panel" role="tabpanel" id="p-nw" aria-labelledby="t-nw" hidden><ul class="hm-rows">{"".join(hm_row(*x) for x in news)}</ul><a class="hm-more" href="/latest-news">All news →</a></div>
+</section>
 
-<section class="band"><div class="band-head"><h2>Latest writing</h2><span class="jp">記事</span><a class="more" href="/blog">All writing</a></div>
-<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
-<div class="lead-grid"><div>{lead_card(*blog[0],big=True) if blog else ''}</div>
-<ul class="entries" style="margin:0">{"".join(entry_li(*b) for b in blog[1:4])}</ul></div></section>
+<section class="bk-rv hm-book" aria-labelledby="hm-book-h"><div class="hm-sun" aria-hidden="true"></div>
+<p class="bk-label">03 · The book <span class="jp">書籍</span></p>
+<div class="hm-book-in">{f'<a class="hm-cover" href="/somehow-city-pop-book"><img src="{book_img}" alt="Cover of Somehow, City Pop" loading="lazy"><span>KICKSTARTER 11.11</span></a>' if book_img else ''}
+<div><h2 id="hm-book-h">Somehow, City Pop</h2><p>A City Pop reference guide with photographs. 102 records, launching on Kickstarter 11 November 2026 with a $4,000 goal.</p></div></div>
+<div class="bk-count" data-launch="2026-11-11T16:00:00Z" aria-label="Time until the Kickstarter launch"><div><b data-u="d">--</b><span>Days</span></div><div><b data-u="h">--</b><span>Hrs</span></div><div><b data-u="m">--</b><span>Min</span></div><div><b data-u="s">--</b><span>Sec</span></div></div>
+<div class="btn-row"><a class="btn" href="/somehow-city-pop-book">About the book</a></div></section>
+</div>
 
-<section class="band" id="pressed" hidden><div class="band-head"><h2>Just pressed</h2><span class="jp">新譜</span><a class="more" href="/buy-vinyl">Buy vinyl</a></div>
-<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
-<ul class="strip" id="strip"></ul>
-<p class="meta" id="strip-note" style="padding-top:1rem">Reissued or newly pressed this season.</p></section>
-
-<section class="band"><div class="band-head"><h2>On the turntable</h2><span class="jp">プレイリスト</span><a class="more" href="/new-music">New music</a></div>
-<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
+<div class="hm-duo hm-duo-b">
+<section class="bk-rv bk-frame hm-play" aria-labelledby="hm-play-h"><div class="hm-head"><p class="bk-label" id="hm-play-h">04 · On the turntable <span class="jp">選曲</span></p><a class="hm-more" href="/new-music">New music →</a></div>
 {PLAYLIST}</section>
-
-<section class="band"><div class="band-head"><h2>Somehow, City Pop</h2><span class="jp">書籍</span></div>
-<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
-<div class="feature">{f'<img src="{book_img}" alt="Cover of Somehow, City Pop">' if book_img else ''}
-<div><p>The first comprehensive English-language book on City Pop — a definitive guide to a genre that refused to die, and the decades it took to become a global phenomenon.</p>
-<div class="btn-row"><a class="btn" href="/somehow-city-pop-book">About the book</a></div></div></div></section>
-
-<section class="band"><div class="band-head"><h2>Mayonaka Hour</h2><span class="jp">真夜中アワー</span><a class="more" href="/podcast">All episodes</a></div>
-<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
-<ul class="entries">{"".join(entry_li(*p) for p in pod)}</ul></section>
-
-<section class="band" id="newsletter"><div class="band-head"><h2>The mailing list</h2><span class="jp">メール</span></div>
-<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
-<div class="feature" style="grid-template-columns:1fr">
-<p style="max-width:40rem">New writing, upcoming dates, and a note when something worth owning gets repressed. A few times a year, never more.</p>
+<section class="bk-rv hm-mail" id="newsletter" aria-labelledby="hm-mail-h"><p class="hm-v" aria-hidden="true">お便り</p>
+<p class="bk-label">05 · The mailing list</p><h2 id="hm-mail-h">Letters from the crate</h2>
+<p>New writing, upcoming dates, and a note when something worth owning gets repressed. A few times a year, never more.</p>
 <form class="form signup" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="company" action="/subscribed">
 <input type="hidden" name="form-name" value="newsletter">
 <p class="hp"><label>Leave this empty <input name="company" tabindex="-1"></label></p>
 <label for="nl-email">Email address</label><input id="nl-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
-<button class="btn" type="submit">Join the list</button></form></div></section>
-
-<section class="band"><div class="band-head"><h2>News</h2><span class="jp">最新情報</span><a class="more" href="/latest-news">All news</a></div>
-<div class="reveal" style="border-top:2px solid var(--shu);margin-bottom:1.75rem"></div>
-<ul class="entries">{"".join(entry_li(*n) for n in news)}</ul></section></div>
+<button class="btn" type="submit">Join the list</button></form></section>
+</div>
+</div>
 <script>{HOME_JS}</script>"""
 write("/",home,"Van Paugam — Japanese City Pop DJ, Writer & Vinyl Specialist",
       "Van Paugam is the DJ, writer, and vinyl specialist widely credited with the global revival of Japanese City Pop. Booking, writing, podcast, and records.",HERO)
