@@ -1567,3 +1567,8 @@ html,body{overflow-x:clip}
 
 @media (max-width:700px){.pf{grid-template-columns:minmax(0,1fr);text-align:left}.pf-art{max-width:200px;justify-self:start}}
 @media (prefers-reduced-motion:reduce){.pf-disc,.pf-dot{animation:none}.pf-art img{transition:none;transform:none}.pf:hover .pf-art img{transform:none}}
+.pf{--bk-disp:"Space Grotesk","Zen Kaku Gothic New",sans-serif;--bk-read:"Newsreader","Zen Old Mincho",serif;--bk-mono:"Space Mono",ui-monospace,monospace}
+.pf h2{font-family:var(--bk-disp)!important;font-weight:700;letter-spacing:-.02em;border:0!important;padding:0!important}
+.pf h2::before{content:none!important}
+.wrap.narrow .pf{margin:1.5rem 0 2rem}
+.wrap.narrow .pf.bl-item{opacity:1;transform:none}

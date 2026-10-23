@@ -433,6 +433,8 @@ BL_JS=r"""
 })();
 """
 # ---------- artist feature posts: cream/navy frames, polaroid cover, section chips ----------
+# posts that show one big featured episode instead of the generic episode box
+FEATURE_EP={"/blog/hideki-saijo":"/podcast/city-pop-podcast-hideki-saijo"}
 ARTIST_FEATURE={"/blog/who-is-miki-matsubara":("松原みき","1959–2004",["Stay With Me","真夜中のドア","Pocket Park"],"/podcast/city-pop-podcast-miki-matsubara")}
 _SMALL={"a","an","and","as","at","but","by","for","in","is","of","on","or","the","to","with"}
 def _tcase(t):
@@ -605,6 +607,8 @@ for it in items:
         if link in (TOP10,)+LISTPOSTS and _inlined:
             art=tt_page(link,date,title,cover,body); write(link,art,title,desc,thumb,date)
             cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
+        if link in FEATURE_EP:
+            body=re.sub(r"^\s*<img[^>]*>","",body); cover+="<!--pdfeat-->"
         if link in ARTIST_FEATURE:
             write(link,ar_page(link,date,title,thumb,body,_disc),title,desc,thumb,date)
             cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
@@ -1167,11 +1171,11 @@ POD_ARTISTS={"/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop":r"Tatsu
 _eps={l:(t,th) for d,l,t,x,th in cols.get("/podcast",[])}
 for path,body in WRITTEN.items():
     if path in ("/",*names) or path.startswith("/podcast"): continue
-    if path in ARTIST_FEATURE:
-        l=ARTIST_FEATURE[path][3]; t,th=_eps[l]; tt=html.escape(short(t))
-        ft=(f'<section class="bl-item pf" aria-label="Podcast episode"><div class="pf-art"><span class="pf-disc" aria-hidden="true"></span><img src="{th}" alt="" loading="lazy"></div>'
+    if path in ARTIST_FEATURE or path in FEATURE_EP:
+        l=FEATURE_EP.get(path) or ARTIST_FEATURE[path][3]; t,th=_eps[l]; tt=html.escape(short(t)); who=html.escape(short(t).split(": ",1)[-1])
+        ft=('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">' if path in FEATURE_EP else "")+(f'<section class="bl-item pf" aria-label="Podcast episode"><div class="pf-art"><span class="pf-disc" aria-hidden="true"></span><img src="{th}" alt="" loading="lazy"></div>'
             f'<div class="pf-txt"><p class="pf-kick"><span class="pf-dot" aria-hidden="true"></span>Mayonaka Hour · 真夜中アワー</p><h2>{tt}</h2>'
-            f'<p class="pf-sub">The full story of her life and music, told on the podcast.</p>'
+            f'<p class="pf-sub">The full story of {who}, told on the podcast.</p>'
             f'<div class="pd-player pf-player"><button type="button" class="pd-play pf-play" data-ep="{LISTEN[l]}" data-t="{tt}" data-h="232"><span class="pd-ic" aria-hidden="true">▶</span>'
             f'<span>Listen now <span class="jp">再生</span></span><span class="pd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button></div>'
             f'<a class="pf-more" href="{pod_href(l)}">All episodes →</a></div></section>')
