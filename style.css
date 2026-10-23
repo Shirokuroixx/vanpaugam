@@ -1264,3 +1264,23 @@ html,body{overflow-x:clip}
 .hm .hm-mail .signup label{color:var(--bk-ink)}
 .hm .hm-mail .signup input[type=email]{background:var(--bk-light);border:1px solid var(--bk-rule)}
 .hm .hm-mail .btn{background:var(--bk-ink);color:var(--bk-cream)}
+/* menu fox + animated menu button */
+.fx-navfox{display:none}
+@media (max-width:860px){
+  .site-head .site-nav>.fx-navfox{display:block;align-self:end;justify-self:end;width:72px;height:46px;margin:0 6px 2px 0;opacity:0;transform:translateY(14px) scale(.6);transition:opacity .35s .3s,transform .45s cubic-bezier(.3,1.6,.5,1) .3s;animation:none}
+  .nav-open .site-head .site-nav>.fx-navfox{opacity:1;transform:none}
+  .nav-open .site-head .site-nav>.fx-navfox svg{animation:navFox 2.4s ease-in-out .8s infinite;transform-origin:50% 100%}
+  .site-head .site-nav>.fx-navfox .fx-say{color:#0E1626}
+  .nav-btn{transition:background .3s,transform .2s}
+  .nav-open .nav-btn{animation:navPop .55s cubic-bezier(.3,1.6,.5,1);background:#0E1626;box-shadow:0 3px 0 #C2422B,0 0 14px var(--neon-glow,rgba(255,138,61,.6))}
+  html[data-theme="dark"].nav-open .nav-btn{background:#17233C}
+  .nav-btn .nav-lbl{display:inline-block;transition:transform .3s}
+  .nav-open .nav-btn .nav-lbl{font-size:0}
+  .nav-open .nav-btn .nav-lbl::after{content:"Close 閉";font-size:.68rem;display:inline-block;animation:navLbl .35s ease}
+  .nav-btn .nav-ico{transition:transform .45s cubic-bezier(.3,1.6,.5,1)}
+  .nav-open .nav-btn .nav-ico{transform:rotate(180deg)}
+}
+@keyframes navPop{0%{transform:scale(1)}30%{transform:scale(.86) rotate(-4deg)}60%{transform:scale(1.1) rotate(3deg)}100%{transform:none}}
+@keyframes navLbl{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes navFox{0%,70%,100%{transform:none}76%{transform:translateY(-6px) rotate(-6deg)}84%{transform:translateY(0) rotate(4deg)}90%{transform:none}}
+@media (max-width:860px) and (prefers-reduced-motion:reduce){.nav-open .nav-btn,.nav-open .site-head .site-nav>.fx-navfox svg{animation:none}}

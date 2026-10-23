@@ -35,6 +35,9 @@
   // a neon sign in the footer, and a DJ fox by the footer signup
   var col=d.querySelector('.colophon');
   if(col){var ne=d.createElement('span');ne.className='fx-neon';ne.setAttribute('aria-hidden','true');ne.textContent='営業中 24H';col.appendChild(ne)}
+  // a fox curled up in the empty corner of the phone menu
+  var nl=d.querySelectorAll('.site-nav>a');
+  if(nl.length){var nf=foxBtn('menu','fx-navfox');nl[nl.length-1].after(nf)}
   var fs=d.querySelector('.sub-row')||d.querySelector('.foot-sub');
   if(fs){var dj=d.createElement('button');dj.type='button';dj.className='fx-dj';dj.setAttribute('aria-label','The DJ fox');
     dj.innerHTML='<span class="fx-say" aria-hidden="true">Now spinning ♪</span><span class="fx-note" aria-hidden="true">♪</span><span class="fx-note n2" aria-hidden="true">♫</span>'
