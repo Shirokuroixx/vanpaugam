@@ -1,6 +1,13 @@
 # /api/reissues is served by netlify/functions/reissues.mjs
 # Squarespace -> static. 301 keeps Google rankings.
 https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!
+/podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi  /podcast#city-pop-podcast-mariya-takeuchi  301
+/podcast/2020/9/22/episode-1-city-pop-genre-overview  /podcast#episode-1-city-pop-genre-overview  301
+/podcast/2020/9/27/-city-pop-podcast-the-king-of-city-pop  /podcast#city-pop-podcast-the-king-of-city-pop  301
+/podcast/city-pop-podcast-hideki-saijo  /podcast#city-pop-podcast-hideki-saijo  301
+/podcast/city-pop-podcast-miki-matsubara  /podcast#city-pop-podcast-miki-matsubara  301
+/podcast/city-pop-podcast-momoko-kikuchi  /podcast#city-pop-podcast-momoko-kikuchi  301
+/podcast/city-pop-podcast-toshiki-kadomatsu  /podcast#city-pop-podcast-toshiki-kadomatsu  301
 /latest-news/category/*  /latest-news  301
 /latest-news/tag/*  /latest-news  301
 /blog/category/*  /blog  301
