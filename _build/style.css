@@ -1274,6 +1274,8 @@ html,body{overflow-x:clip}
   .nav-btn{transition:background .3s,transform .2s}
   .nav-open .nav-btn{animation:navPop .55s cubic-bezier(.3,1.6,.5,1);background:#0E1626;box-shadow:0 3px 0 #C2422B,0 0 14px var(--neon-glow,rgba(255,138,61,.6))}
   html[data-theme="dark"].nav-open .nav-btn{background:#17233C}
+  .nav-open .nav-btn,.nav-open .nav-btn .nav-lbl::after{color:#CFE2FF;text-shadow:0 0 4px rgba(120,175,255,.85),0 0 12px rgba(80,140,255,.45)}
+  .nav-open .nav-btn .nav-ico{filter:drop-shadow(0 0 3px rgba(120,175,255,.8))}
   .nav-btn .nav-lbl{display:inline-block;transition:transform .3s}
   .nav-open .nav-btn .nav-lbl{font-size:0}
   .nav-open .nav-btn .nav-lbl::after{content:"Close 閉";font-size:.68rem;display:inline-block;animation:navLbl .35s ease}
