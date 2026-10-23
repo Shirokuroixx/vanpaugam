@@ -1387,11 +1387,23 @@ html,body{overflow-x:clip}
 .rs-bins{list-style:none;margin:0;padding:0;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
 .rs-bin{position:relative;display:flex;flex-direction:column;height:100%;text-decoration:none;color:var(--bk-ink);background:var(--bk-light);border-radius:18px;padding:18px 20px 20px;box-shadow:0 0 0 1px var(--bk-rule);transition:transform .3s ease,box-shadow .25s}
 .rs-bin:hover,.rs-bin:focus-visible{transform:translateY(-3px);box-shadow:0 0 0 1px var(--bk-ink),0 14px 26px -18px rgba(0,0,0,.6)}
-.rs-crate{display:flex;align-items:flex-end;gap:3px;height:44px;padding-bottom:6px;border-bottom:1px solid var(--bk-ink)}
-.rs-crate i{width:3px;height:var(--h);background:var(--bk-ink);opacity:.85;border-radius:1px;transform-origin:bottom;transition:transform .35s ease}
-.rs-crate i:nth-child(4n+2){opacity:.45}.rs-crate i:nth-child(5n){opacity:.65}
-.rs-bin:hover .rs-crate i,.rs-bin:focus-visible .rs-crate i{transform:skewX(-14deg)}
-.rs-bin:hover .rs-crate i.up,.rs-bin:focus-visible .rs-crate i.up{transform:translateY(-6px)}
+.rs-crate{position:relative;display:flex;align-items:center;gap:2px;height:48px;padding:0 0 6px;border-bottom:1px solid var(--bk-ink);overflow:hidden}
+.rs-crate i{flex:1;min-width:2px;max-width:4px;height:var(--h);background:var(--bk-ink);border-radius:2px;opacity:.85;transform-origin:center}
+/* bin 1: a pulse rolls left to right through the waveform */
+.rs-w0 i{animation:rsRoll 1.6s ease-in-out infinite;animation-delay:calc(var(--k)*-.06s)}
+/* bin 2: every bar flickers at its own speed, like a live level meter */
+.rs-w1 i{animation:rsFlick var(--d) ease-in-out infinite alternate;animation-delay:calc(var(--d)*-.5)}
+/* bin 3: the whole track pumps on the beat while a red playhead scrubs across */
+.rs-w2 i{animation:rsPump .75s cubic-bezier(.2,.9,.3,1) infinite;animation-delay:calc(var(--k)*-.012s)}
+.rs-w2::after{content:"";position:absolute;top:0;bottom:6px;left:0;width:2px;background:var(--bk-red);box-shadow:0 0 8px var(--bk-red);animation:rsHead 5s linear infinite}
+.rs-crate i:nth-child(3n){opacity:.6}
+.rs-bin:hover .rs-crate i{background:var(--bk-red);animation-duration:.5s}
+.rs-bin:hover .rs-w1 i{animation-duration:calc(var(--d)*.5)}
+@keyframes rsRoll{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+@keyframes rsFlick{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+@keyframes rsPump{0%{transform:scaleY(1)}40%{transform:scaleY(.55)}100%{transform:scaleY(.95)}}
+@keyframes rsHead{from{left:0}to{left:calc(100% - 2px)}}
+@media (prefers-reduced-motion:reduce){.rs-crate i,.rs-w2::after{animation:none!important}}
 .rs-div{margin-top:12px;font:.62rem var(--bk-mono);letter-spacing:.12em;text-transform:uppercase;opacity:.7}
 .rs-bin h3{margin:.35rem 0 .35rem;font-size:1.45rem}
 .bk-frame .rs-bin p{margin:0 0 1.1rem;font-size:.95rem;line-height:1.5;flex:1}

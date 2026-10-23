@@ -1,4 +1,4 @@
-import re, os, sys, hashlib, html, shutil, json, random
+import re, os, sys, hashlib, html, shutil, json, random, math
 import xml.etree.ElementTree as ET
 from urllib.parse import unquote
 
@@ -1141,12 +1141,18 @@ buy_js = """
 })();
 """ % (EBAY_CAMPID,AMAZON_TAG,CDJ)
 def crate(o):
-    rnd=random.Random(o)
-    return '<span class="rs-crate" aria-hidden="true">'+"".join(f'<i{" class=\"up\"" if k==o%7+5 else ""} style="--h:{rnd.randint(55,100)}%"></i>' for k in range(26))+'</span>'
+    # a real-looking audio waveform: drum hits every few bars decaying into a noisy body
+    rnd=random.Random(o*7+3); n=44; beat=(5,6,4)[o%3]; amp=[]
+    for k in range(n):
+        env=0.28+0.72*math.exp(-(k%beat)/(1.6+o%2)) if k%beat else 1.0
+        swell=0.75+0.25*math.sin(k/n*math.pi*(1+o%3))
+        amp.append(max(.08,min(1,env*swell*(0.55+0.45*rnd.random()))))
+    bars="".join(f'<i style="--h:{a**.6*100:.0f}%;--d:{rnd.uniform(.45,1.3):.2f}s;--k:{k}"></i>' for k,a in enumerate(amp))
+    return f'<span class="rs-crate rs-w{o%3}" aria-hidden="true">{bars}</span>'
 BINS=[(eb,"eBay","中古盤 · Used","Original Japanese pressings, obi strips intact. The deepest pool, and where most of my shelf came from.","Originals"),
       (am,"Amazon","新品 · New","Modern reissues and remasters. Fastest shipping if you want the music more than the artifact.","Reissues"),
       (cd,"CDJapan","直輸入 · From Japan","New Japanese reissues at Japanese retail, shipped from Japan. First stop for a current repress.","Represses")]
-_bins="".join(f'<li><a class="rs-bin" href="{h}" target="_blank" rel="sponsored noopener">{crate(i*2)}<span class="rs-div">{d}</span><h3>{n}</h3><p>{x}</p><span class="rs-tag">{t} · Browse →</span></a></li>' for i,(h,n,d,x,t) in enumerate(BINS))
+_bins="".join(f'<li><a class="rs-bin" href="{h}" target="_blank" rel="sponsored noopener">{crate(i)}<span class="rs-div">{d}</span><h3>{n}</h3><p>{x}</p><span class="rs-tag">{t} · Browse →</span></a></li>' for i,(h,n,d,x,t) in enumerate(BINS))
 buyp=f"""<div class="wrap bk hm rs"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">
 <section class="bk-frame rs-front"><span class="rs-kick">中古・新品レコード · Used &amp; new records</span><div class="rs-sign" aria-hidden="true"><span class="rs-tate">レコード</span><span class="rs-open">Open</span></div>
 <h1>Buy vinyl</h1>
