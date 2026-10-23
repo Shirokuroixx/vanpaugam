@@ -679,6 +679,39 @@ def track_row(c,t,jp,href,d):
     return (f'<a class="track" href="{href}"><span class="record-mark">{RECORD_ICON}<span class="cue">{c}</span></span>'
             f'<h3>{html.escape(t)} <em>{jp}</em></h3><p>{html.escape(d)}</p></a>')
 
+# pixel cat that lives by the mailing list
+_PX=["..K........K..",
+     ".KWK......KWK.",
+     ".KWWKKKKKKWWK.",
+     "RKWWWWWWWWWWKR",
+     "RKWWWWWWWWWWKR",
+     "RKWEEWWWWEEWKR",
+     ".KWWWWKKWWWWK.",
+     ".KPWWWWWWWWPK.",
+     "..KWWWWWWWWK..",
+     "..KWWWWWWWWK..",
+     "..KWKWWWWKWK..",
+     "..KKKKKKKKKK.."]
+_PXC={"K":"#0E1626","W":"#F3F2ED","R":"#C2422B","P":"#F2A08C","E":"#0E1626"}
+def _px_rects(keys):
+    out=""
+    for y,row in enumerate(_PX):
+        x=0
+        while x<len(row):
+            c=row[x]
+            if c in keys:
+                e=x
+                while e<len(row) and row[e]==c: e+=1
+                out+=f'<rect x="{x}" y="{y}" width="{e-x}" height="1" fill="{_PXC[c]}"/>'
+                x=e
+            else: x+=1
+    return out
+PIXEL_CAT=('<button type="button" class="px-cat" aria-label="Pet the record cat">'
+  '<span class="px-bubble" aria-hidden="true">ニャ!</span><span class="px-note" aria-hidden="true">♪</span><span class="px-note n2" aria-hidden="true">♫</span>'
+  '<svg viewBox="-1 -1 17 13" shape-rendering="crispEdges" aria-hidden="true">'
+  '<g class="px-tail"><rect x="13" y="8" width="1" height="1" fill="#0E1626"/><rect x="14" y="7" width="1" height="1" fill="#0E1626"/><rect x="14" y="6" width="1" height="1" fill="#C2422B"/></g>'
+  f'<g class="px-body">{_px_rects("KWRP")}<g class="px-eyes">{_px_rects("E")}</g></g></svg></button>')
+
 def prog_tile(i,c,t,jp,href,d):
     return (f'<a class="hm-tile" href="{href}"><span class="hm-n">{i+1:02d}</span><span class="hm-jp" aria-hidden="true">{jp}</span>'
             f'<strong>{html.escape(t)}</strong><span class="hm-d">{html.escape(d)}</span></a>')
@@ -774,6 +807,12 @@ HOME_JS = """
   var tabs=Array.from(d.querySelectorAll('.hm-tablist [role=tab]'));
   function sel(t,focus){tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;d.getElementById(x.getAttribute('aria-controls')).hidden=!on});if(focus)t.focus()}
   tabs.forEach(function(t,k){t.addEventListener('click',function(){sel(t)});t.addEventListener('keydown',function(e){var n=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(n){e.preventDefault();sel(tabs[(k+n+tabs.length)%tabs.length],true)}})});
+  var cat=d.querySelector('.px-cat');
+  if(cat){var poke=function(k){cat.classList.remove('hop','happy');void cat.offsetWidth;cat.classList.add(k)};
+    cat.addEventListener('click',function(){poke('hop')});
+    var em=d.getElementById('nl-email');
+    if(em){em.addEventListener('focus',function(){cat.classList.add('look')});em.addEventListener('blur',function(){cat.classList.remove('look')});
+      em.form.addEventListener('submit',function(){poke('happy')})}}
   var c=d.querySelector('.bk-count');
   if(c){var t=Date.parse(c.dataset.launch),f=function(){var x=Math.max(0,t-Date.now()),u={d:Math.floor(x/864e5),h:Math.floor(x/36e5)%24,m:Math.floor(x/6e4)%60,s:Math.floor(x/1e3)%60};
     for(var k in u){var e=c.querySelector('[data-u="'+k+'"]');if(e)e.textContent=String(u[k]).padStart(2,'0')}};f();setInterval(f,1000)}
@@ -841,7 +880,7 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <input type="hidden" name="form-name" value="newsletter">
 <p class="hp"><label>Leave this empty <input name="company" tabindex="-1"></label></p>
 <label for="nl-email">Email address</label><input id="nl-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
-<button class="btn" type="submit">Join the list</button></form></section>
+<button class="btn" type="submit">Join the list</button></form>{PIXEL_CAT}</section>
 </div>
 </div>
 <script>{HOME_JS}</script>"""
