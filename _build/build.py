@@ -914,7 +914,7 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 
 <div class="hm-duo hm-duo-b">
 <section class="bk-rv bk-frame hm-play" aria-labelledby="hm-play-h"><div class="hm-head"><p class="bk-label" id="hm-play-h">04 · On the turntable <span class="jp">選曲</span></p><a class="hm-more" href="/new-music">New music →</a></div>
-{PLAYLIST}</section>
+{PLAYLIST.replace("6US7ZVtZ163U0ylpB0vBdb\"","6US7ZVtZ163U0ylpB0vBdb?theme=0\"")}</section>
 <section class="bk-rv hm-mail" id="newsletter" aria-labelledby="hm-mail-h"><p class="hm-v" aria-hidden="true">お便り</p>
 <p class="bk-label">05 · The mailing list</p><h2 id="hm-mail-h">Letters from the crate</h2>
 <p>New writing, upcoming dates, and a note when something worth owning gets repressed. A few times a year, never more.</p>
