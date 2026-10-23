@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from urllib.parse import unquote
 
 SRC, OUT, CSS = sys.argv[1], sys.argv[2], sys.argv[3]
+ASSET_V=hashlib.md5(open(CSS,"rb").read()+open(os.path.join(os.path.dirname(CSS),"fox.js"),"rb").read()).hexdigest()[:8]
 SITE = "https://vanpaugam.com"
 NS = {"content":"http://purl.org/rss/1.0/modules/content/","excerpt":"http://wordpress.org/export/1.2/excerpt/",
       "wp":"http://wordpress.org/export/1.2/","dc":"http://purl.org/dc/elements/1.1/"}
@@ -86,7 +87,7 @@ def head(path,title,desc,img,date):
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css"><script src="/img/kitsune-cursor.js" defer></script>{ld}
+<link rel="stylesheet" href="/style.css?v={ASSET_V}"><script src="/img/kitsune-cursor.js" defer></script>{ld}
 <script>try{{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body>
 <header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><button class="nav-btn" type="button" aria-expanded="false" aria-controls="site-nav"><span class="nav-ico" aria-hidden="true"><i></i><i></i><i></i></span><span class="nav-lbl">Menu</span></button><nav class="site-nav" id="site-nav">{nav}{SOCIAL_HTML}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
@@ -112,7 +113,7 @@ FOOT=f"""</main>
 <div><h4>Contact <span class="fjp">連絡</span></h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="/media-kit/">Interactive media kit</a></li><li><a href="/media-kit/van-paugam-media-kit.pdf" download>Media kit PDF</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
 </div>
 <p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer>
-<script src="/fox.js" defer></script>
+<script src="/fox.js?v={ASSET_V}" defer></script>
 <script>(function(){{var h=document.querySelector(".nav-btn");if(!h)return;var r=document.documentElement;function set(o){{r.classList.toggle("nav-open",o);h.setAttribute("aria-expanded",o)}}
 h.addEventListener("click",function(){{set(!r.classList.contains("nav-open"))}});document.addEventListener("keydown",function(e){{if(e.key==="Escape")set(false)}});
 document.querySelectorAll(".site-nav a").forEach(function(a){{a.addEventListener("click",function(){{set(false)}})}});}})();</script>
