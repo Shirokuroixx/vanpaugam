@@ -440,16 +440,48 @@ ARTIST_FEATURE={"/blog/who-is-miki-matsubara":("松原みき","1959–2004",["St
    {"Thanks to City Pop":"A Second Life Through City Pop","Having been inspired by western music":"Western Roots, Japanese Star",
     "Saijo led a bit of a rebellious youth":"The Rebel Years","Regardless of the cold treatment":"Confidence Against the Critics",
     "Sadly, Saijo passed away":"Remembering Saijo"},"The mark of a true artist","Thank you very much")}
+ARTIST_FEATURE["/973539396262"]=("西城秀樹","1955–2018",["日本のエルヴィス","ヤングマン（Y.M.C.A.）","From Tokyo"],"/podcast/city-pop-podcast-hideki-saijo",
+   {"‘シティポップ’":"シティポップで迎えた第二の人生","ベンチャーズ、ストーンズ":"洋楽のルーツ、日本のスター","西城は幼少時代":"反骨の青春時代",
+    "西城の父は昔気質":None,"どんなバラードも":None,"評論家からの冷遇を気に病むことなく":"批評に屈しない自信","西城のその驚異的な":None,
+    "2018年5月16日":"西城秀樹を偲んで","過去の冷遇はさておき":None,"彼はこれから":None},"本物のアーティストとは","西城秀樹さん、心から")
+AR_LANG={"/blog/hideki-saijo":("en","/973539396262"),"/973539396262":("ja","/blog/hideki-saijo")}
+AR_JA_TITLE={"/973539396262":("西城秀樹：日本のエルヴィス・プレスリー","2020-11-07","/img/00140186f649ad.jpg","西城秀樹の生涯と音楽。シティポップの再評価とともに世界で聴かれ始めた、日本のエルヴィス・プレスリーの物語。")}
 # optional extras per post: {paragraph opening: new section heading}, pull-quote opening, sign-off opening
 _SMALL={"a","an","and","as","at","but","by","for","in","is","of","on","or","the","to","with"}
 def _tcase(t):
     if t!=t.upper(): return t
     w=t.lower().split(" ")
     return " ".join(x.capitalize() if i==0 or x not in _SMALL else x for i,x in enumerate(w))
+def jp_rejoin(body):
+    # the Japanese export split every ~32-character line into its own <p>; rebuild real paragraphs
+    out=[];buf=""
+    def flush():
+        nonlocal buf
+        if buf.strip(): out.append("<p>"+buf.strip()+"</p>")
+        buf=""
+    for tok in re.split(r"(<p[^>]*>.*?</p>)",body,flags=re.S):
+        m=re.match(r"<p[^>]*>(.*?)</p>$",tok,re.S)
+        if not m:
+            if tok.strip(): flush(); out.append(tok)
+            continue
+        t=m.group(1).replace("&amp;#39;","‘").strip()
+        if not re.sub(r"<[^>]+>|&nbsp;","",t).strip(): flush(); continue
+        buf+=t
+        if len(re.sub(r"<[^>]+>","",t))<31: flush()
+    flush(); return "".join(out)
 def ar_page(link,date,title,thumb,body,disc):
     jp,years,tags,_ep,*_x=ARTIST_FEATURE[link]; secs,pull,sign=(_x+[{},None,None])[:3]
+    lang,alt=AR_LANG.get(link,("en",None)); ja=lang=="ja"
+    body=re.sub(r"<h1[^>]*>.*?</h1>","",body,flags=re.S)
+    if ja and pull: body=body.replace(pull,"</p><p>"+pull,1)
+    if ja and "<h2" in body:  # the lead photo repeats the hero polaroid
+        i=body.index("<h2"); body=re.sub(r"<img[^>]*>","",body[:i],count=1)+body[i:]
     body=re.sub(r"^\s*<img[^>]*>","",body)
-    for k,h in secs.items(): body=re.sub(r"<p>(\s*"+re.escape(k)+")",f"<h2>{h}</h2><p>\\1",body,count=1)
+    for k,h in secs.items():  # h=None only breaks the paragraph; keys may sit mid-paragraph
+        hh=f"<h2>{h}</h2>" if h else ""
+        b2=re.sub(r"<p>(\s*"+re.escape(k)+")",hh+"<p>\\1",body,count=1)
+        body=b2 if b2!=body or not h else body
+        if b2==body and k in body and not re.search(r"<p>\s*"+re.escape(k),body): body=body.replace(k,"</p>"+hh+"<p>"+k,1)
     if pull: body=re.sub(r"<p>\s*("+re.escape(pull)+r".*?)</p>",r'<blockquote class="ar-pull"><p>\1</p></blockquote>',body,count=1,flags=re.S)
     if sign: body=body.replace("<p>"+sign,'<p class="ar-sign">'+sign,1)
     body=re.sub(r"(<img[^>]*>)\s*[^<]+(<figcaption>)",r"\1\2",body)
@@ -457,20 +489,23 @@ def ar_page(link,date,title,thumb,body,disc):
     chips=[]
     def h2(m):
         t=_tcase(re.sub(r"<[^>]+>","",m.group(1)).strip()); a=re.sub(r"[^a-z0-9]+","-",t.lower()).strip("-")
-        chips.append((a,t)); return f'<h2 id="{a}">{html.escape(t)}</h2>'
+        a=a or f"s{len(chips)+1}"; chips.append((a,t)); return f'<h2 id="{a}">{html.escape(t)}</h2>'
     body=re.sub(r"<h2[^>]*>(.*?)</h2>",h2,body,flags=re.S)
     body=re.sub(r"(</h2>\s*)<p>",r'\1<p class="ar-lead">',body,count=1)
     if thumb and img_in(thumb,body): body=re.sub(r'<figure[^>]*>(?:(?!</figure>).)*'+re.escape(thumb)+r'.*?</figure>',"",body,count=1,flags=re.S)
     nav="".join(f'<li><a href="#{a}"><span>{i+1:02d}</span>{html.escape(t)}</a></li>' for i,(a,t) in enumerate(chips))
     tg="".join(f'<span class="ar-tag">{html.escape(x)}</span>' for x in tags)
     pol=(f'<figure class="ar-pol"><span class="ar-disc" aria-hidden="true"></span><img src="{thumb}" alt="" loading="eager"><figcaption>{jp} · {years}</figcaption></figure>' if thumb else "")
-    return ('<div class="wrap bk hm bl ar"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">'
-      f'<section class="bk-rv bk-frame ar-hero"><div class="ar-hd"><p class="bk-label">Artist profile <span class="jp">歌手名鑑</span></p>'
+    sw=(f'<a class="ar-lang" href="{alt}" hreflang="{"en" if ja else "ja"}" lang="{"en" if ja else "ja"}"><span aria-hidden="true">{"EN" if ja else "日"}</span>{"Read in English" if ja else "日本語で読む"} →</a>' if alt else "")
+    lab='歌手名鑑 <span class="jp">Artist profile</span>' if ja else 'Artist profile <span class="jp">歌手名鑑</span>'
+    fonts="&family=Zen+Kaku+Gothic+New:wght@500;700&family=Zen+Old+Mincho:wght@400;700" if ja else ""
+    return (f'<div class="wrap bk hm bl ar{" ar-ja" if ja else ""}"{' lang="ja"' if ja else ""}><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono{fonts}&display=swap">'
+      f'<section class="bk-rv bk-frame ar-hero"><div class="ar-hd">{sw}<p class="bk-label">{lab}</p>'
       f'<p class="ar-jp" aria-hidden="true">{jp}</p><h1>{html.escape(title)}</h1><p class="ar-meta"><span>{date}</span>{tg}</p></div>{pol}</section><!--pdfeat-->'
-      +(f'<nav class="bl-item ar-nav" aria-label="In this story"><p class="bl-meta">In this story · 目次</p><ol>{nav}</ol></nav>' if chips else "")+
+      +(f'<nav class="bl-item ar-nav" aria-label="{"目次" if ja else "In this story"}"><p class="bl-meta">{"目次 · Contents" if ja else "In this story · 目次"}</p><ol>{nav}</ol></nav>' if chips else "")+
       f'<article class="bl-item ar-body prose">{body}</article>'
       +(f'<section class="bl-item ar-recs">{disc}</section>' if disc else "")+
-      f'<p class="ar-back"><a href="/blog">← All writing</a></p></div><script>{BL_JS}</script>')
+      f'<p class="ar-back"><a href="/blog">{"← 記事一覧" if ja else "← All writing"}</a></p></div><script>{BL_JS}</script>')
 
 MORE={"/blog/2020/10/19/the-top-10-city-pop-albums":[
   ("/blog/2020/10/20/city-pop-summer","10 City Pop Songs About Summer","/img/1c88cb968d75f0.jpg"),
@@ -754,6 +789,9 @@ def page_extras(link,body):
     return body
 
 for link,(title,desc,body,thumb) in pages.items():
+    if link in AR_JA_TITLE:
+        t,d,th,ds=AR_JA_TITLE[link]
+        write(link,ar_page(link,d,t,th,jp_rejoin(body).replace("CarelessWhisper","Careless Whisper"),""),t,ds,th,d); urls.append((link,"")); continue
     if link=="/what-is-city-pop":
         with open(os.path.join(os.path.dirname(__file__),"what-is-city-pop.html"),encoding="utf-8") as city_pop_file:
             city_pop_body=city_pop_file.read()
@@ -1182,12 +1220,14 @@ for path,body in WRITTEN.items():
     if path in ("/",*names) or path.startswith("/podcast"): continue
     if path in ARTIST_FEATURE or path in FEATURE_EP:
         l=FEATURE_EP.get(path) or ARTIST_FEATURE[path][3]; t,th=_eps[l]; tt=html.escape(short(t)); who=html.escape(short(t).split(": ",1)[-1])
+        if AR_LANG.get(path,("en",))[0]=="ja": sub,lbl,more=f"{ARTIST_FEATURE[path][0]}の人生と音楽を、ポッドキャストで（英語）。",'今すぐ聴く <span class="jp">Listen</span>',"全エピソード →"
+        else: sub,lbl,more=f"The full story of {who}, told on the podcast.",'Listen now <span class="jp">再生</span>',"All episodes →"
         ft=('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">' if path in FEATURE_EP else "")+(f'<section class="bl-item pf" aria-label="Podcast episode"><div class="pf-art"><span class="pf-disc" aria-hidden="true"></span><img src="{th}" alt="" loading="lazy"></div>'
             f'<div class="pf-txt"><p class="pf-kick"><span class="pf-dot" aria-hidden="true"></span>Mayonaka Hour · 真夜中アワー</p><h2>{tt}</h2>'
-            f'<p class="pf-sub">The full story of {who}, told on the podcast.</p>'
+            f'<p class="pf-sub">{sub}</p>'
             f'<div class="pd-player pf-player"><button type="button" class="pd-play pf-play" data-ep="{LISTEN[l]}" data-t="{tt}" data-h="232"><span class="pd-ic" aria-hidden="true">▶</span>'
-            f'<span>Listen now <span class="jp">再生</span></span><span class="pd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button></div>'
-            f'<a class="pf-more" href="{pod_href(l)}">All episodes →</a></div></section>')
+            f'<span>{lbl}</span><span class="pd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button></div>'
+            f'<a class="pf-more" href="{pod_href(l)}">{more}</a></div></section>')
         f=os.path.join(OUT,path.strip("/"),"index.html"); h=open(f,encoding="utf-8").read()
         open(f,"w",encoding="utf-8").write(h.replace("<!--pdfeat-->",ren_img(ft),1).replace("</main>",f"<script>{PD_JS}</script></main>",1))
         continue
