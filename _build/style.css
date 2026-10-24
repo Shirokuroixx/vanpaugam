@@ -1262,6 +1262,7 @@ html,body{overflow-x:clip}
 .hm .hm-mail h2{color:var(--bk-ink)!important}
 .hm .hm-mail>p:not(.bk-label):not(.hm-v){color:var(--bk-ink)}
 .hm .hm-v{color:var(--bk-rule)}
+.hm .hm-v{text-shadow:0 0 6px rgba(120,170,255,.55),0 0 14px rgba(90,140,255,.3)}
 .hm .hm-mail .signup label{color:var(--bk-ink)}
 .hm .hm-mail .signup input[type=email]{background:var(--bk-light);border:1px solid var(--bk-rule)}
 .hm .hm-mail .btn{background:var(--bk-ink);color:var(--bk-cream)}
