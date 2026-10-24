@@ -861,7 +861,7 @@ html.reading-story{overflow:hidden}
 .ab-quotes blockquote>p:first-child::before{content:"“";display:block;font:700 2.4rem/1 var(--bk-read);color:var(--bk-red);height:1.2rem}
 .ab-quotes footer{font:.68rem var(--bk-mono);letter-spacing:.08em;text-transform:uppercase;color:#6d6656}
 .ab-quotes .ab-big{column-span:all;background:var(--bk-deep);border-color:var(--bk-deep);border-top-color:var(--bk-red)}
-.ab-quotes .ab-big p{color:var(--bk-light)!important;font-size:1.12rem}.ab-quotes .ab-big a{color:#e2694c}.ab-quotes .ab-big footer{color:#a89f8b}
+.ab-quotes .ab-big p{color:#f3efe6!important;text-shadow:none;font-size:1.12rem}.ab-quotes .ab-big a{color:#e2694c}.ab-quotes .ab-big footer{color:#a89f8b}
 .ab-vids{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:1.25rem}
 .ab-vid{aspect-ratio:16/9;background:var(--bk-deep);border:1px solid var(--bk-rule);overflow:hidden}
 .ab-vid.ab-wide{grid-column:span 2;grid-row:span 2}
