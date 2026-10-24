@@ -881,6 +881,7 @@ html.reading-story{overflow:hidden}
 .bk-js .ab-tl li.bk-rv.in,.bk-js .ab-quotes .bk-rv.in{transform:none}
 @media (max-width:820px){.ab-feat{grid-template-columns:1fr 1fr}.ab-vids{grid-template-columns:1fr 1fr}.ab-audio{grid-template-columns:1fr}.ab-cards{grid-template-columns:1fr}.ab-toc{border-radius:12px}}
 @media (max-width:520px){.ab-vids{grid-template-columns:1fr}.ab-vid.ab-wide{grid-column:auto;grid-row:auto}.ab-tl li{grid-template-columns:1fr;gap:.2rem}.ab-note{grid-template-columns:1fr}.ab-feat{grid-template-columns:1fr}.ab-toc{position:static}}
+.ab .bk-facts dd,.ab-toc a{text-shadow:0 0 6px rgba(120,170,255,.55),0 0 14px rgba(90,140,255,.3)}
 @media (prefers-reduced-motion:reduce){.ab-cta::after{animation:none}.ab-cards article:hover,.ab-quotes blockquote:hover,.ab .ab-feat a:hover{transform:none}}
 .ab-remix figure{position:sticky;top:4.5rem}.ab-remix figure img,.ab-note img{width:100%;height:auto}
 @media (max-width:820px){.ab-remix figure{position:static}}
