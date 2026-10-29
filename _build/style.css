@@ -1650,3 +1650,6 @@ html::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(255,6
 .bk-ladder .bk-rv:nth-of-type(2){transition-delay:.12s}.bk-ladder .bk-rv:nth-of-type(3){transition-delay:.24s}.bk-ladder .bk-rv:nth-of-type(4){transition-delay:.36s}
 .bk-ladder .bk-rv:nth-of-type(5){transition-delay:.48s}.bk-ladder .bk-rv:nth-of-type(6){transition-delay:.6s}.bk-ladder .bk-rv:nth-of-type(7){transition-delay:.72s}.bk-ladder .bk-rv:nth-of-type(8){transition-delay:.84s}
 @media (max-width:520px){.bk-ladder li{grid-template-columns:1fr;gap:.2rem}}
+.bk-ks-row{margin-top:1.4rem}
+.bk-ks-btn{background:var(--bk-red)!important;color:#fff!important;font-size:.85rem!important;padding:1rem 1.5rem!important}
+.bk-ks-btn:hover{background:var(--bk-ink)!important}
