@@ -1662,3 +1662,42 @@ html::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(255,6
 .city-pop-book>.cpb-ks{display:inline-block;margin:0 0 0 1.25rem;padding:.55rem .9rem;background:var(--shu);color:#fff;border:0;font-size:.9rem}
 .bk-promo a.bkp-title,.bk-promo a.bkp-title:hover{color:#efe9dd!important}
 .bk-promo a.bkp-cta,.bk-promo a.bkp-cta:hover{color:#fff!important}
+/* Kickstarter pop-up (fox.js): cream card, rising sun, flip countdown */
+.ksp{position:fixed;inset:0;z-index:400;display:grid;place-items:center;padding:16px}
+.ksp-bg{position:absolute;inset:0;background:rgba(14,22,38,.72);backdrop-filter:blur(3px);opacity:0;transition:opacity .4s}
+.ksp-card{position:relative;display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center;width:min(640px,100%);max-height:calc(100vh - 32px);overflow:hidden auto;background:#efe9dd;color:#0E1626;border-radius:18px;padding:34px 34px 28px;
+  box-shadow:inset 0 0 0 6px #efe9dd,inset 0 0 0 8px #0E1626,inset 0 0 0 12px #efe9dd,inset 0 0 0 13px #bf4430,10px 12px 0 #bf4430,0 30px 80px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(40px) scale(.9) rotate(-2deg);transition:transform .7s cubic-bezier(.2,1.5,.3,1),opacity .4s}
+.ksp.on .ksp-bg{opacity:1}.ksp.on .ksp-card{opacity:1;transform:none}
+.ksp.out .ksp-bg,.ksp.out .ksp-card{opacity:0;transform:translateY(20px) scale(.96);transition:.3s}
+.ksp-sun{position:absolute;left:-140px;top:-140px;width:480px;height:480px;border-radius:50%;opacity:.16;pointer-events:none;
+  background:repeating-conic-gradient(#bf4430 0 7.5deg,transparent 7.5deg 15deg);animation:kspSpin 40s linear infinite;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.ksp-jp{position:absolute;right:16px;top:44px;writing-mode:vertical-rl;font:700 .8rem "Zen Kaku Gothic New",sans-serif;letter-spacing:.3em;color:#bf4430;opacity:.55}
+.ksp-x{position:absolute;right:12px;top:10px;z-index:2;width:36px;height:36px;border:0;background:none;font:1.6rem/1 sans-serif;color:#0E1626;cursor:pointer;border-radius:50%}
+.ksp-x:hover{background:rgba(14,22,38,.08)}
+.ksp-art{position:relative;animation:kspFloat 5s ease-in-out infinite}
+.ksp-art img{display:block;width:100%;height:auto;border-radius:4px;transform:rotate(-5deg);box-shadow:0 18px 36px rgba(14,22,38,.4);opacity:0;transition:opacity .5s .25s}
+.ksp.on .ksp-art img{opacity:1}
+.ksp-obi{position:absolute;left:-12px;right:-12px;bottom:22%;background:#bf4430;color:#fff;font:700 .58rem/1 "Space Mono",monospace;letter-spacing:.16em;text-align:center;padding:.45rem 0;transform:rotate(-5deg) translateX(-130%);transition:transform .6s .7s cubic-bezier(.2,1.2,.3,1);white-space:nowrap}
+.ksp.on .ksp-obi{transform:rotate(-5deg)}
+.ksp-copy{position:relative;display:flex;flex-direction:column;gap:.7rem;min-width:0}
+.ksp-copy>*{opacity:0;transform:translateY(12px);transition:.5s cubic-bezier(.2,.8,.2,1)}
+.ksp.on .ksp-copy>*{opacity:1;transform:none}
+.ksp.on .ksp-copy>:nth-child(2){transition-delay:.15s}.ksp.on .ksp-copy>:nth-child(3){transition-delay:.25s}.ksp.on .ksp-copy>:nth-child(4){transition-delay:.35s}.ksp.on .ksp-copy>:nth-child(n+5){transition-delay:.45s}
+.ksp-kick{margin:0;font:.68rem "Space Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:#bf4430}
+.ksp-copy h2{margin:0;font:700 clamp(1.9rem,5vw,2.6rem)/1 "Space Grotesk","Zen Kaku Gothic New",sans-serif;letter-spacing:-.03em;color:#0E1626}
+.ksp-sub{margin:0;font:1rem/1.45 "Newsreader","Zen Old Mincho",serif;color:#3a3f4b}
+.ksp-tm{display:flex;gap:8px}
+.ksp-tm span{display:flex;flex-direction:column;align-items:center;gap:4px;font:.55rem "Space Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#3a3f4b}
+.ksp-tm b{display:block;min-width:2.1em;padding:.35rem .25rem;background:#0E1626;color:#F6C344;font:700 1.35rem/1 "Space Mono",monospace;text-align:center;border-radius:5px;box-shadow:inset 0 -50% 0 rgba(255,255,255,.04),0 2px 0 #bf4430;position:relative}
+.ksp-tm b::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.6)}
+.ksp-tm b.f{animation:kspFlip .35s ease-out}
+.ksp-cta{display:inline-flex;justify-content:center;gap:.5rem;align-items:center;margin-top:.3rem;background:#bf4430;color:#fff!important;text-decoration:none!important;font:700 .8rem "Space Mono",monospace;letter-spacing:.08em;text-transform:uppercase;padding:1rem 1.2rem;border-radius:999px;box-shadow:0 4px 0 #0E1626;animation:kspPulse 2.4s ease-in-out 1.5s infinite;transition:background .2s,transform .15s}
+.ksp-cta:hover{background:#e2694c;transform:translateY(-2px)}.ksp-cta span{transition:transform .2s}.ksp-cta:hover span{transform:translateX(4px)}
+.ksp-no{align-self:center;border:0;background:none;font:.7rem "Space Mono",monospace;letter-spacing:.08em;color:#6b6f7a;text-decoration:underline;cursor:pointer;padding:.3rem}
+@keyframes kspSpin{to{transform:rotate(360deg)}}
+@keyframes kspFloat{50%{transform:translateY(-8px)}}
+@keyframes kspFlip{0%{transform:rotateX(90deg)}100%{transform:none}}
+@keyframes kspPulse{0%,100%{box-shadow:0 4px 0 #0E1626,0 0 0 0 rgba(191,68,48,.5)}50%{box-shadow:0 4px 0 #0E1626,0 0 0 12px rgba(191,68,48,0)}}
+@media (max-width:560px){.ksp-card{grid-template-columns:1fr;gap:16px;padding:26px 22px 20px;text-align:center}.ksp-art{width:120px;margin:0 auto}.ksp-tm{justify-content:center}.ksp-jp{display:none}.ksp-copy h2 br{display:none}}
+@media (prefers-reduced-motion:reduce){.ksp-sun,.ksp-art,.ksp-cta,.ksp-tm b.f{animation:none}.ksp-card{transition:opacity .3s}}
