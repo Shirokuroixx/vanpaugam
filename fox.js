@@ -61,7 +61,7 @@
 })();
 /* Kickstarter pop-up: after 30s, once a day, never again after a click. ?kspop shows it now. */
 (function(){
-  var d=document,K='vp-kspop',T=Date.parse('2026-11-11T00:00:00-06:00'),U='https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990';
+  var d=document,K='vp-kspop',T=Date.parse('2026-11-11T00:00:00-06:00'),TW='https://www.twitch.tv/vanpaugam',TWW='11 Nov · 10 AM Chicago',U='https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990';
   var force=/[?&]kspop/.test(location.search),today=new Date().toDateString(),st;
   try{st=localStorage.getItem(K)}catch(e){}
   if(!force&&(st==='clicked'||st===today||/somehow-city-pop-book/.test(location.pathname)))return;
@@ -75,6 +75,7 @@
       '<h2 id="ksp-h">102 records.<br> One book.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is a City Pop reference guide with photographs, Japan 1975–1990. Four editions, 150 copies in all.</p>'+
       (live?'':'<div class="ksp-tm" aria-label="Time until launch"><span><b>00</b>days</span><span><b>00</b>hrs</span><span><b>00</b>min</span><span><b>00</b>sec</span></div>')+
       '<a class="ksp-cta" href="'+U+'" target="_blank" rel="noopener">'+(live?'Back it on Kickstarter':'Notify me on Kickstarter')+' <span>→</span></a>'+
+      '<a class="ksp-tw" href="'+TW+'" target="_blank" rel="noopener"><video src="/img/book/launch-video.mp4" poster="/img/book/launch-video.jpg" muted loop playsinline autoplay preload="none" aria-hidden="true"></video><span><b>'+(live?'Launch party live on Twitch now':'Launch party on Twitch')+'</b>'+(live?'Watch now →':TWW+' · Follow →')+'</span></a>'+
       '<button type="button" class="ksp-no">Maybe later</button></div></div>';
     d.body.appendChild(w);
     var bs=w.querySelectorAll('.ksp-tm b'),tk;

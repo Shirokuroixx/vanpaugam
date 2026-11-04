@@ -1701,3 +1701,25 @@ html::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(255,6
 @keyframes kspPulse{0%,100%{box-shadow:0 4px 0 #0E1626,0 0 0 0 rgba(191,68,48,.5)}50%{box-shadow:0 4px 0 #0E1626,0 0 0 12px rgba(191,68,48,0)}}
 @media (max-width:560px){.ksp-card{grid-template-columns:1fr;gap:16px;padding:26px 22px 20px;text-align:center}.ksp-art{width:120px;margin:0 auto}.ksp-tm{justify-content:center}.ksp-jp{display:none}.ksp-copy h2 br{display:none}}
 @media (prefers-reduced-motion:reduce){.ksp-sun,.ksp-art,.ksp-cta,.ksp-tm b.f{animation:none}.ksp-card{transition:opacity .3s}}
+/* Twitch launch party */
+.bkp-tw{display:inline-flex;align-items:center;gap:.4em;margin-left:.6em;color:#b98cff;text-decoration:none}.bkp-tw:hover{text-decoration:underline}
+.bkp-tw i,.hm-tw i{width:.55em;height:.55em;border-radius:50%;background:#ff4d6d;box-shadow:0 0 0 0 rgba(255,77,109,.6);animation:twDot 1.6s infinite}
+@keyframes twDot{70%{box-shadow:0 0 0 .5em rgba(255,77,109,0)}100%{box-shadow:0 0 0 0 rgba(255,77,109,0)}}
+.hm-tw{margin:.5rem 0 0;font:.72rem "Space Mono",monospace;letter-spacing:.08em;text-transform:uppercase}.hm-tw a{display:inline-flex;align-items:center;gap:.5em;color:#9146ff}
+.hm .hm-tw a{color:#9146ff}@media (prefers-color-scheme:dark){.hm .hm-tw a{color:#b98cff}}
+.hm-vid{display:block;width:100%;aspect-ratio:16/9;margin:1.1rem 0 0;border-radius:10px;background:#0E1626;object-fit:cover}
+.bk-tw-in{display:grid;grid-template-columns:1.4fr 1fr;gap:clamp(18px,3vw,36px);align-items:center}
+.bk-tw video{width:100%;aspect-ratio:16/9;border-radius:10px;background:#0E1626;object-fit:cover;box-shadow:0 14px 30px rgba(14,22,38,.3)}
+.bk-tw h2{margin:.2rem 0 .3rem}.bk-tw-when{font:700 .78rem "Space Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#9146ff;margin:0 0 .6rem}
+.btn-tw{background:#9146ff;color:#fff}.btn-tw:hover{background:#772ce8;color:#fff}
+@media (max-width:760px){.bk-tw-in{grid-template-columns:1fr}}
+.ksp-tw{display:flex;align-items:center;gap:10px;padding:6px;border-radius:10px;background:#0E1626;color:#efe9dd!important;text-decoration:none!important;font:.62rem/1.35 "Space Mono",monospace;letter-spacing:.06em;text-transform:uppercase}
+.ksp-tw video{width:96px;aspect-ratio:16/9;border-radius:6px;object-fit:cover;flex:none}.ksp-tw b{display:block;color:#b98cff;font-size:.7rem}
+.ksp-tw:hover{box-shadow:inset 0 0 0 2px #9146ff}
+@media (prefers-reduced-motion:reduce){.bkp-tw i,.hm-tw i{animation:none}}
+.bk .btn-tw,.hm-book .btn-tw{background:#9146ff;color:#fff;box-shadow:none}.bk .btn-tw:hover{background:#772ce8;color:#fff}
+.hm-book .hm-tw{margin:.6rem 0 0;font:.68rem/1.5 "Space Mono",monospace;font-style:normal;letter-spacing:.08em;text-transform:uppercase}
+.hm-book .hm-tw a{display:inline-flex;align-items:baseline;gap:.5em;color:#b98cff;text-decoration:none}.hm-book .hm-tw a:hover{text-decoration:underline}
+.hm-book .hm-tw i{flex:none;transform:translateY(-.05em)}
+.hm .hm-book .hm-book-in p.hm-tw{font:.68rem/1.5 "Space Mono",monospace;letter-spacing:.08em}
+.site-foot .bk-promo a.bkp-tw{color:#b98cff}
