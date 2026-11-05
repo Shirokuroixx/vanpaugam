@@ -68,8 +68,8 @@ def clean(body):
     body=re.sub(r"<h3[^>]*>\s*AUTHOR\s*</h3>.*$","",body,flags=re.S|re.I)
     return IMG_RE.sub(lambda m: local_img(m.group(0)),body)
 
-TW_URL="https://www.twitch.tv/vanpaugam"  # Twitch launch party
-TW_WHEN="11 Nov 2026 · 10 AM Chicago"
+TW_URL="https://www.twitch.tv/van_paugam"  # Twitch launch party
+TW_WHEN="11 Nov 2026 · 6 PM CST"
 KS_URL="https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990"
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
      ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
