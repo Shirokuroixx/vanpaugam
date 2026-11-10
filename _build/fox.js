@@ -61,7 +61,7 @@
 })();
 /* Kickstarter pop-up: after 30s, once a day, never again after a click. ?kspop shows it now. */
 (function(){
-  var d=document,K='vp-kspop',T=Date.parse('2026-11-11T00:00:00-06:00'),TW='https://www.twitch.tv/van_paugam',TWW='11 Nov · 6 PM CST',TL=Date.now()>=Date.parse('2026-11-11T18:00:00-06:00'),U='https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990';
+  var d=document,K='vp-kspop',T=Date.parse('2026-11-11T18:00:00-06:00'),TW='https://www.twitch.tv/van_paugam',TWW='11 Nov · 6 PM CST',TL=Date.now()>=Date.parse('2026-11-11T18:00:00-06:00'),U='https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990';
   var force=/[?&]kspop/.test(location.search),today=new Date().toDateString(),st;
   try{st=localStorage.getItem(K)}catch(e){}
   if(!force&&(st==='clicked'||st===today||/somehow-city-pop-book/.test(location.pathname)))return;
