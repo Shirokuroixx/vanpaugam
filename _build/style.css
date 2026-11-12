@@ -1729,3 +1729,5 @@ html::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(255,6
 .bk-tier-img{display:block;width:100%;max-width:340px;margin:1rem 0 0;border:1px solid var(--bk-rule)}
 .ksp-funded{display:block;width:110px;height:auto;align-self:flex-start;transform:rotate(-3deg);box-shadow:0 6px 14px rgba(14,22,38,.25)}
 @media (max-width:560px){.ksp-funded{align-self:center;width:96px}}
+.bk-sold .bk-price s{text-decoration-thickness:3px;opacity:.55}
+.bk-sold-tag{margin:.3rem 0 0;font:700 .7rem var(--bk-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bk-red);text-align:right}
