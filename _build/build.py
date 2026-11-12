@@ -1059,7 +1059,7 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 <div class="hm-book-in">{f'<a class="hm-cover" href="/somehow-city-pop-book"><img src="{book_img}" alt="Cover of Somehow, City Pop" loading="lazy"><span>KICKSTARTER 11.11</span></a>' if book_img else ''}
 <div><h2 id="hm-book-h">Somehow, City Pop</h2><p>A City Pop reference guide with photographs. 102 records. Live on Kickstarter now and fully funded.</p><p class="hm-tw"><a href="{TW_URL}" target="_blank" rel="noopener"><i aria-hidden="true"></i>Launch party live on Twitch · {TW_WHEN}</a></p></div></div>
 <video class="hm-vid" src="/img/book/launch-video.mp4" poster="/img/book/launch-video.jpg" muted loop playsinline autoplay preload="none" controls aria-label="Somehow, City Pop trailer"></video>
-<p class="bk-funded-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg><span><b>Fully funded</b> on Kickstarter</span></p>
+<img class="bk-funded-badge" src="/img/book/ks-just-funded.png" alt="Just funded on Kickstarter" width="246" height="171">
 <div class="btn-row"><a class="btn" href="{KS_URL}" target="_blank" rel="noopener">Back it on Kickstarter</a><a class="btn btn-ghost" href="/somehow-city-pop-book">About the book</a></div></section>
 </div>
 

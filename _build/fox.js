@@ -71,11 +71,12 @@
     w.innerHTML='<div class="ksp-bg"></div><div class="ksp-card"><button type="button" class="ksp-x" aria-label="Close">×</button>'+
       '<div class="ksp-sun" aria-hidden="true"></div><div class="ksp-jp" aria-hidden="true">シティポップ</div>'+
       '<div class="ksp-art"><img src="/img/book/cover.webp" alt="Somehow, City Pop book cover" width="920" height="1200"><span class="ksp-obi">限定 · 150 COPIES · 限定</span></div>'+
-      '<div class="ksp-copy"><p class="ksp-kick">'+(live?'● Live now on Kickstarter':'Kickstarter · 11.11.2026')+'</p>'+
-      '<h2 id="ksp-h">102 records.<br> One book.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is a City Pop reference guide with photographs, Japan 1975–1990. Four editions, 150 copies in all.</p>'+
+      '<div class="ksp-copy">'+(live?'<img class="ksp-funded" src="/img/book/ks-just-funded.png" alt="Just funded on Kickstarter" width="246" height="171"><p class="ksp-kick">● Fully funded · Live on Kickstarter</p>'+
+      '<h2 id="ksp-h">Funded.<br> Now it gets better.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is going to print. Every new backer unlocks stretch goals for every copy, and the limited editions won\'t last. Only 150 copies in all.</p>'
+      :'<p class="ksp-kick">Kickstarter · 11.11.2026</p><h2 id="ksp-h">102 records.<br> One book.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is a City Pop reference guide with photographs, Japan 1975–1990. Four editions, 150 copies in all.</p>')+
       (live?'':'<div class="ksp-tm" aria-label="Time until launch"><span><b>00</b>days</span><span><b>00</b>hrs</span><span><b>00</b>min</span><span><b>00</b>sec</span></div>')+
-      '<a class="ksp-cta" href="'+U+'" target="_blank" rel="noopener">'+(live?'Back it on Kickstarter':'Notify me on Kickstarter')+' <span>→</span></a>'+
-      '<a class="ksp-tw" href="'+TW+'" target="_blank" rel="noopener"><video src="/img/book/launch-video.mp4" poster="/img/book/launch-video.jpg" muted loop playsinline autoplay preload="none" aria-hidden="true"></video><span><b>'+(TL?'Launch party live on Twitch now':'Launch party on Twitch')+'</b>'+(TL?'Watch now →':TWW+' · Follow →')+'</span></a>'+
+      '<a class="ksp-cta" href="'+U+'" target="_blank" rel="noopener">'+(live?'Back the funded book':'Notify me on Kickstarter')+' <span>→</span></a>'+
+      (Date.now()<Date.parse('2026-11-12T06:00:00Z')?'<a class="ksp-tw" href="'+TW+'" target="_blank" rel="noopener"><video src="/img/book/launch-video.mp4" poster="/img/book/launch-video.jpg" muted loop playsinline autoplay preload="none" aria-hidden="true"></video><span><b>'+(TL?'Launch party live on Twitch now':'Launch party on Twitch')+'</b>'+(TL?'Watch now →':TWW+' · Follow →')+'</span></a>':'')+
       '<button type="button" class="ksp-no">Maybe later</button></div></div>';
     d.body.appendChild(w);
     var bs=w.querySelectorAll('.ksp-tm b'),tk;
