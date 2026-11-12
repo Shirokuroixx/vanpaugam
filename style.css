@@ -1723,3 +1723,9 @@ html::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(255,6
 .hm-book .hm-tw i{flex:none;transform:translateY(-.05em)}
 .hm .hm-book .hm-book-in p.hm-tw{font:.68rem/1.5 "Space Mono",monospace;letter-spacing:.08em}
 .site-foot .bk-promo a.bkp-tw{color:#b98cff}
+/* kickstarter funded badge + tier image */
+.bk-funded-badge{display:inline-flex;align-items:center;gap:.55rem;margin:1.6rem 0 0;padding:.5rem .9rem .5rem .6rem;background:#05ce78;color:#06291a;border-radius:999px;font:500 .85rem/1 var(--bk-mono);letter-spacing:.04em;animation:bkFadeUp .8s ease .5s both}
+.bk-funded-badge svg{width:20px;height:20px;fill:#05ce78;background:#06291a;border-radius:50%;padding:3px}
+.bk-funded-badge b{font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.hm-book .bk-funded-badge{margin:1.4rem 0 1.2rem}
+.bk-tier-img{display:block;width:100%;max-width:340px;margin:1rem 0 0;border:1px solid var(--bk-rule)}
