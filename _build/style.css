@@ -1731,3 +1731,7 @@ html::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(255,6
 @media (max-width:560px){.ksp-funded{align-self:center;width:96px}}
 .bk-sold .bk-price s{text-decoration-thickness:3px;opacity:.55}
 .bk-sold-tag{margin:.3rem 0 0;font:700 .7rem var(--bk-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bk-red);text-align:right}
+.bk-tier.bk-sold{position:relative}
+.bk-sold .bk-tier-main,.bk-sold .bk-price{opacity:.4;filter:grayscale(1)}
+.bk-sold::after{content:"SOLD OUT · 完売";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);padding:.5rem 1.4rem;border:4px double var(--bk-red);color:var(--bk-red);background:rgba(239,233,221,.88);font:700 clamp(1.4rem,4vw,2.4rem)/1 var(--bk-disp);letter-spacing:.12em;white-space:nowrap;pointer-events:none;z-index:2}
+.bk-sold-tag{font-size:.85rem}
