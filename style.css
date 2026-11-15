@@ -1957,3 +1957,43 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @media (prefers-reduced-motion:reduce){.bkbar-dot{animation:none}}
 .bkin-ep{margin:.6rem 0 0;font-size:.85rem}
 .bkin-ep a{color:#bf4430}
+
+/* ===== motion layer 2026-11 ===== */
+@view-transition{navigation:auto}
+.site-head{view-transition-name:site-head}
+::view-transition-old(root){animation:mo-out .22s ease both}
+::view-transition-new(root){animation:mo-in .38s cubic-bezier(.2,.7,.2,1) both}
+@keyframes mo-out{to{opacity:0;transform:translateY(-8px)}}
+@keyframes mo-in{from{opacity:0;transform:translateY(14px)}}
+.mo-rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.mo-rv.mo-in{opacity:1;transform:none}
+/* neon header edge */
+.site-head::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,#E2694C 25%,#E9B84A 50%,#3FA7A0 75%,transparent);opacity:.55;pointer-events:none}
+/* buttons: lift + neon glow */
+.btn,.bkp-cta,.nav-ks,.ct-send,.cpb-ks{transition:transform .2s cubic-bezier(.2,.7,.2,1),box-shadow .25s,background .2s,color .2s}
+.btn:hover,.bkp-cta:hover,.ct-send:hover,.cpb-ks:hover{transform:translateY(-2px);box-shadow:0 6px 18px -6px rgba(226,105,76,.75),0 0 0 1px rgba(226,105,76,.35)}
+.nav-ks:hover{box-shadow:0 0 16px rgba(233,184,74,.55)}
+.btn:active,.bkp-cta:active,.ct-send:active{transform:translateY(0);transition-duration:.05s}
+.bkp-cta{animation:mo-glow 3.2s ease-in-out infinite}
+@keyframes mo-glow{50%{box-shadow:0 0 22px rgba(226,105,76,.55)}}
+/* clickable cards: lift */
+.cl .entry,.grid .card,.hm-tile,.rs-bin,.bl-bub,.pd-bub{transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,background .2s}
+.cl .entry:hover{transform:translateX(4px)}
+.cl .entry img{transition:transform .4s cubic-bezier(.2,.7,.2,1),filter .3s}
+.cl .entry:hover img{transform:scale(1.05) rotate(-1.5deg);filter:saturate(1.15)}
+.grid .card:hover,.hm-tile:hover,.rs-bin:hover{transform:translateY(-4px);box-shadow:0 14px 28px -14px rgba(20,18,13,.45)}
+/* prose links: sweep underline */
+.ap-body .prose a:not(.btn):not(.btn-xl),.wcp .city-pop-essay a{text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;transition:background-size .3s,color .2s}
+.ap-body .prose a:not(.btn):not(.btn-xl):hover,.wcp .city-pop-essay a:hover{background:linear-gradient(90deg,#E2694C,#E9B84A) 0 100%/100% 2px no-repeat}
+/* images in posts: soft zoom */
+.ap-body>.cover{overflow:hidden;border-radius:10px}
+.ap-body>.cover img{transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.ap-body>.cover:hover img{transform:scale(1.03)}
+/* nav link neon on hover (desktop) */
+@media(min-width:861px){.site-head .site-nav>a:hover{text-shadow:0 0 12px rgba(233,184,74,.6)}}
+@media(prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  .mo-rv{opacity:1;transform:none;transition:none}
+  .bkp-cta{animation:none}
+  .btn:hover,.bkp-cta:hover,.ct-send:hover,.grid .card:hover,.hm-tile:hover,.rs-bin:hover,.cl .entry:hover,.cl .entry:hover img,.ap-body>.cover:hover img{transform:none}
+}

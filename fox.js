@@ -94,3 +94,15 @@
   function sc(){var m=d.documentElement.scrollHeight-innerHeight;if(m>0&&scrollY/m>.45)show()}
   var tm=setTimeout(show,force?800:20000);if(!force)addEventListener('scroll',sc,{passive:true});
 })();
+
+/* motion layer 2026-11: reveals for anything not already animated, below the first screen only */
+(function(){
+  var d=document,r=d.documentElement;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||!('IntersectionObserver' in window))return;
+  var sel='.bk-frame:not(.bk-rv),.cl .entries li,.ap-body .prose>figure,.ap-body .prose>p>img,.grid>li,.foot-grid>div,.bk-promo,.ct-side>section';
+  var H=innerHeight,els=[].slice.call(d.querySelectorAll(sel)).filter(function(e){return !e.closest('.bk-rv,.ksp,.site-head')&&e.getBoundingClientRect().top>H*.9});
+  if(!els.length)return;
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('mo-in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});
+  els.forEach(function(e){var p=e.parentElement,i=p?[].indexOf.call(p.children,e)%4:0;e.classList.add('mo-rv');e.style.transitionDelay=(i*70)+'ms';io.observe(e)});
+  setTimeout(function(){els.forEach(function(e){e.classList.add('mo-in')})},6000);
+})();
