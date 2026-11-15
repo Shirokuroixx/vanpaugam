@@ -71,6 +71,10 @@ def clean(body):
 TW_URL="https://www.twitch.tv/van_paugam"  # Twitch launch party
 TW_WHEN="11 Nov 2026 · 6 PM CST"
 KS_URL="https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990"
+KS_END="2026-12-11T18:00:00-06:00"  # campaign end, ISO 8601 with offset, e.g. "2026-12-11T18:00:00-06:00"; empty hides countdowns
+def ks(src):
+    """Kickstarter link tagged per placement: ref= shows in Kickstarter's referrer stats, utm_* in analytics."""
+    return f"{KS_URL}?ref=vp_{src}&amp;utm_source=vanpaugam.com&amp;utm_medium=website&amp;utm_campaign=book&amp;utm_content={src}"
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
      ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
@@ -107,9 +111,9 @@ def head(path,title,desc,img,date):
 FOOT=f"""</main>
 <footer class="site-foot"><div class="wrap"><!--bkp--><div class="bk-promo">
 <span class="bkp-art"><img src="/img/book/promo.webp" alt="" width="400" height="279" loading="lazy"><span class="bkp-obi">初版 · 1ST ED.</span></span>
-<span class="bkp-copy"><span class="bkp-kick">Kickstarter · 11 Nov 2026 · 6 PM CST <a class="bkp-tw" href="{TW_URL}" target="_blank" rel="noopener"><i aria-hidden="true"></i>Launch party live on Twitch</a></span><a class="bkp-title bkp-link" href="/somehow-city-pop-book">Somehow, City Pop</a>
+<span class="bkp-copy"><span class="bkp-kick">● 400% funded · Live on Kickstarter · First Edition from $75</span><a class="bkp-title bkp-link" href="/somehow-city-pop-book">Somehow, City Pop</a>
 <span class="bkp-rot"><span>A City Pop reference guide with photographs</span><span>102 records, 1975–1990</span><span>Only 150 numbered copies</span></span></span>
-<a class="bkp-cta" href="{KS_URL}" target="_blank" rel="noopener">Back it on Kickstarter <span aria-hidden="true">↗</span></a></div>
+<a class="bkp-cta" href="{ks("footer")}" target="_blank" rel="noopener">Back it on Kickstarter <span aria-hidden="true">↗</span></a></div>
 <!--/bkp--><div class="foot-top"><div class="foot-brand"><h4>VAN PAUGAM <span class="fjp">ヴァン</span></h4><p>Japanese music, writing, and DJ sets from Chicago.</p></div>
 <div class="foot-sub"><h4>The mailing list <span class="fjp">メール</span></h4>
 <p>New writing, dates, and repress alerts. A few times a year.</p>
@@ -803,8 +807,8 @@ for link,(title,desc,body,thumb) in pages.items():
         continue
     if link=="/somehow-city-pop-book":
         with open(os.path.join(os.path.dirname(__file__),"book.html"),encoding="utf-8") as book_file:
-            book_body=book_file.read().replace("__TW_URL__",TW_URL).replace("__TW_WHEN__",TW_WHEN)
-        write(link,book_body,title,"Somehow, City Pop: Japanese Records, 1975–1990. A 208-page hardcover City Pop reference guide with photographs, by Chicago City Pop DJ Van Paugam. Kickstarter launches 11 November 2026 at 6 PM CST.","/img/book/cover.webp")
+            book_body=re.sub(r"__KS_([\w-]+)__",lambda m: KS_END if m.group(1)=="END" else ks("book-"+m.group(1)),book_file.read())
+        write(link,book_body,title,"Somehow, City Pop: Japanese Records, 1975–1990. A 208-page hardcover City Pop reference guide with photographs, by Chicago City Pop DJ Van Paugam. Live on Kickstarter now and fully funded.","/img/book/cover.webp")
         urls.append((link,""))
         continue
     if link=="/about-van-paugam":
@@ -1056,11 +1060,11 @@ home=f"""<section class="sideA"><div class="wrap sideA-in">
 
 <section class="bk-rv hm-book" aria-labelledby="hm-book-h"><div class="hm-sun" aria-hidden="true"></div>
 <p class="bk-label">03 · The book <span class="jp">書籍</span></p>
-<div class="hm-book-in">{f'<a class="hm-cover" href="/somehow-city-pop-book"><img src="{book_img}" alt="Cover of Somehow, City Pop" loading="lazy"><span>KICKSTARTER 11.11</span></a>' if book_img else ''}
-<div><h2 id="hm-book-h">Somehow, City Pop</h2><p>A City Pop reference guide with photographs. 102 records. Live on Kickstarter now and fully funded.</p><p class="hm-tw"><a href="{TW_URL}" target="_blank" rel="noopener"><i aria-hidden="true"></i>Launch party live on Twitch · {TW_WHEN}</a></p></div></div>
+<div class="hm-book-in">{f'<a class="hm-cover" href="/somehow-city-pop-book"><img src="{book_img}" alt="Cover of Somehow, City Pop" loading="lazy"><span>FULLY FUNDED</span></a>' if book_img else ''}
+<div><h2 id="hm-book-h">Somehow, City Pop</h2><p>A City Pop reference guide with photographs. 102 records. Live on Kickstarter now and fully funded.</p><p class="hm-tw">First Edition from $75, limited to 100 copies.</p></div></div>
 <video class="hm-vid" src="/img/book/launch-video.mp4" poster="/img/book/launch-video.jpg" muted loop playsinline autoplay preload="none" controls aria-label="Somehow, City Pop trailer"></video>
 <img class="bk-funded-badge" src="/img/book/ks-just-funded.png" alt="Just funded on Kickstarter" width="246" height="171">
-<div class="btn-row"><a class="btn" href="{KS_URL}" target="_blank" rel="noopener">Back it on Kickstarter</a><a class="btn btn-ghost" href="/somehow-city-pop-book">About the book</a></div></section>
+<div class="btn-row"><a class="btn" href="{ks("home")}" target="_blank" rel="noopener">Back it on Kickstarter</a><a class="btn btn-ghost" href="/somehow-city-pop-book">About the book</a></div></section>
 </div>
 
 <div class="hm-duo hm-duo-b">

@@ -59,28 +59,27 @@
   var up=function(){var m=d.documentElement.scrollHeight-innerHeight;pb.style.transform='scaleX('+(m>0?scrollY/m:0)+')';};
   addEventListener('scroll',up,{passive:true});addEventListener('resize',up);up();
 })();
-/* Kickstarter pop-up: after 30s, once a day, never again after a click. ?kspop shows it now. */
+/* Kickstarter pop-up: once per visitor, after 45% scroll or 20s. Never on the book page. ?kspop shows it now. */
 (function(){
-  var d=document,K='vp-kspop',T=Date.parse('2026-11-11T18:00:00-06:00'),TW='https://www.twitch.tv/van_paugam',TWW='11 Nov · 6 PM CST',TL=Date.now()>=Date.parse('2026-11-11T18:00:00-06:00'),U='https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990';
-  var force=/[?&]kspop/.test(location.search),today=new Date().toDateString(),st;
+  var d=document,K='vp-kspop2',E='2026-12-11T18:00:00-06:00',U='https://www.kickstarter.com/projects/somehow-citypop-book/somehow-city-pop-japanese-records-1975-1990?ref=vp_popup&utm_source=vanpaugam.com&utm_medium=website&utm_campaign=book&utm_content=popup';
+  var force=/[?&]kspop/.test(location.search),end=Date.parse(E),st,done=false;
   try{st=localStorage.getItem(K)}catch(e){}
-  if(!force&&(st==='clicked'||st===today||/somehow-city-pop-book/.test(location.pathname)))return;
+  if(!force&&(st||/somehow-city-pop-book/.test(location.pathname)||(end&&Date.now()>end)))return;
   function save(v){try{localStorage.setItem(K,v)}catch(e){}}
   function show(){
-    var live=Date.now()>=T,w=d.createElement('div');w.className='ksp';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','ksp-h');
+    if(done)return;done=true;removeEventListener('scroll',sc);clearTimeout(tm);
+    var cd=end&&end>Date.now(),w=d.createElement('div');w.className='ksp';w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');w.setAttribute('aria-labelledby','ksp-h');
     w.innerHTML='<div class="ksp-bg"></div><div class="ksp-card"><button type="button" class="ksp-x" aria-label="Close">×</button>'+
       '<div class="ksp-sun" aria-hidden="true"></div><div class="ksp-jp" aria-hidden="true">シティポップ</div>'+
-      '<div class="ksp-art"><img src="/img/book/cover.webp" alt="Somehow, City Pop book cover" width="920" height="1200"><span class="ksp-obi">限定 · 150 COPIES · 限定</span></div>'+
-      '<div class="ksp-copy">'+(live?'<img class="ksp-funded" src="/img/book/ks-just-funded.png" alt="Just funded on Kickstarter" width="246" height="171"><p class="ksp-kick">● Fully funded · Live on Kickstarter</p>'+
-      '<h2 id="ksp-h">Funded.<br> Now it gets better.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is going to print. Every new backer unlocks stretch goals for every copy, and the limited editions won\'t last. Only 150 copies in all.</p>'
-      :'<p class="ksp-kick">Kickstarter · 11.11.2026</p><h2 id="ksp-h">102 records.<br> One book.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is a City Pop reference guide with photographs, Japan 1975–1990. Four editions, 150 copies in all.</p>')+
-      (live?'':'<div class="ksp-tm" aria-label="Time until launch"><span><b>00</b>days</span><span><b>00</b>hrs</span><span><b>00</b>min</span><span><b>00</b>sec</span></div>')+
-      '<a class="ksp-cta" href="'+U+'" target="_blank" rel="noopener">'+(live?'Back the funded book':'Notify me on Kickstarter')+' <span>→</span></a>'+
-      (Date.now()<Date.parse('2026-11-12T06:00:00Z')?'<a class="ksp-tw" href="'+TW+'" target="_blank" rel="noopener"><video src="/img/book/launch-video.mp4" poster="/img/book/launch-video.jpg" muted loop playsinline autoplay preload="none" aria-hidden="true"></video><span><b>'+(TL?'Launch party live on Twitch now':'Launch party on Twitch')+'</b>'+(TL?'Watch now →':TWW+' · Follow →')+'</span></a>':'')+
-      '<button type="button" class="ksp-no">Maybe later</button></div></div>';
+      '<div class="ksp-art"><img src="/img/book/cover.webp" alt="Somehow, City Pop book cover" width="920" height="1200"><span class="ksp-obi">初版 · FIRST EDITION · 限定</span></div>'+
+      '<div class="ksp-copy"><img class="ksp-funded" src="/img/book/ks-just-funded.png" alt="Just funded on Kickstarter" width="246" height="171"><p class="ksp-kick">● 400% funded · 67 backers · Live on Kickstarter</p>'+
+      '<h2 id="ksp-h">Funded! Get your First Edition before it sells out.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is going to print: 102 records, 208 pages, hand-numbered. The First Edition is $75 and limited to 100 copies.</p>'+
+      (cd?'<div class="ksp-tm" aria-label="Time until the campaign ends"><span><b>00</b>days</span><span><b>00</b>hrs</span><span><b>00</b>min</span><span><b>00</b>sec</span></div>':'')+
+      '<a class="ksp-cta" href="'+U+'" target="_blank" rel="noopener">Get the First Edition · $75 <span>→</span></a>'+
+      '<button type="button" class="ksp-no">No thanks</button></div></div>';
     d.body.appendChild(w);
     var bs=w.querySelectorAll('.ksp-tm b'),tk;
-    function tick(){var s=Math.max(0,(T-Date.now())/1e3|0),v=[s/86400|0,s%86400/3600|0,s%3600/60|0,s%60];
+    function tick(){var s=Math.max(0,(end-Date.now())/1e3|0),v=[s/86400|0,s%86400/3600|0,s%3600/60|0,s%60];
       bs.forEach(function(b,i){var t=('0'+v[i]).slice(-2);if(b.textContent!==t){b.textContent=t;b.classList.remove('f');void b.offsetWidth;b.classList.add('f')}});if(!s)clearInterval(tk)}
     if(bs.length){tick();tk=setInterval(tick,1000)}
     var last=d.activeElement;
@@ -90,7 +89,8 @@
     w.querySelector('.ksp-x').onclick=w.querySelector('.ksp-no').onclick=w.querySelector('.ksp-bg').onclick=close;
     w.querySelector('.ksp-cta').addEventListener('click',function(){save('clicked');close()});
     requestAnimationFrame(function(){w.classList.add('on');w.querySelector('.ksp-cta').focus({preventScroll:true})});
-    if(!force)save(today);
+    if(!force)save('seen');
   }
-  setTimeout(show,force?800:30000);
+  function sc(){var m=d.documentElement.scrollHeight-innerHeight;if(m>0&&scrollY/m>.45)show()}
+  var tm=setTimeout(show,force?800:20000);if(!force)addEventListener('scroll',sc,{passive:true});
 })();
