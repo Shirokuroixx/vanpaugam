@@ -78,6 +78,8 @@ def ks(src):
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
      ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
+BK_FONTS='<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">'
+NAV_X={"Top 10","New Music","News"}
 NAV_JP={"About":"略歴","The Book":"書籍","Writing":"記事","Top 10":"名盤","Podcast":"番組","New Music":"新曲","Buy Vinyl":"レコード","News":"情報","Contact":"連絡"}
 
 with open(os.path.join(os.path.dirname(__file__),"social.html"),encoding="utf-8") as social_file:
@@ -90,7 +92,7 @@ def head(path,title,desc,img,date):
         ld=('<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":'
             +json.dumps(title)+f',"datePublished":"{date}","author":{{"@type":"Person","name":"Van Paugam"}},"mainEntityOfPage":"{canon}"'
             +(f',"image":"{SITE}{img}"' if img else "")+'}</script>')
-    nav="".join(f'<a href="{u}" data-jp="{NAV_JP.get(n,"")}"{" aria-current=\"page\"" if path==u or (u!="/" and path.startswith(u+"/")) else ""}>{n}</a>' for u,n in NAV)
+    nav="".join(f'<a href="{u}" data-jp="{NAV_JP.get(n,"")}"{" class=\"nav-x\"" if n in NAV_X else ""}{" aria-current=\"page\"" if path==u or (u!="/" and path.startswith(u+"/")) else ""}>{n}</a>' for u,n in NAV)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(title)} — Van Paugam</title>
@@ -105,7 +107,8 @@ def head(path,title,desc,img,date):
 <link rel="stylesheet" href="/style.css?v={ASSET_V}"><script src="/img/kitsune-cursor.js" defer></script>{ld}
 <script>try{{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body>
-<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><button class="nav-btn" type="button" aria-expanded="false" aria-controls="site-nav"><span class="nav-ico" aria-hidden="true"><i></i><i></i><i></i></span><span class="nav-lbl">Menu</span></button><nav class="site-nav" id="site-nav">{nav}{SOCIAL_HTML}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head"><div class="wrap"><a class="mark" href="/">VAN PAUGAM</a><a class="nav-ks" href="{ks("nav")}" target="_blank" rel="noopener"><span class="nav-ks-dot" aria-hidden="true"></span><span class="nav-ks-t">Back the book</span></a><button class="nav-btn" type="button" aria-expanded="false" aria-controls="site-nav"><span class="nav-ico" aria-hidden="true"><i></i><i></i><i></i></span><span class="nav-lbl">Menu</span></button><nav class="site-nav" id="site-nav">{nav}{SOCIAL_HTML}<button class="theme" type="button" id="theme" aria-label="Switch between light and dark">Dark</button></nav></div></header>
 <main id="main">"""
 
 FOOT=f"""</main>
@@ -123,7 +126,7 @@ FOOT=f"""</main>
 <div class="sub-row"><label class="vh" for="foot-email">Email address</label>
 <input id="foot-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
 <button class="btn" type="submit">Join</button></div></form></div></div>
-<div class="foot-grid"><div><h4>Read <span class="fjp">読む</span></h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
+<div class="foot-grid"><div><h4>Read <span class="fjp">読む</span></h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/blog/2020/10/19/the-top-10-city-pop-albums">Top 10 albums</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
 <div><h4>Listen <span class="fjp">聴く</span></h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
 <div><h4>Contact <span class="fjp">連絡</span></h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="/media-kit/">Interactive media kit</a></li><li><a href="/media-kit/van-paugam-media-kit.pdf" download>Media kit PDF</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
 </div>
@@ -598,6 +601,11 @@ LISTEN={"/podcast/city-pop-podcast-hideki-saijo":"2rh4hjqs6WV9RQMVnNAZg9",
 POD_NOTES={}
 def pod_href(l): return "/podcast#"+l.rstrip("/").rsplit("/",1)[-1].strip("-")
 # ---------- parse ----------
+names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop — its records, its people, and how a 1980s genre found a second life."),
+       "/latest-news":("News","最新情報","Press, interviews, and upcoming dates."),
+       "/news1":("Archive","記録","Earlier press and event notes, 2017–2020."),
+       "/podcast":("Mayonaka Hour","真夜中アワー","A City Pop podcast: one artist, one era, one record at a time."),
+       "/vinyl":("Vinyl","レコード","Japanese reissues and pressings worth your shelf space.")}
 root=ET.parse(SRC).getroot(); items=root.find("channel").findall("item")
 attach={it.findtext("wp:post_id",namespaces=NS):it.findtext("wp:attachment_url",namespaces=NS)
         for it in items if it.findtext("wp:post_type",namespaces=NS)=="attachment"}
@@ -663,10 +671,12 @@ for it in items:
         if link in ARTIST_FEATURE:
             write(link,ar_page(link,date,title,thumb,body,_disc),title,desc,thumb,date)
             cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
-        art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{date}</p>'
-             f'<h1>{html.escape(title)}</h1><div class="lede-rule"></div></div>{cover}'
+        _cn,_cj,_=names.get(col,(dict(NAV).get(col,"Posts"),"",""))
+        art=(f'<div class="wrap bk hm ap">{BK_FONTS}<header class="bk-frame ap-head"><p class="bk-label"><a href="{col}">{_cn}</a>{(' <span class="jp">'+_cj+'</span>') if _cj else ""}</p>'
+             f'<h1>{html.escape(title)}</h1><p class="ap-meta"><time datetime="{date}">{date}</time> · By Van Paugam</p></header>'
+             f'<article class="bk-frame ap-body">{cover}'
              f'<div class="prose{" top10" if link in (TOP10,)+LISTPOSTS else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
-             f'{more_block(link)}<p style="padding:1.5rem 0 2rem"><a href="{col}">← All {dict(NAV).get(col,"posts").lower()}</a></p></div>')
+             f'{more_block(link)}<p class="ap-back"><a href="{col}">← All {_cn.lower()}</a></p></article></div>')
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
     else:
@@ -681,18 +691,13 @@ reissues_date="2026-10-14"
 reissues_thumb="/img/anri-timely-wikipedia.png"
 with open(os.path.join(os.path.dirname(__file__),"reissues.html"),encoding="utf-8") as reissues_file:
     reissues_body=reissues_file.read()
-reissues_art=(f'<div class="wrap narrow"><div class="article-head"><p class="meta">{reissues_date}</p>'
-              f'<h1>{reissues_title}</h1><div class="lede-rule"></div></div><div class="prose">{reissues_body}</div>'
-              '<p style="padding:1.5rem 0 2rem"><a href="/latest-news">← All news</a></p></div>')
+reissues_art=(f'<div class="wrap bk hm ap">{BK_FONTS}<header class="bk-frame ap-head"><p class="bk-label"><a href="/latest-news">News</a> <span class="jp">最新情報</span></p>'
+              f'<h1>{reissues_title}</h1><p class="ap-meta"><time datetime="{reissues_date}">{reissues_date}</time> · By Van Paugam</p></header>'
+              f'<article class="bk-frame ap-body"><div class="prose">{reissues_body}</div><p class="ap-back"><a href="/latest-news">← All news</a></p></article></div>')
 write(reissues_link,reissues_art,reissues_title,reissues_desc,reissues_thumb,reissues_date)
 cols.setdefault("/latest-news",[]).append((reissues_date,reissues_link,reissues_title,reissues_desc,reissues_thumb))
 urls.append((reissues_link,reissues_date))
 
-names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop — its records, its people, and how a 1980s genre found a second life."),
-       "/latest-news":("News","最新情報","Press, interviews, and upcoming dates."),
-       "/news1":("Archive","記録","Earlier press and event notes, 2017–2020."),
-       "/podcast":("Mayonaka Hour","真夜中アワー","A City Pop podcast: one artist, one era, one record at a time."),
-       "/vinyl":("Vinyl","レコード","Japanese reissues and pressings worth your shelf space.")}
 
 def short(t):
     return re.sub(r"^Mayonaka Hour\s*真夜中アワー\s*City Pop Podcast\s*","",t).strip() or t
@@ -766,9 +771,9 @@ for col,posts in cols.items():
         listing=f'<ul class="grid">{"".join(card(l,t,th,d) for d,l,t,x,th in posts)}</ul>'
     else:
         listing=f'<ul class="entries">{"".join(entry_li(d,l,t,x,th) for d,l,t,x,th in posts)}</ul>'
-    body=(f'<div class="wrap"><div class="page-head"><div class="band-head"><h1>{nm}</h1><span class="jp">{jp}</span></div>'
-          f'<p class="hero-lede">{html.escape(blurb)}</p></div>'
-          f'<div style="padding-bottom:3rem">{listing}</div></div>')
+    body=(f'<div class="wrap bk hm cl">{BK_FONTS}<header class="bk-frame cl-head"><p class="bk-label">{nm} <span class="jp">{jp}</span></p><h1>{nm}</h1>'
+          f'<p class="cl-lede">{html.escape(blurb)}</p><p class="cl-count">{len(posts)} posts</p></header>'
+          f'<section class="bk-frame cl-body">{listing}</section></div>')
     write(col,body,nm,blurb,None,None); urls.append((col,posts[0][0]))
     redirects += [(f"{col}/category/*",col),(f"{col}/tag/*",col)]
 
@@ -819,8 +824,8 @@ for link,(title,desc,body,thumb) in pages.items():
         continue
     body=page_extras(link,body)
     if not re.search(r"<h1",body): body=f"<h1>{html.escape(title)}</h1>"+body
-    body=re.sub(r"<h1[^>]*>(.*?)</h1>",lambda m:f'<div class="article-head"><h1>{m.group(1)}</h1><div class="lede-rule"></div></div>',body,count=1,flags=re.S)
-    write(link,f'<div class="wrap narrow"><div class="prose" style="padding-top:2rem">{body}</div></div>',title,desc,thumb)
+    body=re.sub(r"<h1[^>]*>(.*?)</h1>",lambda m:f'<header class="ap-head pg-head"><h1>{m.group(1)}</h1></header>',body,count=1,flags=re.S)
+    write(link,f'<div class="wrap bk hm ap pg">{BK_FONTS}<article class="bk-frame ap-body"><div class="prose">{body}</div></article></div>',title,desc,thumb)
     urls.append((link,""))
 
 # ---------- home ----------
@@ -1086,21 +1091,26 @@ write("/",home,"Van Paugam — Japanese City Pop DJ, Writer & Vinyl Specialist",
 urls.append(("/",""))
 
 # ---------- contact ----------
-contact=f"""<div class="wrap narrow"><div class="article-head"><h1>Booking &amp; press</h1><div class="lede-rule"></div></div>
-<p class="hero-lede">For club nights, festivals, private events, interviews, and licensing. Tell me the date and the room, and I'll come back to you with availability and a rate.</p>
-<div class="btn-row" style="margin-bottom:2rem"><a class="btn" href="/media-kit/van-paugam-media-kit.pdf" download>Download media kit PDF</a><a class="btn btn-ghost" href="/media-kit/">View interactive media kit</a></div>
-<form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/thank-you">
+contact=f"""<div class="wrap bk hm ct"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">
+<section class="bk-frame ct-head"><p class="bk-label">Contact <span class="jp">出演依頼</span></p><h1>Booking &amp; press</h1>
+<p class="ct-lede">For club nights, festivals, private events, interviews, and licensing. Tell me the date and the room, and I'll come back to you with availability and a rate.</p></section>
+<div class="ct-grid"><section class="bk-frame ct-form-wrap"><p class="ct-step">Send a message <span class="jp">メッセージ</span></p>
+<form class="form ct-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="company" action="/thank-you">
 <input type="hidden" name="form-name" value="contact">
 <input type="hidden" name="subject" value="New contact form message — %{{siteName}}">
 <p class="hp"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
-<label for="name">Your name</label><input id="name" name="name" required autocomplete="name">
-<label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email">
-<label for="kind">What is this about?</label><select id="kind" name="kind">
-<option>Booking a DJ set</option><option>Press or interview</option><option>The book</option><option>Music submission</option><option>Something else</option></select>
-<label for="date">Event date (if you have one)</label><input id="date" type="date" name="date">
+<fieldset class="ct-kind"><legend>What is this about?</legend>
+{"".join(f'<label><input type="radio" name="kind" value="{k}"{" checked" if i==0 else ""}><span>{k}</span></label>' for i,k in enumerate(["Booking a DJ set","Press or interview","The book","Music submission","Something else"]))}</fieldset>
+<div class="ct-row"><div><label for="name">Your name</label><input id="name" name="name" required autocomplete="name"></div>
+<div><label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"></div></div>
+<label for="date">Event date <span class="ct-opt">(if you have one)</span></label><input id="date" type="date" name="date">
 <label for="message">Details</label><textarea id="message" name="message" required placeholder="Venue, city, audience size, set length."></textarea>
-<button class="btn" type="submit">Send message</button></form>
-<p style="padding:2rem 0 3rem;color:var(--mute)">Prefer email? <a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></p></div>"""
+<button class="btn ct-send" type="submit">Send message <span aria-hidden="true">→</span></button></form></section>
+<aside class="ct-side"><section class="bk-frame ct-kit"><p class="ct-step">Press kit <span class="jp">資料</span></p><h2>Media kit</h2>
+<p>Biography, press, original-vinyl DJ sets, video features and booking details.</p>
+<div class="btn-row"><a class="btn" href="/media-kit/van-paugam-media-kit.pdf" download>Download PDF</a><a class="btn btn-ghost" href="/media-kit/">View online</a></div></section>
+<section class="bk-frame ct-mail"><p class="ct-step">Prefer email? <span class="jp">メール</span></p><a class="ct-addr" href="mailto:info@vanpaugam.com">info@vanpaugam.com</a>
+<ul class="ct-tips"><li>Date and city</li><li>Venue and room size</li><li>Set length and time slot</li></ul></section></aside></div></div>"""
 write("/contact",contact,"Booking & press","Book Van Paugam for a City Pop DJ set, or get in touch about press, the book, and music submissions.")
 urls.append(("/contact",""))
 
