@@ -1938,3 +1938,22 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @keyframes sg-wrap{0%,100%{transform:scaleX(.15)}50%{transform:scaleX(1)}}
 @keyframes sg-gold{0%,100%{filter:none}50%{filter:brightness(1.3) drop-shadow(0 0 4px #F6C344)}}
 @media (max-width:600px){.bk-ladder.sg li{grid-template-columns:44px 1fr;row-gap:.2rem}.bk-ladder.sg li p{grid-column:2}.sg-ico{width:40px;height:40px}}
+/* engagement pass: in-post book card, homepage book bar, podcast book line */
+.bkin{display:grid;grid-template-columns:150px 1fr;gap:1.1rem;align-items:center;margin:2rem 0;padding:1rem;border:1px solid var(--rule);border-left:4px solid #bf4430;background:var(--paper-2);border-radius:6px}
+.bkin img{width:100%;height:auto;display:block;border-radius:3px}
+.bkin p{margin:0}
+.bkin-k{font:.7rem "Space Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#bf4430}
+.bkin-t{font:700 1.3rem/1.2 "Zen Old Mincho",Georgia,serif;margin:.2rem 0!important}
+.bkin-t a{text-decoration:none}
+.bkin-s{font-size:.92rem;color:var(--mute);line-height:1.5}
+.bkin-cta{display:inline-block;margin-top:.7rem;font:.75rem "Space Mono",monospace;letter-spacing:.08em;text-transform:uppercase;background:#bf4430;color:#fff!important;padding:.65rem 1rem;text-decoration:none;border-radius:3px}
+.bkin-cta:hover{background:#e2694c}
+@media (max-width:560px){.bkin{grid-template-columns:1fr}.bkin img{max-width:220px}}
+.bkbar{display:block;text-align:center;padding:.6rem 16px;background:#bf4430;color:#fff!important;text-decoration:none;font-size:.9rem;line-height:1.4}
+.bkbar:hover{background:#a8382a}
+.bkbar u{text-underline-offset:.2em;white-space:nowrap}
+.bkbar-dot{animation:bkbar-p 1.6s infinite}
+@keyframes bkbar-p{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.bkbar-dot{animation:none}}
+.bkin-ep{margin:.6rem 0 0;font-size:.85rem}
+.bkin-ep a{color:#bf4430}

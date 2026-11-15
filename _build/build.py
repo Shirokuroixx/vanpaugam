@@ -1219,6 +1219,7 @@ open(os.path.join(OUT,"sitemap.xml"),"w").write(
   +"</urlset>\n")
 open(os.path.join(OUT,"robots.txt"),"w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 extra=[("/home","/"),("/contact-1","/contact"),("/blog-1","/blog"),("/new","/latest-news"),("/city-pop-blog","/blog"),("/new-page-1","/"),("/member-site-homepage-1","/")]
+extra+=[("/blog/what-happened-to-takako-mamiya","/blog"),("/memoirs-of-a-gaijin","/blog/memoirs-of-a-gaijin")]
 extra.append(("/blog/rare-city-pop-vinyl-repress","/blog/tatsuro-yamashita-vinyl-repress-pre-order"))
 open(os.path.join(OUT,"_headers"),"w").write(
   "/img/*\n  Cache-Control: public, max-age=31536000, immutable\n\n"
@@ -1272,3 +1273,41 @@ for path,body in WRITTEN.items():
     open(f,"w",encoding="utf-8").write(h.replace("</main>",ren_img(blk)+"</main>",1))
 missing=[u for u in images.values() if not os.path.exists(os.path.join(OUT,RENAMES.get(u,u).lstrip("/")))]
 print(len(urls),"pages,",len(images),"images referenced,",len(missing),"missing images")
+# ---------- Engagement pass (15 Nov 2026): favicon, analytics, book CTAs in posts / homepage / podcast ----------
+GC_CODE="vanpaugam"  # GoatCounter site code (https://<code>.goatcounter.com); empty = no tracker
+import shutil, glob
+for _f in ("favicon.ico","apple-touch-icon.png"):
+    shutil.copy(os.path.join(os.path.dirname(__file__),_f),os.path.join(OUT,_f))
+shutil.copy(os.path.join(os.path.dirname(__file__),"apple-touch-icon.png"),os.path.join(OUT,"apple-touch-icon-precomposed.png"))
+_ICON='<link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png">'
+_GC=(f'<script data-goatcounter="https://{GC_CODE}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
+     '<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href*=\'kickstarter.com\']");'
+     'if(!a||!window.goatcounter||!goatcounter.count)return;var m=a.href.match(/ref=(vp_[\\w-]+)/);'
+     'goatcounter.count({path:"ks-click-"+(m?m[1]:"other"),title:"Kickstarter click",event:true})});</script>') if GC_CODE else ""
+def _card(src,cls=""):
+    return (f'<aside class="bkin{cls}" aria-label="The book"><img src="/img/book/promo.webp" alt="" width="400" height="279" loading="lazy">'
+            f'<div><p class="bkin-k">● Live on Kickstarter · ends Dec 11</p><p class="bkin-t"><a href="/somehow-city-pop-book">Somehow, City Pop</a></p>'
+            f'<p class="bkin-s">Van\'s book: 102 Japanese records, 1975–1990, with photographs. 150 numbered First Edition copies.</p>'
+            f'<a class="bkin-cta" href="{ks(src)}" target="_blank" rel="noopener">Back it on Kickstarter ↗</a></div></aside>')
+for _f in glob.glob(os.path.join(OUT,"**","index.html"),recursive=True)+[os.path.join(OUT,"index.html")]:
+    try: _h=open(_f,encoding="utf-8").read()
+    except OSError: continue
+    if "</head>" not in _h or 'rel="icon"' in _h: continue
+    _rel=os.path.relpath(_f,OUT).replace(os.sep,"/")
+    if _rel.startswith(("_build/","netlify/","node_modules/",".")): continue
+    _h=_h.replace("</head>",_ICON+"</head>",1)
+    if _GC: _h=_h.replace("</body>",_GC+"</body>",1)
+    if _rel=="index.html":  # homepage: book strip in the first screen
+        _h=_h.replace('<main id="main">','<main id="main"><a class="bkbar" href="'+ks("home-bar")+'" target="_blank" rel="noopener"><span class="bkbar-dot" aria-hidden="true">●</span> <b>Somehow, City Pop</b> — Van\'s book is live on Kickstarter. 150 numbered First Edition copies, ends Dec 11. <u>Back it ↗</u></a>',1)
+    elif _rel.startswith("blog/") and _rel!="blog/index.html" and re.search(r'class="[^"]*\b(ar-body|ap-body|tt)\b',_h):  # posts: card after the 3rd paragraph
+        _i=re.search(r'class="[^"]*\b(ar-body|ap-body|tt)\b',_h).start(); _n=0
+        for _m in re.finditer(r"</p>",_h[_i:]):
+            _n+=1
+            if _n==3:
+                _p=_i+_m.end(); _h=_h[:_p]+_card("post-"+_rel.split("/")[-2][:40])+_h[_p:]; break
+    elif _rel=="podcast/index.html":  # every episode card gets a book line
+        def _ep(m):
+            li=m.group(0); k=li.rfind("</div>")
+            return li[:k]+'<p class="bkin-ep">📖 New from Van: <a href="'+ks("podcast-ep")+'" target="_blank" rel="noopener">Somehow, City Pop, the book, is live on Kickstarter ↗</a></p>'+li[k:] if k>0 else li
+        _h=re.sub(r'<li class="[^"]*\bpd-ep\b[^"]*".*?</li>',_ep,_h,flags=re.S)
+    open(_f,"w",encoding="utf-8").write(_h)
