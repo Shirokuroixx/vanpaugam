@@ -1228,6 +1228,9 @@ open(os.path.join(OUT,"_headers"),"w").write(
 open(os.path.join(OUT,"_redirects"),"w").write(
   "# /api/reissues is served by netlify/functions/reissues.mjs\n"
   "# Squarespace -> static. 301 keeps Google rankings.\n"
+  "# Old Squarespace podcast feed -> Anchor/Spotify feed\n"
+  "https://www.vanpaugam.com/podcast  format=rss  https://anchor.fm/s/1189a2180/podcast/rss  301!\n"
+  "/podcast  format=rss  https://anchor.fm/s/1189a2180/podcast/rss  301!\n"
   "https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!\n"
   +"".join(f"{a}  {b}  301\n" for a,b in redirects+extra if a!=b)
   +"# Serve generated blog pages directly without directory slash redirects.\n"

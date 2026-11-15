@@ -1,5 +1,8 @@
 # /api/reissues is served by netlify/functions/reissues.mjs
 # Squarespace -> static. 301 keeps Google rankings.
+# Old Squarespace podcast feed -> Anchor/Spotify feed
+https://www.vanpaugam.com/podcast  format=rss  https://anchor.fm/s/1189a2180/podcast/rss  301!
+/podcast  format=rss  https://anchor.fm/s/1189a2180/podcast/rss  301!
 https://www.vanpaugam.com/*  https://vanpaugam.com/:splat  301!
 /podcast/2020/10/26/-city-pop-podcast-mariya-takeuchi  /podcast#city-pop-podcast-mariya-takeuchi  301
 /podcast/2020/9/22/episode-1-city-pop-genre-overview  /podcast#episode-1-city-pop-genre-overview  301
