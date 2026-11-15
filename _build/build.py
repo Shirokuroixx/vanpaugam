@@ -606,6 +606,39 @@ names={"/blog":("Writing","記事","Essays and reporting on Japanese City Pop �
        "/news1":("Archive","記録","Earlier press and event notes, 2017–2020."),
        "/podcast":("Mayonaka Hour","真夜中アワー","A City Pop podcast: one artist, one era, one record at a time."),
        "/vinyl":("Vinyl","レコード","Japanese reissues and pressings worth your shelf space.")}
+
+AP_POSTS=[]
+MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"]
+def nice_date(d):
+    try: y,m,dd=d[:10].split("-"); return f"{MONTHS[int(m)-1]} {int(dd)}, {y}"
+    except Exception: return d
+def read_min(body): return max(1,round(len(re.sub(r"<[^>]+>"," ",body).split())/230))
+def ap_lead(body,thumb,title):
+    """Move the post's opening image (or its thumbnail) into the hero; drop an opening heading that repeats the title."""
+    m=re.match(r'(\s*(?:<div[^>]*>\s*)*)(?:<p[^>]*>\s*)?(?:<a[^>]*>\s*)?<img[^>]*src="([^"]+)"[^>]*>(?:\s*</a>)?(?:\s*</p>)?',body)
+    lead=None
+    if m: lead=m.group(2); body=m.group(1)+body[m.end():]
+    elif thumb and not img_in(thumb,body): lead=thumb
+    EMPTY=r'(?:\s|<p[^>]*>(?:\s|&nbsp;|<br\s*/?>)*</p>|<br\s*/?>|<div[^>]*>\s*</div>)*'
+    body=re.sub(r'^'+EMPTY,'',body)
+    t=re.sub(r"\W+","",html.unescape(title).lower())
+    h=re.match(r'(\s*(?:<div[^>]*>\s*)*)'+EMPTY+r'<h[1-4][^>]*>(.*?)</h[1-4]>',body,re.S)
+    if h:
+        ht=re.sub(r"\W+","",html.unescape(re.sub(r"<[^>]+>","",h.group(2))).lower())
+        if ht and (ht==t or ht[:28]==t[:28]): body=h.group(1)+body[h.end():]
+    fp=re.match(r'(\s*(?:<div[^>]*>\s*)*)<p>(?!\s*(?:<[^>]+>\s*)*(?:disclaimer|note|edit|update))',body,re.I)
+    if fp: body=fp.group(1)+'<p class="ap-lede">'+body[fp.end():]
+    return lead,body
+AP_SHARE=('<div class="ap-share"><span>Share</span><button type="button" class="ap-sh" data-sh="copy">Copy link</button>'
+          '<button type="button" class="ap-sh" data-sh="native" hidden>Share…</button></div>'
+          '<script>(function(){var w=document.currentScript.previousElementSibling,n=w.querySelector(\'[data-sh=native]\');if(navigator.share)n.hidden=false;'
+          'w.addEventListener("click",function(e){var b=e.target.closest(".ap-sh");if(!b)return;var u=location.href.split("#")[0];'
+          'if(b.dataset.sh==="native"){navigator.share({title:document.title,url:u}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){b.textContent="Copied ✓";setTimeout(function(){b.textContent="Copy link"},1800)})}})})();</script>')
+def related(link,col):
+    ps=[x for x in sorted(cols.get(col,[]),reverse=True) if x[1]!=link and x[4]][:3]
+    if not ps: return ""
+    li="".join(f'<li><a href="{l}"><span class="ap-rel-img"><img src="{th}" alt="" loading="lazy"></span><span class="ap-rel-d">{nice_date(d)}</span><span class="ap-rel-t">{html.escape(short(t))}</span></a></li>' for d,l,t,x,th in ps)
+    return f'<div class="ap-rel"><h2>Keep reading <span class="jp">続き</span></h2><ul>{li}</ul></div>'
 root=ET.parse(SRC).getroot(); items=root.find("channel").findall("item")
 attach={it.findtext("wp:post_id",namespaces=NS):it.findtext("wp:attachment_url",namespaces=NS)
         for it in items if it.findtext("wp:post_type",namespaces=NS)=="attachment"}
@@ -672,11 +705,14 @@ for it in items:
             write(link,ar_page(link,date,title,thumb,body,_disc),title,desc,thumb,date)
             cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date)); continue
         _cn,_cj,_=names.get(col,(dict(NAV).get(col,"Posts"),"",""))
-        art=(f'<div class="wrap bk hm ap">{BK_FONTS}<header class="bk-frame ap-head"><p class="bk-label"><a href="{col}">{_cn}</a>{(' <span class="jp">'+_cj+'</span>') if _cj else ""}</p>'
-             f'<h1>{html.escape(title)}</h1><p class="ap-meta"><time datetime="{date}">{date}</time> · By Van Paugam</p></header>'
-             f'<article class="bk-frame ap-body">{cover}'
-             f'<div class="prose{" top10" if link in (TOP10,)+LISTPOSTS else ""}">{body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
-             f'{more_block(link)}<p class="ap-back"><a href="{col}">← All {_cn.lower()}</a></p></article></div>')
+        _lead,_body=ap_lead(body,thumb,title)
+        _hero=(f'<figure class="ap-hero"><span class="ap-hero-bg" style="background-image:url(\'{_lead}\')"></span><img src="{_lead}" alt="" fetchpriority="high"></figure>') if _lead else ""
+        art=(f'<div class="wrap bk hm ap">{BK_FONTS}<header class="bk-frame ap-head{" has-hero" if _lead else ""}"><div class="ap-head-txt"><p class="bk-label"><a href="{col}">{_cn}</a>{(' <span class="jp">'+_cj+'</span>') if _cj else ""}</p>'
+             f'<h1>{html.escape(title)}</h1><p class="ap-meta"><span class="ap-by">By Van Paugam</span><time datetime="{date}">{nice_date(date)}</time><span>{read_min(body)} min read</span></p></div>{_hero}</header>'
+             f'<article class="bk-frame ap-body">{"<!--pdfeat-->" if "<!--pdfeat-->" in cover else ""}'
+             f'<div class="prose{" top10" if link in (TOP10,)+LISTPOSTS else ""}">{_body}</div>{_disc or ("" if _inlined else auto_block(link,body))}'
+             f'{AP_SHARE}{more_block(link) or "<!--related-->"}<p class="ap-back"><a href="{col}">← All {_cn.lower()}</a></p></article></div>')
+        AP_POSTS.append((link,col))
         write(link,art,title,desc,thumb,date)
         cols.setdefault(col,[]).append((date,link,title,desc,thumb)); urls.append((link,date))
     else:
@@ -827,6 +863,13 @@ for link,(title,desc,body,thumb) in pages.items():
     body=re.sub(r"<h1[^>]*>(.*?)</h1>",lambda m:f'<header class="ap-head pg-head"><h1>{m.group(1)}</h1></header>',body,count=1,flags=re.S)
     write(link,f'<div class="wrap bk hm ap pg">{BK_FONTS}<article class="bk-frame ap-body"><div class="prose">{body}</div></article></div>',title,desc,thumb)
     urls.append((link,""))
+
+# ---------- related posts post-pass ----------
+for _l,_c in AP_POSTS:
+    _f=os.path.join(OUT,_l.strip("/"),"index.html")
+    if os.path.exists(_f):
+        _h=open(_f,encoding="utf-8").read()
+        if "<!--related-->" in _h: open(_f,"w",encoding="utf-8").write(_h.replace("<!--related-->",ren_img(related(_l,_c)),1))
 
 # ---------- home ----------
 def strip_from(col,n):
