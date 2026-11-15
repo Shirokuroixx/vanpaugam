@@ -76,11 +76,11 @@ def ks(src):
     """Kickstarter link tagged per placement: ref= shows in Kickstarter's referrer stats, utm_* in analytics."""
     return f"{KS_URL}?ref=vp_{src}&amp;utm_source=vanpaugam.com&amp;utm_medium=website&amp;utm_campaign=book&amp;utm_content={src}"
 NAV=[("/about-van-paugam","About"),("/somehow-city-pop-book","The Book"),("/blog","Writing"),("/blog/2020/10/19/the-top-10-city-pop-albums","Top 10"),
-     ("/podcast","Podcast"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
+     ("/podcast","Podcast"),("/mixes","Mixes"),("/new-music","New Music"),("/buy-vinyl","Buy Vinyl"),("/latest-news","News"),("/contact","Contact")]
 
 BK_FONTS='<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap">'
 NAV_X={"Top 10","New Music","News"}
-NAV_JP={"About":"略歴","The Book":"書籍","Writing":"記事","Top 10":"名盤","Podcast":"番組","New Music":"新曲","Buy Vinyl":"レコード","News":"情報","Contact":"連絡"}
+NAV_JP={"Mixes":"ミックス","About":"略歴","The Book":"書籍","Writing":"記事","Top 10":"名盤","Podcast":"番組","New Music":"新曲","Buy Vinyl":"レコード","News":"情報","Contact":"連絡"}
 
 with open(os.path.join(os.path.dirname(__file__),"social.html"),encoding="utf-8") as social_file:
     SOCIAL_HTML=social_file.read().strip()
@@ -127,7 +127,7 @@ FOOT=f"""</main>
 <input id="foot-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com">
 <button class="btn" type="submit">Join</button></div></form></div></div>
 <div class="foot-grid"><div><h4>Read <span class="fjp">読む</span></h4><ul><li><a href="/blog">Writing</a></li><li><a href="/what-is-city-pop">What is City Pop?</a></li><li><a href="/blog/2020/10/19/the-top-10-city-pop-albums">Top 10 albums</a></li><li><a href="/somehow-city-pop-book">The book</a></li><li><a href="/latest-news">News</a></li></ul></div>
-<div><h4>Listen <span class="fjp">聴く</span></h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
+<div><h4>Listen <span class="fjp">聴く</span></h4><ul><li><a href="/podcast">Mayonaka Hour</a></li><li><a href="/mixes">DJ mixes</a></li><li><a href="/buy-vinyl">Buy vinyl</a></li><li><a href="/new-music">New music</a></li><li><a href="{SP}" rel="noopener">Spotify</a></li></ul></div>
 <div><h4>Contact <span class="fjp">連絡</span></h4><ul><li><a href="/contact">Booking &amp; press</a></li><li><a href="/media-kit/">Interactive media kit</a></li><li><a href="/media-kit/van-paugam-media-kit.pdf" download>Media kit PDF</a></li><li><a href="mailto:info@vanpaugam.com">info@vanpaugam.com</a></li><li><a href="{IG}" rel="me noopener">Instagram</a></li><li><a href="{FB}" rel="me noopener">Facebook</a></li></ul></div>
 </div>
 <p class="colophon">© Van Paugam {2026}. Chicago.</p></div></footer>
@@ -1113,6 +1113,41 @@ contact=f"""<div class="wrap bk hm ct"><link rel="stylesheet" href="https://font
 <ul class="ct-tips"><li>Date and city</li><li>Venue and room size</li><li>Set length and time slot</li></ul></section></aside></div></div>"""
 write("/contact",contact,"Booking & press","Book Van Paugam for a City Pop DJ set, or get in touch about press, the book, and music submissions.")
 urls.append(("/contact",""))
+
+# ---------- mixes (loaded live from Mixcloud in the browser) ----------
+MIXCLOUD_USER="vanpaugam"
+MX_JS="""(function(){var U=%s,d=document,g=d.getElementById('mx-grid'),st=d.getElementById('mx-status'),ch=d.getElementById('mx-chips'),bar=d.getElementById('mx-bar'),fr=d.getElementById('mx-frame'),nt=d.getElementById('mx-now'),all=[],tag='all';
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function dur(s){s=s||0;var h=Math.floor(s/3600),m=Math.floor(s%%3600/60);return h?h+' hr '+m+' min':m+' min'}
+function card(m,i){var tg=(m.tags||[]).slice(0,3).map(function(t){return '<span>'+esc(t.name)+'</span>'}).join('');
+return '<li class="mx-item" data-tags="'+esc((m.tags||[]).map(function(t){return t.name}).join('|'))+'"><button type="button" class="mx-card" data-key="'+esc(m.key)+'" data-name="'+esc(m.name)+'">'
++'<span class="mx-art"><span class="mx-disc" aria-hidden="true"></span><img src="'+esc((m.pictures||{}).extra_large||(m.pictures||{}).large||'')+'" alt="" loading="lazy"><span class="mx-play" aria-hidden="true"></span></span>'
++'<span class="mx-no">No.'+String(all.length-i).padStart(2,'0')+' · '+esc((m.created_time||'').slice(0,10))+'</span><span class="mx-t">'+esc(m.name)+'</span>'
++'<span class="mx-meta">'+dur(m.audio_length)+'</span><span class="mx-tags">'+tg+'</span></button></li>'}
+function draw(){g.innerHTML=all.map(card).join('');filt();}
+function filt(){[].forEach.call(g.children,function(li){li.hidden=tag!=='all'&&li.dataset.tags.split('|').indexOf(tag)<0})}
+function chips(){var c={};all.forEach(function(m){(m.tags||[]).forEach(function(t){c[t.name]=(c[t.name]||0)+1})});
+var top=Object.keys(c).sort(function(a,b){return c[b]-c[a]}).slice(0,8);if(!top.length)return;
+ch.innerHTML=['all'].concat(top).map(function(t){return '<button type="button" class="bl-chip" aria-pressed="'+(t===tag)+'" data-t="'+esc(t)+'">'+(t==='all'?'All':esc(t))+'</button>'}).join('');ch.hidden=false}
+ch.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;tag=b.dataset.t;[].forEach.call(ch.children,function(x){x.setAttribute('aria-pressed',x===b)});filt()});
+g.addEventListener('click',function(e){var b=e.target.closest('.mx-card');if(!b)return;[].forEach.call(g.querySelectorAll('.mx-card.on'),function(x){x.classList.remove('on')});b.classList.add('on');
+fr.src='https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&autoplay=1&feed='+encodeURIComponent(b.dataset.key);nt.textContent=b.dataset.name;bar.hidden=false;d.body.classList.add('mx-playing');
+if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'mix-play:'+b.dataset.key,title:b.dataset.name,event:true})});
+d.getElementById('mx-close').addEventListener('click',function(){fr.src='about:blank';bar.hidden=true;d.body.classList.remove('mx-playing');[].forEach.call(g.querySelectorAll('.mx-card.on'),function(x){x.classList.remove('on')})});
+function load(url){fetch(url).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){all=all.concat(j.data||[]);if(j.paging&&j.paging.next&&all.length<500)return load(j.paging.next);
+if(!all.length)throw 0;st.textContent=all.length+' mixes';draw();chips()}).catch(function(){st.innerHTML='Mixes are taking a moment. <a href="https://www.mixcloud.com/'+U+'/">Listen on Mixcloud →</a>'})}
+load('https://api.mixcloud.com/'+U+'/cloudcasts/?limit=100');})();"""%json.dumps(MIXCLOUD_USER)
+mixes=f"""<div class="wrap bk hm mx">{BK_FONTS}
+<section class="bk-frame mx-head"><p class="bk-label">Mixes <span class="jp">ミックス</span></p><h1>DJ mixes</h1>
+<p class="mx-lede">Every mix from Mixcloud in one place. Tap a record to play it while you browse.</p>
+<div class="mx-bar-top"><div class="bl-chips" id="mx-chips" role="group" aria-label="Filter by tag" hidden></div><p class="mx-status" id="mx-status" aria-live="polite">Loading mixes…</p></div></section>
+<section class="bk-frame mx-body"><ul class="mx-grid" id="mx-grid"></ul>
+<p class="mx-follow"><a class="btn" href="https://www.mixcloud.com/{MIXCLOUD_USER}/" target="_blank" rel="noopener">Follow on Mixcloud ↗</a></p></section></div>
+<div class="mx-player" id="mx-bar" hidden><span class="mx-eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="mx-now" id="mx-now"></span>
+<iframe id="mx-frame" title="Mixcloud player" allow="autoplay" src="about:blank"></iframe><button type="button" class="mx-x" id="mx-close" aria-label="Close player">✕</button></div>
+<script>{MX_JS}</script>"""
+write("/mixes",mixes,"DJ mixes","DJ mixes by Van Paugam, streaming from Mixcloud.")
+urls.append(("/mixes",""))
 
 # ---------- buy vinyl ----------
 EBAY_CAMPID="5339222122"; AMAZON_TAG="citypop-20"; CDJ="https://www.cdjapan.co.jp/aff/click.cgi/e86NDzbdSLQ/7023/A403672/"
