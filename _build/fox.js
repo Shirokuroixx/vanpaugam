@@ -72,7 +72,7 @@
     w.innerHTML='<div class="ksp-bg"></div><div class="ksp-card"><button type="button" class="ksp-x" aria-label="Close">×</button>'+
       '<div class="ksp-sun" aria-hidden="true"></div><div class="ksp-jp" aria-hidden="true">シティポップ</div>'+
       '<div class="ksp-art"><img src="/img/book/cover.webp" alt="Somehow, City Pop book cover" width="920" height="1200"><span class="ksp-obi">初版 · FIRST EDITION · 限定</span></div>'+
-      '<div class="ksp-copy"><img class="ksp-funded" src="/img/book/ks-just-funded.png" alt="Just funded on Kickstarter" width="246" height="171"><p class="ksp-kick">● 400% funded · 67 backers · Live on Kickstarter</p>'+
+      '<div class="ksp-copy"><img class="ksp-funded" src="/img/book/ks-just-funded.png" alt="Just funded on Kickstarter" width="246" height="171"><p class="ksp-kick">● 472% funded · Live on Kickstarter</p>'+
       '<h2 id="ksp-h">Funded! Get your First Edition before it sells out.</h2><p class="ksp-sub"><i>Somehow, City Pop</i> is going to print: 102 records, 208 pages, hand-numbered. The First Edition is $75 and limited to 100 copies.</p>'+
       (cd?'<div class="ksp-tm" aria-label="Time until the campaign ends"><span><b>00</b>days</span><span><b>00</b>hrs</span><span><b>00</b>min</span><span><b>00</b>sec</span></div>':'')+
       '<a class="ksp-cta" href="'+U+'" target="_blank" rel="noopener">Get the First Edition · $75 <span>→</span></a>'+

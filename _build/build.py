@@ -114,7 +114,7 @@ def head(path,title,desc,img,date):
 FOOT=f"""</main>
 <footer class="site-foot"><div class="wrap"><!--bkp--><div class="bk-promo">
 <span class="bkp-art"><img src="/img/book/promo.webp" alt="" width="400" height="279" loading="lazy"><span class="bkp-obi">初版 · 1ST ED.</span></span>
-<span class="bkp-copy"><span class="bkp-kick">● 400% funded · Live on Kickstarter · First Edition from $75</span><a class="bkp-title bkp-link" href="/somehow-city-pop-book">Somehow, City Pop</a>
+<span class="bkp-copy"><span class="bkp-kick">● 472% funded · Live on Kickstarter · First Edition from $75</span><a class="bkp-title bkp-link" href="/somehow-city-pop-book">Somehow, City Pop</a>
 <span class="bkp-rot"><span>A City Pop reference guide with photographs</span><span>102 records, 1975–1990</span><span>Only 150 numbered copies</span></span></span>
 <a class="bkp-cta" href="{ks("footer")}" target="_blank" rel="noopener">Back it on Kickstarter <span aria-hidden="true">↗</span></a></div>
 <!--/bkp--><div class="foot-top"><div class="foot-brand"><h4>VAN PAUGAM <span class="fjp">ヴァン</span></h4><p>Japanese music, writing, and DJ sets from Chicago.</p></div>
