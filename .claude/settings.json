@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Netlify__netlify-deploy-services-updater",
+      "Bash(npx -y @netlify/mcp@latest:*)",
+      "Bash(NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt npx -y @netlify/mcp@latest:*)"
+    ]
+  }
+}
