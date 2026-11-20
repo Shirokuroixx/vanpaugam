@@ -103,7 +103,7 @@ def head(path,title,desc,img,date):
 <meta property="og:type" content="{'article' if date else 'website'}">{f'<meta property="og:image" content="{SITE}{img}">' if img else ''}
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&family=DotGothic16&family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css?v={ASSET_V}"><script src="/img/kitsune-cursor.js" defer></script>{ld}
 <script>try{{var t=localStorage.getItem("vp-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body>
@@ -137,7 +137,7 @@ h.addEventListener("click",function(){{set(!r.classList.contains("nav-open"))}})
 document.querySelectorAll(".site-nav a").forEach(function(a){{a.addEventListener("click",function(){{set(false)}})}});}})();</script>
 <script>(function(){{var r=document.documentElement,b=document.getElementById("theme");if(!b)return;
 function dark(){{return r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches}}
-function label(){{b.textContent=dark()?"Light":"Dark"}}
+function label(){{b.innerHTML='<i class="pw-led"></i><span class="pw-sw"></span><span>'+(dark()?"Light":"Dark")+'</span>'}}
 label();b.addEventListener("click",function(){{r.dataset.theme=dark()?"light":"dark";
 try{{localStorage.setItem("vp-theme",r.dataset.theme)}}catch(e){{}}label()}});}})();</script>
 </body></html>"""
