@@ -112,3 +112,32 @@ var b=d.createElement('div');b.className='rc-boot';b.setAttribute('aria-hidden',
 b.innerHTML='<div><b>VAN PAUGAM</b><small>SYSTEM ・ 1975–1990</small><small>© CHICAGO ・ 和製ポップス</small><small>PRESS START</small></div>';
 d.body.appendChild(b);function go(){b.classList.add('off');setTimeout(function(){b.remove()},500)}
 b.addEventListener('click',go);d.addEventListener('keydown',go,{once:true});setTimeout(go,1300)})();
+/* Retro animations 2026-11: cartridge insert, typewriter labels, cursor trail, coin pop, stretch level-ups, Konami code. */
+(function(){var d=document,r=d.documentElement,rm=matchMedia('(prefers-reduced-motion: reduce)').matches,io='IntersectionObserver' in window,H=innerHeight;
+function seen(els,fn,m){if(!io){els.forEach(fn);return}var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){fn(e.target);o.unobserve(e.target)}})},{rootMargin:m||'0px 0px -10% 0px'});els.forEach(function(e){o.observe(e)})}
+function below(sel){return [].slice.call(d.querySelectorAll(sel)).filter(function(e){return e.getBoundingClientRect().top>H*.9})}
+if(!rm){
+  // 1. cartridges drop into the slot
+  var carts=below('.hm-tile,.bl-bub,.pd-bub,.mx-card');carts.forEach(function(e,i){e.classList.add('rc-cart');e.style.setProperty('--rc-d',(i%4)*60+'ms')});
+  seen(carts,function(e){e.classList.add('rc-in')});setTimeout(function(){carts.forEach(function(e){e.classList.add('rc-in')})},6000);
+  // 2. labels type out like game dialogue
+  var labs=[].slice.call(d.querySelectorAll('.bk-label,.sideA .kicker,.bk-kicker')).filter(function(e){return !e.children.length&&e.textContent.trim().length<60});
+  labs.forEach(function(e){e.dataset.rcT=e.textContent;e.style.minWidth=e.offsetWidth+'px';e.textContent=' '});
+  seen(labs,function(e){var t=e.dataset.rcT,i=0;e.classList.add('rc-typing');function step(){e.textContent=t.slice(0,++i);if(i<t.length)setTimeout(step,28);else e.classList.remove('rc-typing')}
+    e.addEventListener('click',function(){i=t.length},{once:true});step()});
+  // 4. pixel sparkle trail
+  if(matchMedia('(pointer:fine)').matches){var last=0,n=0;d.addEventListener('pointermove',function(ev){var now=performance.now();if(now-last<40)return;last=now;
+    var s=d.createElement('i');s.className='rc-spark'+(n++%2?' c':'');s.style.left=ev.clientX+'px';s.style.top=ev.clientY+'px';d.body.appendChild(s);setTimeout(function(){s.remove()},600)},{passive:true})}
+  // 6. stretch bar charges up, LEVEL UP at each unlocked goal
+  seen([].slice.call(d.querySelectorAll('.sg-meter')),function(m){[].slice.call(m.querySelectorAll('.sg-bar i.on')).forEach(function(k,j){
+    var u=d.createElement('span');u.className='rc-lvup';u.textContent='LEVEL UP!';u.style.left=k.style.left||k.offsetLeft+'px';u.style.animationDelay=(.4+j*.75)+'s';k.parentNode.appendChild(u);setTimeout(function(){u.remove()},6000)})});
+}
+// 5. coin pop on Kickstarter buttons
+d.addEventListener('click',function(ev){var a=ev.target.closest('a[href*="kickstarter.com"]');if(!a||rm)return;var c=d.createElement('span');c.className='rc-coin';c.innerHTML='<i></i><b>+1 BACKER</b>';
+  c.style.left=ev.clientX+'px';c.style.top=ev.clientY+'px';d.body.appendChild(c);setTimeout(function(){c.remove()},1100)});
+// 7. Konami code: 8-bit palette and a fox stampede
+var K=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'],p=0;
+d.addEventListener('keydown',function(ev){var k=ev.key.length==1?ev.key.toLowerCase():ev.key;p=k===K[p]?p+1:(k===K[0]?1:0);if(p<K.length)return;p=0;
+  var on=r.classList.toggle('rc-8bit');if(!on)return;var src=d.querySelector('.fx-fox svg');if(!src)return;
+  for(var i=0;i<7;i++){var f=d.createElement('span');f.className='rc-run';f.appendChild(src.cloneNode(true));f.style.top=(10+Math.random()*75)+'vh';f.style.animationDelay=(i*.25)+'s';d.body.appendChild(f);(function(f){setTimeout(function(){f.remove()},5000)})(f)}});
+})();
