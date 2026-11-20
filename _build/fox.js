@@ -106,3 +106,9 @@
   els.forEach(function(e){var p=e.parentElement,i=p?[].indexOf.call(p.children,e)%4:0;e.classList.add('mo-rv');e.style.transitionDelay=(i*70)+'ms';io.observe(e)});
   setTimeout(function(){els.forEach(function(e){e.classList.add('mo-in')})},6000);
 })();
+/* Console boot screen, once per visitor. */
+(function(){var d=document,k='vp-boot';try{if(localStorage.getItem(k)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;localStorage.setItem(k,'1')}catch(e){return}
+var b=d.createElement('div');b.className='rc-boot';b.setAttribute('aria-hidden','true');
+b.innerHTML='<div><b>VAN PAUGAM</b><small>SYSTEM ・ 1975–1990</small><small>© CHICAGO ・ 和製ポップス</small><small>PRESS START</small></div>';
+d.body.appendChild(b);function go(){b.classList.add('off');setTimeout(function(){b.remove()},500)}
+b.addEventListener('click',go);d.addEventListener('keydown',go,{once:true});setTimeout(go,1300)})();
