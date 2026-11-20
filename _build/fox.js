@@ -126,8 +126,8 @@ if(!rm){
   seen(labs,function(e){var t=e.dataset.rcT,i=0;e.classList.add('rc-typing');function step(){e.textContent=t.slice(0,++i);if(i<t.length)setTimeout(step,28);else e.classList.remove('rc-typing')}
     e.addEventListener('click',function(){i=t.length},{once:true});step()});
   // 4. pixel sparkle trail
-  if(matchMedia('(pointer:fine)').matches){var last=0,n=0;d.addEventListener('pointermove',function(ev){var now=performance.now();if(now-last<40)return;last=now;
-    var s=d.createElement('i');s.className='rc-spark'+(n++%2?' c':'');s.style.left=ev.clientX+'px';s.style.top=ev.clientY+'px';d.body.appendChild(s);setTimeout(function(){s.remove()},600)},{passive:true})}
+  if(matchMedia('(pointer:fine)').matches){var last=0,n=0;d.addEventListener('pointermove',function(ev){var now=performance.now();if(now-last<24)return;last=now;
+    var s=d.createElement('i');s.className='rc-spark';s.style.left=ev.clientX+'px';s.style.top=ev.clientY+'px';d.body.appendChild(s);setTimeout(function(){s.remove()},500)},{passive:true})}
   // 6. stretch bar charges up, LEVEL UP at each unlocked goal
   seen([].slice.call(d.querySelectorAll('.sg-meter')),function(m){[].slice.call(m.querySelectorAll('.sg-bar i.on')).forEach(function(k,j){
     var u=d.createElement('span');u.className='rc-lvup';u.textContent='LEVEL UP!';u.style.left=k.style.left||k.offsetLeft+'px';u.style.animationDelay=(.4+j*.75)+'s';k.parentNode.appendChild(u);setTimeout(function(){u.remove()},6000)})});
