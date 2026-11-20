@@ -2230,9 +2230,8 @@ body.mx-playing .site-foot{padding-bottom:100px}
 ::view-transition-old(root){animation:mo-out .26s ease-in both}
 ::view-transition-new(root){animation:mo-in .42s cubic-bezier(.2,.8,.2,1) both}
 /* 4 sparkle trail */
-.rc-spark{position:fixed;z-index:9998;width:6px;height:6px;margin:-3px 0 0 -3px;background:#E2694C;pointer-events:none;box-shadow:0 0 6px #E2694C;animation:rc-spark .6s steps(4) forwards}
-.rc-spark.c{background:#3FE0D0;box-shadow:0 0 6px #3FE0D0}
-@keyframes rc-spark{to{transform:translateY(14px) scale(.2);opacity:0}}
+.rc-spark{position:fixed;z-index:9998;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:radial-gradient(circle,rgba(226,105,76,.35),rgba(63,224,208,.15) 55%,transparent 70%);filter:blur(4px);pointer-events:none;animation:rc-spark .5s ease-out forwards}
+@keyframes rc-spark{to{transform:scale(1.6);opacity:0}}
 /* 5 coin pop */
 .rc-coin{position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%)}
 .rc-coin i{display:block;width:22px;height:22px;margin:0 auto;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6b0,#ffcf4a 45%,#c98a0b);box-shadow:0 0 0 2px #7a4f00;animation:rc-coin 1s cubic-bezier(.2,.8,.3,1) forwards}
