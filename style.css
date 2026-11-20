@@ -2229,9 +2229,6 @@ body.mx-playing .site-foot{padding-bottom:100px}
 @keyframes mo-in{from{transform:scaleY(.01) scaleX(.2);filter:brightness(4)}45%{transform:scaleY(.01) scaleX(1);filter:brightness(3)}to{transform:none;filter:none}}
 ::view-transition-old(root){animation:mo-out .26s ease-in both}
 ::view-transition-new(root){animation:mo-in .42s cubic-bezier(.2,.8,.2,1) both}
-/* 4 sparkle trail */
-.rc-spark{position:fixed;z-index:9998;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:radial-gradient(circle,rgba(226,105,76,.35),rgba(63,224,208,.15) 55%,transparent 70%);filter:blur(4px);pointer-events:none;animation:rc-spark .5s ease-out forwards}
-@keyframes rc-spark{to{transform:scale(1.6);opacity:0}}
 /* 5 coin pop */
 .rc-coin{position:fixed;z-index:9999;pointer-events:none;transform:translate(-50%,-50%)}
 .rc-coin i{display:block;width:22px;height:22px;margin:0 auto;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6b0,#ffcf4a 45%,#c98a0b);box-shadow:0 0 0 2px #7a4f00;animation:rc-coin 1s cubic-bezier(.2,.8,.3,1) forwards}
@@ -2254,4 +2251,4 @@ body.mx-playing .site-foot{padding-bottom:100px}
 .bl-bub h3,.pd-bub h3,.hm-tile strong,.ap h1,.mx-t,.bk-tier h3{transition:none}
 .bl-bub:hover h3,.pd-bub:hover h3,.hm-tile:hover strong,.mx-card:hover .mx-t,.bk-tier:hover h3,.ap h1:hover{animation:rc-glitch .35s steps(3) 1}
 @keyframes rc-glitch{0%{text-shadow:2px 0 #ff2850,-2px 0 #3FE0D0;transform:translateX(1px)}33%{text-shadow:-2px 0 #ff2850,2px 0 #3FE0D0;transform:translateX(-1px);clip-path:inset(10% 0 30% 0)}66%{text-shadow:1px 0 #ff2850,-1px 0 #3FE0D0;clip-path:inset(40% 0 5% 0)}to{text-shadow:none;transform:none;clip-path:none}}
-@media (prefers-reduced-motion:reduce){.rc-cart{opacity:1;transform:none}.rc-spark,.rc-coin,.rc-lvup,.rc-run{display:none}.bl-bub:hover h3,.pd-bub:hover h3,.hm-tile:hover strong,.mx-card:hover .mx-t,.bk-tier:hover h3,.ap h1:hover{animation:none}}
+@media (prefers-reduced-motion:reduce){.rc-cart{opacity:1;transform:none}.rc-coin,.rc-lvup,.rc-run{display:none}.bl-bub:hover h3,.pd-bub:hover h3,.hm-tile:hover strong,.mx-card:hover .mx-t,.bk-tier:hover h3,.ap h1:hover{animation:none}}
